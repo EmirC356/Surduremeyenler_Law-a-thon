@@ -43,6 +43,13 @@ export const NAV_ITEMS: NavItem[] = [
     enabled: true,
   },
   {
+    label: 'Offset Integrity',
+    route: '/offset',
+    icon: 'Target',
+    sublabel: 'Project Validity Analysis',
+    enabled: true,
+  },
+  {
     label: 'Legal Export',
     route: '/export',
     icon: 'Download',

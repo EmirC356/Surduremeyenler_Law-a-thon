@@ -9,6 +9,7 @@ import {
   TrendingDown,
   ClipboardCheck,
   Download,
+  Target,
   Scale,
   ChevronRight,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ const ICON_MAP: Record<string, ElementType> = {
   TrendingDown,
   ClipboardCheck,
   Download,
+  Target,
 };
 
 export default function Sidebar() {

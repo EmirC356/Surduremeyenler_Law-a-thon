@@ -21,8 +21,11 @@ import {
   Building2,
   Globe,
   Calendar,
+  Scale,
+  Thermometer,
 } from 'lucide-react';
 import Link from 'next/link';
+import { mockCaseLaw } from '../lib/caseData';
 
 function RiskBadge({ level }: { level: string }) {
   const map: Record<string, { bg: string; text: string; border: string }> = {
@@ -120,8 +123,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      {/* KPI cards — 2 rows of 3 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {/* Compliance score card */}
         <div className="card p-5 flex flex-col gap-3 animate-fade-up" style={{ animationDelay: '0ms', opacity: 0, animationFillMode: 'forwards', border: `1px solid ${scoreColor}33` }}>
           <div className="flex items-start justify-between">
@@ -145,8 +148,14 @@ export default function DashboardPage() {
         <KPICard label="Active Documents Analyzed" value={data.compliance.activeDocuments} unit="docs" icon={FileText} trend="neutral" trendLabel="FY2024" color="var(--blue-data)" delay={100} />
         <KPICard label="Critical Legal Flags Detected" value={data.compliance.criticalFlags} unit={data.compliance.criticalFlags > 0 ? 'flags' : ''} icon={AlertTriangle} trend={data.compliance.criticalFlags > 0 ? 'down' : 'up'} trendLabel={data.compliance.criticalFlags > 0 ? 'Action Required' : 'Compliant'} color={data.compliance.criticalFlags > 0 ? 'var(--danger)' : 'var(--accent-green)'} delay={200} />
 
+        {/* Cases in Database */}
+        <KPICard label="Court Precedents in Database" value={6} unit="cases" icon={Scale} trend="neutral" trendLabel="Updated 2023" color="var(--blue-data)" delay={300} />
+
+        {/* Avg. Litigation Risk */}
+        <KPICard label="Avg. Litigation Risk Score" value={76} unit="/100" icon={Thermometer} trend="down" trendLabel="Litigable" color="var(--danger)" delay={400} />
+
         {/* Quick links */}
-        <div className="card p-5 flex flex-col gap-3 animate-fade-up" style={{ animationDelay: '300ms', opacity: 0, animationFillMode: 'forwards' }}>
+        <div className="card p-5 flex flex-col gap-3 animate-fade-up" style={{ animationDelay: '500ms', opacity: 0, animationFillMode: 'forwards' }}>
           <div className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>Risk Areas</div>
           <Link href="/greenlighting" className="flex items-center justify-between px-3 py-2 rounded-md" style={{ background: 'var(--danger-dim)', border: '1px solid rgba(239,68,68,0.2)' }}>
             <span className="text-xs" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>Greenlighting</span>
@@ -208,6 +217,51 @@ export default function DashboardPage() {
             <Line type="monotone" dataKey="actual" name="Actual Emissions" stroke="var(--danger)" strokeWidth={2.5} dot={{ r: 4, fill: 'var(--danger)', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
           </LineChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* Recent Case Law */}
+      <div className="mt-4 animate-fade-up" style={{ animationDelay: '480ms', opacity: 0, animationFillMode: 'forwards' }}>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.05rem' }}>
+            Recent Case Law
+          </h3>
+          <Link href="/analysis" className="text-xs flex items-center gap-1" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>
+            Analyze claims <ArrowRight size={11} />
+          </Link>
+        </div>
+        <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+          {mockCaseLaw.slice(0, 3).map((c, i) => (
+            <div
+              key={c.id}
+              className="card p-4 shrink-0 animate-fade-up"
+              style={{
+                width: 280,
+                animationDelay: `${500 + i * 80}ms`,
+                opacity: 0,
+                animationFillMode: 'forwards',
+                borderTop: '2px solid var(--danger)',
+              }}
+            >
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="text-xs font-bold" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+                  {c.jurisdiction} · {c.year}
+                </div>
+                <span
+                  className="px-1.5 py-0.5 rounded text-xs font-bold shrink-0"
+                  style={{ background: 'var(--danger-dim)', color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace', border: '1px solid rgba(239,68,68,0.25)' }}
+                >
+                  {c.similarityThreshold}%
+                </span>
+              </div>
+              <div className="font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '0.95rem', lineHeight: 1.3 }}>
+                {c.caseName}
+              </div>
+              <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.55 }}>
+                {c.violationReason.slice(0, 100)}{c.violationReason.length > 100 ? '…' : ''}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Bottom row */}

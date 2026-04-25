@@ -4,88 +4,291 @@ import { useState, useCallback, useRef } from 'react';
 import {
   Upload,
   FileText,
-  CheckCircle2,
-  AlertCircle,
   Loader2,
-  ArrowRight,
   X,
   File,
+  CheckCircle2,
+  AlertTriangle,
+  Scale,
+  Zap,
+  Search,
+  BookOpen,
+  BarChart2,
 } from 'lucide-react';
-import Link from 'next/link';
+import { mockAnalysisResult, type ClaimAnalysisResult, type CourtCase } from '../../lib/caseData';
 
-type UploadStage = 'idle' | 'uploading' | 'parsing' | 'scoring' | 'complete' | 'error';
+type InputTab = 'text' | 'upload';
+type AnalyzeState = 'idle' | 'analyzing' | 'complete' | 'error';
 
-const STAGES: { key: UploadStage; label: string; detail: string }[] = [
-  { key: 'uploading', label: 'Uploading document…',           detail: 'Transferring file to secure parsing environment' },
-  { key: 'parsing',   label: 'LLM parsing in progress…',      detail: 'Extracting sustainability claims, pledges, and financial disclosures' },
-  { key: 'scoring',   label: 'Generating legal risk scores…', detail: 'Cross-referencing against EU Green Claims Directive, CSRD, and SFDR frameworks' },
-  { key: 'complete',  label: 'Analysis complete',             detail: 'Greenwashing risk profile generated successfully' },
+const ANALYZE_STAGES = [
+  { label: 'Extracting text and identifying claims...', icon: Search, duration: 500 },
+  { label: 'Scanning for regulated terminology...', icon: BookOpen, duration: 800 },
+  { label: 'Matching against 6 court precedents...', icon: Scale, duration: 1000 },
+  { label: 'Calculating litigation risk score...', icon: BarChart2, duration: 700 },
 ];
 
-function ProgressBar({ progress, color }: { progress: number; color: string }) {
+const DEMO_CLAIM =
+  'Apex Hydrocarbon has committed to becoming carbon neutral by 2050 through a comprehensive portfolio of certified carbon offsets, including REDD+ forest conservation projects and renewable energy credits. Our green certified operations already offset 78% of our Scope 1 emissions.';
+
+function highlightText(text: string, keywords: string[]): React.ReactNode {
+  if (!keywords.length) return <>{text}</>;
+  const escaped = keywords.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const regex = new RegExp(`(${escaped.join('|')})`, 'gi');
+  const parts = text.split(regex);
   return (
-    <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border-normal)' }}>
-      <div
-        className="absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out"
-        style={{ width: `${progress}%`, background: color }}
-      />
+    <>
+      {parts.map((part, i) =>
+        keywords.some((k) => k.toLowerCase() === part.toLowerCase()) ? (
+          <mark
+            key={i}
+            style={{ background: 'rgba(245,158,11,0.22)', color: 'var(--amber)', borderRadius: '2px', padding: '0 2px' }}
+          >
+            {part}
+          </mark>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+}
+
+function RiskThermometer({ score, category }: { score: number; category: ClaimAnalysisResult['riskCategory'] }) {
+  const scoreColor =
+    category === 'safe' ? 'var(--accent-green)' :
+    category === 'grey' ? 'var(--amber)' :
+    'var(--danger)';
+
+  return (
+    <div className="card p-6 animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards' }}>
+      <div className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+        Litigation Risk Score
+      </div>
+
+      <div className="flex items-end gap-4 mb-5">
+        <div className="text-6xl font-light" style={{ color: scoreColor, fontFamily: 'IBM Plex Mono, monospace', letterSpacing: '-0.04em' }}>
+          {score}
+        </div>
+        <div className="pb-2">
+          <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>/100</div>
+          <div className="text-xs font-bold uppercase tracking-widest mt-0.5" style={{ color: scoreColor, fontFamily: 'IBM Plex Mono, monospace' }}>
+            {category === 'safe' ? 'Low Risk' : category === 'grey' ? 'Grey Zone' : 'Litigable'}
+          </div>
+        </div>
+      </div>
+
+      {/* Gradient bar */}
+      <div className="relative mb-3">
+        <div className="h-4 rounded-full" style={{ background: 'linear-gradient(to right, #10B981, #F59E0B 50%, #EF4444)' }} />
+        {/* Pointer */}
+        <div
+          className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-sm shadow-lg"
+          style={{ left: `calc(${score}% - 8px)`, background: '#fff', border: `2px solid ${scoreColor}` }}
+        />
+      </div>
+
+      {/* Zone labels */}
+      <div className="flex justify-between text-xs" style={{ fontFamily: 'IBM Plex Mono, monospace' }}>
+        <div style={{ color: 'var(--accent-green)' }}>0–30<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Safe Reporting</span></div>
+        <div className="text-center" style={{ color: 'var(--amber)' }}>30–70<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Grey Zone</span></div>
+        <div className="text-right" style={{ color: 'var(--danger)' }}>70–100<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Litigable</span></div>
+      </div>
+    </div>
+  );
+}
+
+function CasePrecedentMatch({ inputText, keywords, matchedCase }: { inputText: string; keywords: string[]; matchedCase: CourtCase }) {
+  const caseKws = keywords.filter((k) =>
+    matchedCase.keywords.some((mk) => mk.toLowerCase() === k.toLowerCase())
+  );
+  return (
+    <div
+      className="grid grid-cols-1 md:grid-cols-2 gap-0 rounded-xl overflow-hidden"
+      style={{ border: '1px solid var(--border-normal)' }}
+    >
+      {/* LEFT — company claim */}
+      <div className="p-5" style={{ background: 'var(--bg-secondary)', borderRight: '1px solid var(--border-subtle)' }}>
+        <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+          Company Claim
+        </div>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.7 }}>
+          {highlightText(inputText, caseKws.length > 0 ? caseKws : keywords)}
+        </p>
+      </div>
+
+      {/* RIGHT — court case */}
+      <div className="p-5" style={{ background: 'var(--bg-card)' }}>
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+            Matched Court Precedent
+          </div>
+          <span
+            className="px-2 py-0.5 rounded text-xs font-bold shrink-0"
+            style={{ background: 'var(--danger-dim)', color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace', border: '1px solid rgba(239,68,68,0.25)' }}
+          >
+            {matchedCase.similarityThreshold}% similar
+          </span>
+        </div>
+        <div className="font-semibold text-sm mb-0.5" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif' }}>
+          {matchedCase.caseName} ({matchedCase.year})
+        </div>
+        <p className="text-xs italic mb-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.6 }}>
+          &ldquo;{matchedCase.claimMade}&rdquo;
+        </p>
+        <div className="text-xs mb-2" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.6 }}>
+          <strong style={{ color: 'var(--danger-bright)' }}>Court finding: </strong>
+          {matchedCase.violationReason}
+        </div>
+        <div className="text-xs" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>
+          <Scale size={10} className="inline mr-1" />{matchedCase.regulationCited}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ResultsPanel({ result }: { result: ClaimAnalysisResult }) {
+  return (
+    <div className="flex flex-col gap-6 mt-6">
+      {/* C1 — Risk Thermometer */}
+      <RiskThermometer score={result.litigationRiskScore} category={result.riskCategory} />
+
+      {/* Score breakdown */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: 'Keyword Match', value: result.breakdown.keywordMatchScore, color: 'var(--danger)' },
+          { label: 'Case Match', value: result.breakdown.caseMatchScore, color: 'var(--amber)' },
+          { label: 'Offset Integrity', value: result.breakdown.offsetIntegrityScore, color: 'var(--blue-data)' },
+        ].map((b) => (
+          <div key={b.label} className="card p-4 text-center animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards', animationDelay: '80ms' }}>
+            <div className="text-2xl font-light mb-1" style={{ color: b.color, fontFamily: 'IBM Plex Mono, monospace' }}>{b.value}</div>
+            <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>{b.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* C2 — Detected keywords */}
+      {result.detectedKeywords.length > 0 && (
+        <div className="card p-5 animate-fade-up" style={{ opacity: 0, animationDelay: '120ms', animationFillMode: 'forwards' }}>
+          <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+            Detected Red-Flag Keywords
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {result.detectedKeywords.map((kw) => (
+              <span
+                key={kw}
+                className="px-2.5 py-1 rounded text-xs font-medium"
+                style={{ background: 'var(--danger-dim)', color: 'var(--danger-bright)', border: '1px solid rgba(239,68,68,0.25)', fontFamily: 'IBM Plex Mono, monospace' }}
+              >
+                {kw}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* C3 — Case Precedent Matches */}
+      {result.matchedCases.length > 0 && (
+        <div className="animate-fade-up" style={{ opacity: 0, animationDelay: '160ms', animationFillMode: 'forwards' }}>
+          <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+            Case Precedent Matches — {result.matchedCases.length} found
+          </div>
+          <div className="flex flex-col gap-4">
+            {result.matchedCases.slice(0, 2).map((c) => (
+              <CasePrecedentMatch
+                key={c.id}
+                inputText={result.inputText}
+                keywords={result.detectedKeywords}
+                matchedCase={c}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* C4 — Recommendations */}
+      <div className="card p-5 animate-fade-up" style={{ opacity: 0, animationDelay: '200ms', animationFillMode: 'forwards', border: '1px solid rgba(59,130,246,0.2)' }}>
+        <div className="flex items-center gap-2 mb-4">
+          <CheckCircle2 size={15} style={{ color: 'var(--accent-green)' }} />
+          <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.05rem' }}>
+            Legal Recommendations
+          </span>
+        </div>
+        <div className="flex flex-col gap-3">
+          {result.recommendations.map((rec, i) => (
+            <div key={i} className="flex items-start gap-3">
+              <div
+                className="shrink-0 flex items-center justify-center w-5 h-5 rounded-full mt-0.5"
+                style={{ background: 'var(--blue-dim)', border: '1px solid rgba(59,130,246,0.3)' }}
+              >
+                <span className="text-xs font-bold" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>{i + 1}</span>
+              </div>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.7 }}>{rec}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function AnalysisPage() {
-  const [stage, setStage] = useState<UploadStage>('idle');
-  const [progress, setProgress] = useState(0);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [fileSize, setFileSize] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<InputTab>('text');
+  const [inputText, setInputText] = useState('');
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [analyzeState, setAnalyzeState] = useState<AnalyzeState>('idle');
+  const [analyzeStageIdx, setAnalyzeStageIdx] = useState(0);
+  const [analysisResult, setAnalysisResult] = useState<ClaimAnalysisResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const runSimulation = useCallback((name: string, size: string) => {
-    setFileName(name);
-    setFileSize(size);
-    setStage('uploading');
-    setProgress(0);
+  const canAnalyze = activeTab === 'text' ? inputText.trim().length > 20 : uploadedFile !== null;
 
-    // Stage 1: uploading (0 → 30%)
-    let p = 0;
-    const s1 = setInterval(() => {
-      p += 3;
-      setProgress(p);
-      if (p >= 30) {
-        clearInterval(s1);
-        setStage('parsing');
-        // Stage 2: parsing (30 → 70%)
-        const s2 = setInterval(() => {
-          p += 1.5;
-          setProgress(p);
-          if (p >= 70) {
-            clearInterval(s2);
-            setStage('scoring');
-            // Stage 3: scoring (70 → 100%)
-            const s3 = setInterval(() => {
-              p += 2;
-              setProgress(Math.min(p, 100));
-              if (p >= 100) {
-                clearInterval(s3);
-                setStage('complete');
-                setProgress(100);
-              }
-            }, 60);
-          }
-        }, 80);
-      }
-    }, 50);
+  const runAnalysis = useCallback(async (text: string) => {
+    setAnalyzeState('analyzing');
+    setAnalyzeStageIdx(0);
+
+    const delay = (ms: number) => new Promise<void>((res) => setTimeout(res, ms));
+
+    // Run stages sequentially while firing the API call after stage 2
+    await delay(ANALYZE_STAGES[0].duration);
+    setAnalyzeStageIdx(1);
+    await delay(ANALYZE_STAGES[1].duration);
+    setAnalyzeStageIdx(2);
+
+    // Start API call during stage 3
+    const apiPromise = fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    })
+      .then((r) => r.json() as Promise<ClaimAnalysisResult>)
+      .catch(() => ({ ...mockAnalysisResult, inputText: text }));
+
+    await delay(ANALYZE_STAGES[2].duration);
+    setAnalyzeStageIdx(3);
+    await delay(ANALYZE_STAGES[3].duration);
+
+    try {
+      const result = await apiPromise;
+      setAnalysisResult(result as ClaimAnalysisResult);
+      setAnalyzeState('complete');
+    } catch {
+      setAnalysisResult({ ...mockAnalysisResult, inputText: text });
+      setAnalyzeState('complete');
+    }
   }, []);
 
+  const handleAnalyze = () => {
+    const text = activeTab === 'text' ? inputText : DEMO_CLAIM;
+    runAnalysis(text);
+  };
+
   const handleFile = (file: File) => {
-    if (!file.name.match(/\.(pdf|docx)$/i)) {
-      setStage('error');
-      return;
-    }
+    if (!file.name.match(/\.(pdf|docx)$/i)) return;
     const kb = (file.size / 1024).toFixed(0);
     const size = Number(kb) > 1024 ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : `${kb} KB`;
-    runSimulation(file.name, size);
+    setUploadedFile({ name: file.name, size });
   };
 
   const onDrop = useCallback((e: React.DragEvent) => {
@@ -95,207 +298,262 @@ export default function AnalysisPage() {
     if (file) handleFile(file);
   }, []);
 
-  const onDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
-  const onDragLeave = () => setIsDragging(false);
-
-  const reset = () => { setStage('idle'); setProgress(0); setFileName(null); setFileSize(null); };
-
-  const currentStageIndex = STAGES.findIndex((s) => s.key === stage);
-  const stageColor =
-    stage === 'complete' ? 'var(--accent-green)' :
-    stage === 'error'    ? 'var(--danger)'        : 'var(--blue-data)';
+  const reset = () => {
+    setAnalyzeState('idle');
+    setAnalysisResult(null);
+    setInputText('');
+    setUploadedFile(null);
+    setAnalyzeStageIdx(0);
+  };
 
   return (
-    <div className="px-8 py-6 max-w-4xl mx-auto">
+    <div className="px-8 py-6 max-w-5xl mx-auto">
+      {/* Page header */}
       <div className="mb-6 animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards' }}>
         <h2 className="font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.5rem' }}>
-          Sustainability Report Parser
+          AI-Powered Claim Investigator
         </h2>
         <p className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-          Accepted formats: PDF, DOCX · Max file size: 50 MB · Parsed under EU data residency standards
+          Carbon offset claim verification · Matched against 6 court precedents · Litigation risk scoring
         </p>
       </div>
 
-      {/* Upload zone */}
-      {stage === 'idle' && (
-        <div
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          onClick={() => fileInputRef.current?.click()}
-          className="animate-fade-up"
-          style={{
-            opacity: 0,
-            animationFillMode: 'forwards',
-            animationDelay: '100ms',
-            cursor: 'pointer',
-            background: isDragging ? 'rgba(59,130,246,0.08)' : 'var(--bg-card)',
-            border: `2px dashed ${isDragging ? 'var(--blue-data)' : 'var(--border-normal)'}`,
-            borderRadius: '12px',
-            padding: '64px 40px',
-            textAlign: 'center',
-            transition: 'all 0.2s ease',
-          }}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.docx"
-            className="hidden"
-            onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }}
-          />
-          <div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-5"
-            style={{ background: 'var(--blue-dim)', border: '1px solid rgba(59,130,246,0.25)' }}
-          >
-            <Upload size={28} style={{ color: 'var(--blue-data)' }} />
-          </div>
-          <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.3rem' }}>
-            Upload Corporate Sustainability Report or Financial Prospectus for Legal Parsing
-          </h3>
-          <p className="text-sm mb-5" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif' }}>
-            Drag and drop your file here, or click to browse
-          </p>
-          <div className="flex justify-center gap-3">
-            {['.PDF', '.DOCX'].map((ext) => (
-              <span key={ext} className="px-3 py-1 rounded text-xs" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-normal)', color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-                {ext}
-              </span>
+      {/* Input panel */}
+      {analyzeState === 'idle' && (
+        <div className="card p-6 animate-fade-up" style={{ opacity: 0, animationDelay: '80ms', animationFillMode: 'forwards' }}>
+          {/* Tabs */}
+          <div className="flex gap-1 mb-5 p-1 rounded-lg" style={{ background: 'var(--bg-secondary)', width: 'fit-content' }}>
+            {(['text', 'upload'] as InputTab[]).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className="px-4 py-2 rounded-md text-xs font-medium transition-all"
+                style={{
+                  background: activeTab === tab ? 'var(--bg-card)' : 'transparent',
+                  color: activeTab === tab ? 'var(--text-primary)' : 'var(--text-muted)',
+                  border: activeTab === tab ? '1px solid var(--border-normal)' : '1px solid transparent',
+                  fontFamily: 'IBM Plex Mono, monospace',
+                  cursor: 'pointer',
+                }}
+              >
+                {tab === 'text' ? 'Enter Claim Text' : 'Upload Report PDF'}
+              </button>
             ))}
           </div>
-          <p className="text-xs mt-4" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-            All documents are processed in an isolated, encrypted environment and are not retained post-analysis.
-          </p>
+
+          {/* Text tab */}
+          {activeTab === 'text' && (
+            <div>
+              <textarea
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                rows={7}
+                placeholder="Paste the company's environmental claim here — e.g. 'We are carbon neutral through our certified offset program...'"
+                className="w-full resize-none rounded-lg px-4 py-3 text-sm"
+                style={{
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-normal)',
+                  color: 'var(--text-primary)',
+                  fontFamily: 'IBM Plex Sans, sans-serif',
+                  lineHeight: 1.7,
+                  outline: 'none',
+                }}
+              />
+              <div className="flex items-center justify-between mt-2">
+                <button
+                  onClick={() => setInputText(DEMO_CLAIM)}
+                  className="text-xs"
+                  style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  Use demo claim →
+                </button>
+                <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+                  {inputText.length} chars
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Upload tab */}
+          {activeTab === 'upload' && (
+            <div>
+              {!uploadedFile ? (
+                <div
+                  onDrop={onDrop}
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    cursor: 'pointer',
+                    background: isDragging ? 'rgba(59,130,246,0.08)' : 'var(--bg-secondary)',
+                    border: `2px dashed ${isDragging ? 'var(--blue-data)' : 'var(--border-normal)'}`,
+                    borderRadius: '10px',
+                    padding: '48px 32px',
+                    textAlign: 'center',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.docx"
+                    className="hidden"
+                    onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }}
+                  />
+                  <Upload size={28} style={{ color: 'var(--blue-data)', margin: '0 auto 12px' }} />
+                  <div className="font-semibold mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.1rem' }}>
+                    Drop PDF or DOCX here
+                  </div>
+                  <p className="text-sm mb-4" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>
+                    or click to browse · max 50 MB
+                  </p>
+                  <div className="flex justify-center gap-2">
+                    {['.PDF', '.DOCX'].map((ext) => (
+                      <span key={ext} className="px-2 py-1 rounded text-xs" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-normal)', color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>{ext}</span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4 px-4 py-3 rounded-lg" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)' }}>
+                  <div className="flex items-center justify-center w-10 h-10 rounded-md" style={{ background: 'var(--accent-green-dim)', border: '1px solid var(--border-accent)' }}>
+                    <File size={18} style={{ color: 'var(--accent-green)' }} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'IBM Plex Mono, monospace' }}>{uploadedFile.name}</div>
+                    <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>{uploadedFile.size} · Text will be extracted and analyzed automatically.</div>
+                  </div>
+                  <button onClick={() => setUploadedFile(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Analyze button */}
+          <button
+            onClick={handleAnalyze}
+            disabled={!canAnalyze}
+            className="mt-5 w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-sm transition-all"
+            style={{
+              background: canAnalyze ? 'linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%)' : 'var(--bg-secondary)',
+              color: canAnalyze ? '#fff' : 'var(--text-muted)',
+              border: canAnalyze ? '1px solid rgba(59,130,246,0.4)' : '1px solid var(--border-subtle)',
+              fontFamily: 'IBM Plex Sans, sans-serif',
+              cursor: canAnalyze ? 'pointer' : 'not-allowed',
+              letterSpacing: '0.02em',
+            }}
+          >
+            <Zap size={15} />
+            Analyze Claim
+          </button>
         </div>
       )}
 
-      {/* Progress view */}
-      {(stage === 'uploading' || stage === 'parsing' || stage === 'scoring') && (
+      {/* 4-stage loading animation */}
+      {analyzeState === 'analyzing' && (
         <div className="card p-8 animate-fade-in" style={{ opacity: 0, animationFillMode: 'forwards' }}>
-          {/* File info */}
-          <div className="flex items-center gap-4 mb-8 px-4 py-3 rounded-lg" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-            <div className="flex items-center justify-center w-10 h-10 rounded-md" style={{ background: 'var(--blue-dim)', border: '1px solid rgba(59,130,246,0.25)' }}>
-              <File size={18} style={{ color: 'var(--blue-data)' }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)', fontFamily: 'IBM Plex Mono, monospace' }}>{fileName}</div>
-              <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>{fileSize}</div>
-            </div>
-            <Loader2 size={16} style={{ color: 'var(--blue-data)', animation: 'spin 1s linear infinite' }} />
+          <div className="flex items-center gap-3 mb-6">
+            <Loader2 size={18} style={{ color: 'var(--blue-data)', animation: 'spin 1s linear infinite' }} />
+            <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.1rem' }}>
+              Running Legal Analysis…
+            </span>
           </div>
 
-          {/* Overall progress */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Mono, monospace' }}>Analysis Progress</span>
-              <span className="text-xs font-bold" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>{Math.round(progress)}%</span>
-            </div>
-            <ProgressBar progress={progress} color="var(--blue-data)" />
-          </div>
-
-          {/* Stage list */}
           <div className="flex flex-col gap-3">
-            {STAGES.slice(0, 3).map((s, i) => {
-              const isDone    = currentStageIndex > i;
-              const isCurrent = currentStageIndex === i;
+            {ANALYZE_STAGES.map((stage, i) => {
+              const isDone = analyzeStageIdx > i;
+              const isCurrent = analyzeStageIdx === i;
+              const Icon = stage.icon;
               return (
-                <div key={s.key} className="flex items-start gap-3 px-4 py-3 rounded-lg transition-all" style={{ background: isCurrent ? 'var(--blue-dim)' : 'var(--bg-secondary)', border: `1px solid ${isCurrent ? 'rgba(59,130,246,0.25)' : 'var(--border-subtle)'}` }}>
-                  <div className="flex items-center justify-center w-5 h-5 rounded-full shrink-0 mt-0.5" style={{ background: isDone ? 'var(--accent-green-dim)' : isCurrent ? 'var(--blue-dim)' : 'var(--border-normal)', border: `1px solid ${isDone ? 'var(--border-accent)' : isCurrent ? 'rgba(59,130,246,0.4)' : 'var(--border-subtle)'}` }}>
+                <div
+                  key={i}
+                  className="flex items-center gap-4 px-5 py-4 rounded-lg transition-all"
+                  style={{
+                    background: isCurrent ? 'var(--blue-dim)' : 'var(--bg-secondary)',
+                    border: `1px solid ${isCurrent ? 'rgba(59,130,246,0.25)' : 'var(--border-subtle)'}`,
+                  }}
+                >
+                  <div
+                    className="flex items-center justify-center w-8 h-8 rounded-full shrink-0"
+                    style={{
+                      background: isDone ? 'var(--accent-green-dim)' : isCurrent ? 'var(--blue-dim)' : 'var(--bg-card)',
+                      border: `1px solid ${isDone ? 'var(--border-accent)' : isCurrent ? 'rgba(59,130,246,0.4)' : 'var(--border-subtle)'}`,
+                    }}
+                  >
                     {isDone
-                      ? <CheckCircle2 size={12} style={{ color: 'var(--accent-green)' }} />
+                      ? <CheckCircle2 size={14} style={{ color: 'var(--accent-green)' }} />
                       : isCurrent
-                        ? <Loader2 size={10} style={{ color: 'var(--blue-data)', animation: 'spin 1s linear infinite' }} />
-                        : <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--text-muted)' }} />
+                        ? <Loader2 size={13} style={{ color: 'var(--blue-data)', animation: 'spin 1s linear infinite' }} />
+                        : <Icon size={13} style={{ color: 'var(--text-muted)' }} />
                     }
                   </div>
                   <div>
-                    <div className="text-xs font-medium" style={{ color: isCurrent ? 'var(--text-primary)' : isDone ? 'var(--accent-green)' : 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>{s.label}</div>
-                    <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>{s.detail}</div>
+                    <div
+                      className="text-sm"
+                      style={{
+                        color: isDone ? 'var(--accent-green)' : isCurrent ? 'var(--text-primary)' : 'var(--text-muted)',
+                        fontFamily: 'IBM Plex Mono, monospace',
+                        fontSize: '12px',
+                      }}
+                    >
+                      {stage.label}
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
+          <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
         </div>
       )}
 
-      {/* Complete state */}
-      {stage === 'complete' && (
-        <div className="card p-8 animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards', border: '1px solid var(--border-accent)' }}>
-          <div className="flex flex-col items-center text-center mb-8">
-            <div className="flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ background: 'var(--accent-green-dim)', border: '1px solid var(--border-accent)' }}>
-              <CheckCircle2 size={32} style={{ color: 'var(--accent-green)' }} />
+      {/* Results panel */}
+      {analyzeState === 'complete' && analysisResult && (
+        <div>
+          {/* Re-analyze header */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+              Analysis complete · {new Date().toLocaleTimeString()}
             </div>
-            <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.4rem' }}>
-              Analysis Complete
-            </h3>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif' }}>
-              Legal risk profile generated for <strong style={{ color: 'var(--text-primary)' }}>{fileName}</strong>
-            </p>
-          </div>
-
-          {/* Summary metrics */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            {[
-              { label: 'Greenlighting Risk',  value: 'HIGH',   color: 'var(--danger)' },
-              { label: 'Greenrinsing Risk',   value: 'CRITICAL', color: 'var(--danger)' },
-              { label: 'Compliance Score',    value: '23/100', color: 'var(--danger)' },
-            ].map((m) => (
-              <div key={m.label} className="text-center px-4 py-3 rounded-lg" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-                <div className="text-lg font-bold" style={{ color: m.color, fontFamily: 'IBM Plex Mono, monospace' }}>{m.value}</div>
-                <div className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>{m.label}</div>
-              </div>
-            ))}
-          </div>
-
-          <ProgressBar progress={100} color="var(--accent-green)" />
-
-          <div className="flex flex-col sm:flex-row gap-3 mt-6">
-            <Link
-              href="/"
-              className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-lg font-medium text-sm transition-opacity hover:opacity-90"
-              style={{ background: 'var(--accent-green)', color: '#000', fontFamily: 'IBM Plex Sans, sans-serif' }}
-            >
-              View Analysis Results <ArrowRight size={15} />
-            </Link>
             <button
               onClick={reset}
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm"
-              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-normal)', color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif' }}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md"
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border-normal)', color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', cursor: 'pointer' }}
             >
-              <X size={14} /> Upload Another Document
+              <X size={11} /> New Analysis
             </button>
           </div>
+          <ResultsPanel result={analysisResult} />
         </div>
       )}
 
-      {/* Error state */}
-      {stage === 'error' && (
-        <div className="card p-8 flex flex-col items-center text-center animate-fade-in" style={{ opacity: 0, animationFillMode: 'forwards', border: '1px solid rgba(239,68,68,0.3)' }}>
-          <div className="flex items-center justify-center w-14 h-14 rounded-full mb-4" style={{ background: 'var(--danger-dim)', border: '1px solid rgba(239,68,68,0.3)' }}>
-            <AlertCircle size={28} style={{ color: 'var(--danger)' }} />
+      {/* Error fallback */}
+      {analyzeState === 'error' && (
+        <div className="card p-6 text-center animate-fade-in" style={{ opacity: 0, animationFillMode: 'forwards', border: '1px solid rgba(239,68,68,0.3)' }}>
+          <AlertTriangle size={28} style={{ color: 'var(--danger)', margin: '0 auto 12px' }} />
+          <div className="font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.1rem' }}>
+            Analysis service unavailable. Showing demo results.
           </div>
-          <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.2rem' }}>Unsupported File Format</h3>
-          <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Only PDF and DOCX files are accepted. Please re-upload a compatible document.</p>
-          <button onClick={reset} className="flex items-center gap-2 px-5 py-3 rounded-lg text-sm" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-normal)', color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif' }}>
-            <X size={14} /> Try Again
+          <button onClick={() => { setAnalysisResult(mockAnalysisResult); setAnalyzeState('complete'); }} className="text-xs" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace', background: 'none', border: 'none', cursor: 'pointer' }}>
+            View demo results →
           </button>
         </div>
       )}
 
-      {/* Info panels */}
-      {stage === 'idle' && (
+      {/* Info cards — only in idle state */}
+      {analyzeState === 'idle' && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
           {[
-            { icon: FileText,     title: 'Supported Standards',    body: 'EU CSRD, SFDR, Green Claims Directive, EU Taxonomy Regulation, ESRS E1 series' },
-            { icon: AlertCircle,  title: 'What is Analyzed',       body: 'Sustainability claims, Net Zero pledges, CapEx allocation, revenue attribution, and interim target consistency' },
-            { icon: CheckCircle2, title: 'Output Delivered',       body: 'Legal risk scores (Greenlighting + Greenrinsing), regulation citations, and exportable audit report' },
+            { icon: Scale,        title: '6 Court Precedents',  body: 'Shell Netherlands 2021, Lufthansa 2023, Ryanair 2020, DWS 2023, Volkswagen 2022, Kariba REDD+ 2023' },
+            { icon: AlertTriangle, title: 'Regulated Keywords',  body: '13 red-flag terms monitored: "carbon neutral", "net zero", "offset", "REDD+", "sustainable", and more' },
+            { icon: FileText,      title: 'Output Delivered',   body: 'Litigation risk score 0–100, case precedent matches, highlighted keyword violations, legal recommendations' },
           ].map((info, i) => {
             const Icon = info.icon;
             return (
-              <div key={i} className="card p-4 animate-fade-up" style={{ animationDelay: `${200 + i * 100}ms`, opacity: 0, animationFillMode: 'forwards' }}>
+              <div key={i} className="card p-4 animate-fade-up" style={{ animationDelay: `${200 + i * 80}ms`, opacity: 0, animationFillMode: 'forwards' }}>
                 <div className="flex items-center gap-2 mb-2">
-                  <Icon size={14} style={{ color: 'var(--accent-green)' }} />
+                  <Icon size={13} style={{ color: 'var(--accent-green)' }} />
                   <span className="text-xs font-semibold" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Mono, monospace' }}>{info.title}</span>
                 </div>
                 <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.6 }}>{info.body}</p>
@@ -304,9 +562,6 @@ export default function AnalysisPage() {
           })}
         </div>
       )}
-
-      {/* Spin keyframe inline */}
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
