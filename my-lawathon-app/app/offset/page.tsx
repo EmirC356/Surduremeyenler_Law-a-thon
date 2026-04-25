@@ -14,7 +14,7 @@ import {
 import { ChevronDown, ChevronUp, Info, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
 import { mockOffsetProjects, type OffsetProject } from '../../lib/caseData';
 
-const PROJECT_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'];
+const PROJECT_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899'];
 
 const CRITERIA_INFO = [
   {
@@ -35,6 +35,7 @@ const radarData = [
   {
     subject: 'Additionality',
     'Kariba REDD+': 12,
+    'Rimba Raya': 28,
     'Boreal Forest': 45,
     'Solar Rajasthan': 82,
     'Cookstoves Kenya': 55,
@@ -43,6 +44,7 @@ const radarData = [
   {
     subject: 'Permanence',
     'Kariba REDD+': 8,
+    'Rimba Raya': 35,
     'Boreal Forest': 60,
     'Solar Rajasthan': 95,
     'Cookstoves Kenya': 70,
@@ -51,6 +53,7 @@ const radarData = [
   {
     subject: 'Leakage',
     'Kariba REDD+': 15,
+    'Rimba Raya': 22,
     'Boreal Forest': 55,
     'Solar Rajasthan': 88,
     'Cookstoves Kenya': 48,
@@ -58,7 +61,7 @@ const radarData = [
   },
 ];
 
-const projectKeys = ['Kariba REDD+', 'Boreal Forest', 'Solar Rajasthan', 'Cookstoves Kenya', 'Ørsted Wind'] as const;
+const projectKeys = ['Kariba REDD+', 'Rimba Raya', 'Boreal Forest', 'Solar Rajasthan', 'Cookstoves Kenya', 'Ørsted Wind'] as const;
 
 function scoreColor(v: number) {
   if (v < 50) return 'var(--danger)';
@@ -172,6 +175,40 @@ export default function OffsetIntegrityPage() {
         )}
       </div>
 
+      {/* Paris Agreement Article 6 legal context */}
+      <div
+        className="card mb-6 animate-fade-up"
+        style={{ opacity: 0, animationDelay: '120ms', animationFillMode: 'forwards', border: '1px solid rgba(239,68,68,0.2)' }}
+      >
+        <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <div className="flex items-center gap-2">
+            <div className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>
+              Paris Agreement Article 6 — The Legal Standard
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-0">
+          <div className="px-5 py-4" style={{ borderRight: '1px solid var(--border-subtle)' }}>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Article 6.2 — ITMOs</div>
+            <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65 }}>
+              Internationally Transferred Mitigation Outcomes — any carbon credit transferred across borders requires authorization from the host country government. Credits sold without this authorization cannot legally support a &lsquo;carbon neutral&rsquo; claim.
+            </p>
+          </div>
+          <div className="px-5 py-4" style={{ borderRight: '1px solid var(--border-subtle)' }}>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Article 6.4 — Crediting Mechanism</div>
+            <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65 }}>
+              Credits must meet additionality, permanence, and leakage standards set by the UNFCCC Supervisory Body. Verra VCS and Gold Standard alone are insufficient legal proof of compliance.
+            </p>
+          </div>
+          <div className="px-5 py-4">
+            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Mono, monospace' }}>Key Implication</div>
+            <p className="text-xs" style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65, fontWeight: 500 }}>
+              A company claiming &lsquo;carbon neutral&rsquo; using REDD+ offsets purchased before 2023 may be exposed to litigation if those credits lack Article 6.4 authorization — regardless of Verra certification.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Main content: radar + cards */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Radar chart — takes 3/5 columns */}
@@ -181,7 +218,7 @@ export default function OffsetIntegrityPage() {
               Multi-Project Integrity Radar
             </h3>
             <p className="text-xs mb-5" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-              All 5 offset projects · Three scientific validity axes · Scale 0–100
+              All 6 offset projects · Three scientific validity axes · Scale 0–100
             </p>
 
             <ResponsiveContainer width="100%" height={340}>

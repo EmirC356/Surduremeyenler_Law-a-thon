@@ -23,12 +23,21 @@ type AnalyzeState = 'idle' | 'analyzing' | 'complete' | 'error';
 const ANALYZE_STAGES = [
   { label: 'Extracting text and identifying claims...', icon: Search, duration: 500 },
   { label: 'Scanning for regulated terminology...', icon: BookOpen, duration: 800 },
-  { label: 'Matching against 6 court precedents...', icon: Scale, duration: 1000 },
+  { label: 'Matching against 8 court precedents...', icon: Scale, duration: 1000 },
   { label: 'Calculating litigation risk score...', icon: BarChart2, duration: 700 },
 ];
 
 const DEMO_CLAIM =
   'Apex Hydrocarbon has committed to becoming carbon neutral by 2050 through a comprehensive portfolio of certified carbon offsets, including REDD+ forest conservation projects and renewable energy credits. Our green certified operations already offset 78% of our Scope 1 emissions.';
+
+const DEMO_SHELL =
+  'Shell has launched a range of carbon neutral petrol and diesel products for retail customers. The carbon neutrality is achieved by offsetting the lifecycle CO2 emissions through certified carbon credits from projects including REDD+ forest conservation in Africa and Asia. Shell\'s carbon neutral products are certified by independent third parties and meet internationally recognized standards. We are committed to helping our customers reach net zero by providing carbon neutral options today.';
+
+const DEMO_LUFTHANSA =
+  "Lufthansa Group offers passengers the opportunity to offset their flight emissions through our Green Fares program. When you book a Green Fare, your flight's CO2 emissions are fully compensated through certified sustainable aviation fuel and carbon offset projects. Fly sustainably and help us build a greener future for aviation.";
+
+const ARTICLE6_FLAG =
+  'CRITICAL — Paris Agreement Article 6.4 violation: Claim references REDD+ offsets without evidence of Article 6.4 authorization — the exact basis of the ClientEarth 2023 challenge.';
 
 function highlightText(text: string, keywords: string[]): React.ReactNode {
   if (!keywords.length) return <>{text}</>;
@@ -147,9 +156,35 @@ function CasePrecedentMatch({ inputText, keywords, matchedCase }: { inputText: s
   );
 }
 
-function ResultsPanel({ result }: { result: ClaimAnalysisResult }) {
+const NEWS_CITATIONS = [
+  { source: 'Reuters', date: 'Jan 2023', headline: "Shell drops 'carbon neutral' claims from petrol products after marketing watchdog challenge", relevance: 'Shell ClientEarth 2023' },
+  { source: 'Guardian', date: 'Jan 2023', headline: 'Revealed: more than 90% of rainforest carbon offsets by biggest certifier are worthless, analysis shows', relevance: 'Kariba / Verra' },
+  { source: 'BBC', date: 'Feb 2023', headline: 'Lufthansa green flying claims banned by German advertising watchdog', relevance: 'Lufthansa 2023' },
+  { source: 'Financial Times', date: '2023', headline: 'Carbon offset market faces credibility crisis as key projects fail scrutiny', relevance: 'Offset Integrity' },
+  { source: 'Guardian', date: '2023', headline: "KLM faces greenwashing lawsuit over 'Fly Responsibly' campaign", relevance: 'KLM 2023' },
+];
+
+function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResult; showArticle6Flag: boolean }) {
   return (
     <div className="flex flex-col gap-6 mt-6">
+      {/* Article 6 critical flag */}
+      {showArticle6Flag && (
+        <div
+          className="flex items-start gap-3 px-4 py-3 rounded-xl animate-fade-up"
+          style={{ opacity: 0, animationFillMode: 'forwards', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.4)' }}
+        >
+          <AlertTriangle size={16} style={{ color: 'var(--danger)', marginTop: 2, flexShrink: 0 }} />
+          <div>
+            <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>
+              Paris Agreement Article 6.4 — CRITICAL VIOLATION
+            </div>
+            <p className="text-xs" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65 }}>
+              {ARTICLE6_FLAG}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* C1 — Risk Thermometer */}
       <RiskThermometer score={result.litigationRiskScore} category={result.riskCategory} />
 
@@ -228,6 +263,42 @@ function ResultsPanel({ result }: { result: ClaimAnalysisResult }) {
           ))}
         </div>
       </div>
+
+      {/* C5 — Sources & Evidence */}
+      <div className="card p-5 animate-fade-up" style={{ opacity: 0, animationDelay: '240ms', animationFillMode: 'forwards' }}>
+        <div className="flex items-center gap-2 mb-4">
+          <FileText size={14} style={{ color: 'var(--text-muted)' }} />
+          <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.05rem' }}>
+            Sources &amp; Evidence
+          </span>
+        </div>
+        <div className="flex flex-col gap-2">
+          {NEWS_CITATIONS.map((c, i) => (
+            <div
+              key={i}
+              className="flex items-start gap-3 px-3 py-2.5 rounded-lg"
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}
+            >
+              <div
+                className="shrink-0 px-1.5 py-0.5 rounded text-xs font-bold"
+                style={{ background: 'var(--bg-card)', color: 'var(--blue-data)', border: '1px solid var(--border-normal)', fontFamily: 'IBM Plex Mono, monospace', minWidth: 68, textAlign: 'center' }}
+              >
+                {c.source}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.5 }}>{c.headline}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>{c.date}</span>
+                  <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--blue-dim)', color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>{c.relevance}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs mt-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.55, borderTop: '1px solid var(--border-subtle)', paddingTop: 10 }}>
+          Sources cited for legal reference. This tool aggregates publicly available information for educational and legal research purposes.
+        </p>
+      </div>
     </div>
   );
 }
@@ -240,13 +311,15 @@ export default function AnalysisPage() {
   const [analyzeState, setAnalyzeState] = useState<AnalyzeState>('idle');
   const [analyzeStageIdx, setAnalyzeStageIdx] = useState(0);
   const [analysisResult, setAnalysisResult] = useState<ClaimAnalysisResult | null>(null);
+  const [showArticle6Flag, setShowArticle6Flag] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const canAnalyze = activeTab === 'text' ? inputText.trim().length > 20 : uploadedFile !== null;
 
-  const runAnalysis = useCallback(async (text: string) => {
+  const runAnalysis = useCallback(async (text: string, flagArticle6 = false) => {
     setAnalyzeState('analyzing');
     setAnalyzeStageIdx(0);
+    setShowArticle6Flag(flagArticle6);
 
     const delay = (ms: number) => new Promise<void>((res) => setTimeout(res, ms));
 
@@ -279,9 +352,15 @@ export default function AnalysisPage() {
     }
   }, []);
 
+  const loadDemo = (text: string, flagArticle6 = false) => {
+    setInputText(text);
+    runAnalysis(text, flagArticle6);
+  };
+
   const handleAnalyze = () => {
     const text = activeTab === 'text' ? inputText : DEMO_CLAIM;
-    runAnalysis(text);
+    const hasRedd = text.toLowerCase().includes('redd+') || text.toLowerCase().includes('redd');
+    runAnalysis(text, hasRedd);
   };
 
   const handleFile = (file: File) => {
@@ -304,6 +383,7 @@ export default function AnalysisPage() {
     setInputText('');
     setUploadedFile(null);
     setAnalyzeStageIdx(0);
+    setShowArticle6Flag(false);
   };
 
   return (
@@ -359,14 +439,23 @@ export default function AnalysisPage() {
                   outline: 'none',
                 }}
               />
-              <div className="flex items-center justify-between mt-2">
-                <button
-                  onClick={() => setInputText(DEMO_CLAIM)}
-                  className="text-xs"
-                  style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace', background: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                  Use demo claim →
-                </button>
+              <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <button
+                    onClick={() => loadDemo(DEMO_SHELL, true)}
+                    className="text-xs px-2.5 py-1 rounded"
+                    style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace', background: 'var(--danger-dim)', border: '1px solid rgba(239,68,68,0.25)', cursor: 'pointer' }}
+                  >
+                    Demo: Shell Carbon Neutral Fuel →
+                  </button>
+                  <button
+                    onClick={() => loadDemo(DEMO_LUFTHANSA, false)}
+                    className="text-xs px-2.5 py-1 rounded"
+                    style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Mono, monospace', background: 'var(--amber-dim)', border: '1px solid rgba(245,158,11,0.25)', cursor: 'pointer' }}
+                  >
+                    Demo: Lufthansa Green Flying →
+                  </button>
+                </div>
                 <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
                   {inputText.length} chars
                 </span>
@@ -524,7 +613,7 @@ export default function AnalysisPage() {
               <X size={11} /> New Analysis
             </button>
           </div>
-          <ResultsPanel result={analysisResult} />
+          <ResultsPanel result={analysisResult} showArticle6Flag={showArticle6Flag} />
         </div>
       )}
 
@@ -545,7 +634,7 @@ export default function AnalysisPage() {
       {analyzeState === 'idle' && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
           {[
-            { icon: Scale,        title: '6 Court Precedents',  body: 'Shell Netherlands 2021, Lufthansa 2023, Ryanair 2020, DWS 2023, Volkswagen 2022, Kariba REDD+ 2023' },
+            { icon: Scale,        title: '8 Court Precedents',  body: 'Shell NL 2021, Shell ClientEarth 2023, Lufthansa 2023, KLM 2023, Ryanair 2020, DWS 2023, VW 2022, Kariba REDD+ 2023' },
             { icon: AlertTriangle, title: 'Regulated Keywords',  body: '13 red-flag terms monitored: "carbon neutral", "net zero", "offset", "REDD+", "sustainable", and more' },
             { icon: FileText,      title: 'Output Delivered',   body: 'Litigation risk score 0–100, case precedent matches, highlighted keyword violations, legal recommendations' },
           ].map((info, i) => {

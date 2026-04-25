@@ -124,6 +124,40 @@ export const mockCaseLaw: CourtCase[] = [
     keywords: ['carbon neutral', 'offset certified', 'REDD+', 'forest conservation', 'carbon credit'],
     similarityThreshold: 88,
   },
+  {
+    id: 'SHELL-CE-2023',
+    caseName: 'Shell — ClientEarth Product Claim Challenge',
+    year: 2023,
+    jurisdiction: 'United Kingdom / EU',
+    defendant: 'Shell plc',
+    claimMade:
+      "Shell marketed specific petroleum products as 'carbon neutral' citing offset certificates purchased from third-party REDD+ projects",
+    violationReason:
+      "ClientEarth challenged that: (1) the offsets did not represent real, additional, permanent CO₂ reductions; (2) 'carbon neutral' at product level is misleading when Scope 3 emissions are excluded; (3) Paris Agreement Article 6 requires host country authorization for offset transfers, which Shell's certificates lacked",
+    regulationCited:
+      'Paris Agreement Article 6.2 & 6.4 — Internationally Transferred Mitigation Outcomes (ITMOs); EU Green Claims Directive 2024/825; UK CMA Green Claims Code',
+    outcome:
+      "Shell withdrew 'carbon neutral' labelling from retail products pending regulatory review. Case established precedent that product-level carbon neutral claims require full lifecycle accounting including Scope 3.",
+    keywords: ['carbon neutral', 'carbon neutral product', 'offset certificate', 'REDD+', 'carbon neutral fuel', 'net zero product'],
+    similarityThreshold: 91,
+  },
+  {
+    id: 'KLM-RCC-2023',
+    caseName: 'KLM — Dutch Advertising Standards Authority (RCC)',
+    year: 2023,
+    jurisdiction: 'Netherlands',
+    defendant: 'KLM Royal Dutch Airlines',
+    claimMade:
+      "KLM's 'Fly Responsibly' campaign and 'CO2ZERO' offset program marketed flights as sustainable; claimed customers could offset flight emissions by purchasing carbon credits",
+    violationReason:
+      "Dutch court found: (1) aviation SAF (Sustainable Aviation Fuel) constituted less than 0.1% of fuel used; (2) offset program overstated CO₂ reduction by using outdated baseline scenarios; (3) 'Fly Responsibly' implied systemic change when none existed — constitutes greenwashing under EU Unfair Commercial Practices Directive",
+    regulationCited:
+      'EU Unfair Commercial Practices Directive 2005/29/EC; Paris Agreement Article 6; Dutch Advertising Code Article 7',
+    outcome:
+      "KLM ordered to cease 'Fly Responsibly' campaign and CO2ZERO marketing. First European court ruling to directly apply Paris Agreement standards to corporate carbon offset marketing.",
+    keywords: ['fly responsibly', 'sustainable flight', 'CO2 offset', 'carbon offset flight', 'sustainable aviation', 'responsible flying'],
+    similarityThreshold: 84,
+  },
 ];
 
 export const mockOffsetProjects: OffsetProject[] = [
@@ -182,6 +216,18 @@ export const mockOffsetProjects: OffsetProject[] = [
     overallIntegrityScore: 94,
     status: 'valid',
     notes: 'High-integrity project; Ørsted ranked #1 in Corporate Knights Global 100.',
+  },
+  {
+    projectName: 'Rimba Raya Biodiversity Reserve',
+    projectType: 'REDD+',
+    certificationBody: 'Verra VCS + CCBS Gold Level',
+    additionalityScore: 28,
+    permanenceScore: 35,
+    leakageScore: 22,
+    overallIntegrityScore: 28,
+    status: 'invalidated',
+    notes:
+      'Verra suspended Rimba Raya in 2023 after Indonesian government revoked land permits, retroactively invalidating ~100 million credits already sold to Apple, Gucci, and others. Classic permanence failure.',
   },
 ];
 

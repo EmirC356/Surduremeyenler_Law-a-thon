@@ -149,7 +149,7 @@ export default function DashboardPage() {
         <KPICard label="Critical Legal Flags Detected" value={data.compliance.criticalFlags} unit={data.compliance.criticalFlags > 0 ? 'flags' : ''} icon={AlertTriangle} trend={data.compliance.criticalFlags > 0 ? 'down' : 'up'} trendLabel={data.compliance.criticalFlags > 0 ? 'Action Required' : 'Compliant'} color={data.compliance.criticalFlags > 0 ? 'var(--danger)' : 'var(--accent-green)'} delay={200} />
 
         {/* Cases in Database */}
-        <KPICard label="Court Precedents in Database" value={6} unit="cases" icon={Scale} trend="neutral" trendLabel="Updated 2023" color="var(--blue-data)" delay={300} />
+        <KPICard label="Court Precedents in Database" value={8} unit="cases" icon={Scale} trend="neutral" trendLabel="Updated 2023" color="var(--blue-data)" delay={300} />
 
         {/* Avg. Litigation Risk */}
         <KPICard label="Avg. Litigation Risk Score" value={76} unit="/100" icon={Thermometer} trend="down" trendLabel="Litigable" color="var(--danger)" delay={400} />

@@ -61,7 +61,9 @@ export async function POST(request: NextRequest) {
   "recommendations": [<string, 3-5 items>]
 }
 
-Score methodology: keyword severity 30%, claim specificity vs evidence 40%, similarity to Shell Netherlands 2021 / Lufthansa 2023 violations 30%.
+Score methodology: keyword severity 30%, claim specificity vs evidence 40%, similarity to precedent cases 30%.
+
+Also check: does this claim involve Paris Agreement Article 6 offset authorization? Flag as CRITICAL if REDD+ offsets are mentioned without Article 6.4 compliance evidence.
 
 Claim to analyze: "${text.slice(0, 2000)}"`;
 
@@ -77,7 +79,7 @@ Claim to analyze: "${text.slice(0, 2000)}"`;
               {
                 role: 'system',
                 content:
-                  'You are a legal analyst specializing in EU greenwashing law, specifically EU Green Claims Directive 2024/825, CSRD, and case law from Shell Netherlands (2021) and Lufthansa (2023). Return only valid JSON.',
+                  'You are a legal analyst specializing in European greenwashing law. Your analysis framework is based on: 1. Shell ClientEarth 2023 — product-level carbon neutral claims require full Scope 1+2+3 accounting and valid Article 6.4 offset authorization. 2. Lufthansa green flying case 2023 — vague sustainability claims without quantified evidence constitute unfair commercial practice. 3. KLM Fly Responsibly 2023 — marketing implying systemic change without evidence is prohibited. 4. Paris Agreement Article 6.2 and 6.4 — offset credits used in marketing must have UNFCCC Supervisory Body authorization. 5. EU Green Claims Directive 2024/825 — environmental claims must be substantiated with life-cycle assessment evidence. When you detect a carbon neutral or offset-related claim, always check: Is Article 6.4 authorization mentioned or provable? Does the claim cover Scope 3 emissions or only Scope 1+2? Is the offset project name mentioned? If so, flag Kariba REDD+ and Rimba Raya as specifically invalidated projects. Does the claim use vague terms without quantified evidence? Return only valid JSON.',
               },
               { role: 'user', content: prompt },
             ],
