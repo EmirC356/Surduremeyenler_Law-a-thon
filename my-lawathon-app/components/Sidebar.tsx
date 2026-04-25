@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FileSearch, Target, Scale, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, FileSearch, Target, Scale, ChevronRight, CreditCard } from 'lucide-react';
 import type { ElementType } from 'react';
 import { NAV_ITEMS } from '../lib/navigation';
 
@@ -10,6 +10,7 @@ const ICON_MAP: Record<string, ElementType> = {
   LayoutDashboard,
   FileSearch,
   Target,
+  CreditCard,
 };
 
 export default function Sidebar() {

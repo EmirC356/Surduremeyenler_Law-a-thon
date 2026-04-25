@@ -28,4 +28,11 @@ export const NAV_ITEMS: NavItem[] = [
     sublabel: 'Proje Geçerlilik Analizi',
     enabled: true,
   },
+  {
+    label: 'Fiyatlandırma',
+    route: '/pricing',
+    icon: 'CreditCard',
+    sublabel: 'SaaS İş Modeli & ROI',
+    enabled: true,
+  },
 ];
