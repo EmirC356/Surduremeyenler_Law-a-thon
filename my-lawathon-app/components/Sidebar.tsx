@@ -2,27 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  LayoutDashboard,
-  FileSearch,
-  BarChart2,
-  TrendingDown,
-  ClipboardCheck,
-  Download,
-  Target,
-  Scale,
-  ChevronRight,
-} from 'lucide-react';
+import { LayoutDashboard, FileSearch, Target, Scale, ChevronRight } from 'lucide-react';
 import type { ElementType } from 'react';
 import { NAV_ITEMS } from '../lib/navigation';
 
 const ICON_MAP: Record<string, ElementType> = {
   LayoutDashboard,
   FileSearch,
-  BarChart2,
-  TrendingDown,
-  ClipboardCheck,
-  Download,
   Target,
 };
 
@@ -53,10 +39,10 @@ export default function Sidebar() {
             className="text-xs font-semibold tracking-widest uppercase"
             style={{ color: 'var(--accent-green)', fontFamily: 'IBM Plex Mono, monospace', letterSpacing: '0.12em' }}
           >
-            ESG Lens
+            Offset Denetçi
           </div>
           <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-            v1.0 · Legal Suite
+            v1.0 · Hukuki Analiz
           </div>
         </div>
       </div>
@@ -67,7 +53,7 @@ export default function Sidebar() {
           className="text-xs font-medium tracking-widest uppercase"
           style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}
         >
-          Navigation
+          Menü
         </span>
       </div>
 
@@ -142,8 +128,8 @@ export default function Sidebar() {
       {/* Footer */}
       <div className="px-5 py-4" style={{ borderTop: '1px solid var(--border-subtle)' }}>
         <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', lineHeight: 1.6 }}>
-          <div>EU CSRD · SFDR · SPK III-35.2</div>
-          <div style={{ opacity: 0.5 }}>Green Claims Directive 2024/825</div>
+          <div>Paris Anlaşması Mad. 6 · AB 2024/825</div>
+          <div style={{ opacity: 0.5 }}>Yeşil İddia Direktifi · CSRD</div>
         </div>
       </div>
     </aside>

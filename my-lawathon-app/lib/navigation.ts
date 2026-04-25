@@ -8,52 +8,24 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    label: 'Dashboard',
+    label: 'Panel',
     route: '/',
     icon: 'LayoutDashboard',
-    sublabel: 'Overview & KPIs',
+    sublabel: 'Genel Bakış',
     enabled: true,
   },
   {
-    label: 'Document Analysis',
+    label: 'Belge Analizi',
     route: '/analysis',
     icon: 'FileSearch',
-    sublabel: 'Upload & Parse',
+    sublabel: 'PDF Yükle & Analiz Et',
     enabled: true,
   },
   {
-    label: 'Greenlighting Risk',
-    route: '/greenlighting',
-    icon: 'BarChart2',
-    sublabel: 'Selective Disclosure',
-    enabled: true,
-  },
-  {
-    label: 'Greenrinsing Risk',
-    route: '/greenrinsing',
-    icon: 'TrendingDown',
-    sublabel: 'Unsubstantiated Pledges',
-    enabled: true,
-  },
-  {
-    label: 'Compliance Checker',
-    route: '/compliance',
-    icon: 'ClipboardCheck',
-    sublabel: 'Reporting Obligations',
-    enabled: true,
-  },
-  {
-    label: 'Offset Integrity',
+    label: 'Offset Bütünlüğü',
     route: '/offset',
     icon: 'Target',
-    sublabel: 'Project Validity Analysis',
-    enabled: true,
-  },
-  {
-    label: 'Legal Export',
-    route: '/export',
-    icon: 'Download',
-    sublabel: 'Audit Report & CSV',
+    sublabel: 'Proje Geçerlilik Analizi',
     enabled: true,
   },
 ];

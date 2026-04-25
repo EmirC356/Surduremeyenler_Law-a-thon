@@ -21,23 +21,23 @@ type InputTab = 'text' | 'upload';
 type AnalyzeState = 'idle' | 'analyzing' | 'complete' | 'error';
 
 const ANALYZE_STAGES = [
-  { label: 'Extracting text and identifying claims...', icon: Search, duration: 500 },
-  { label: 'Scanning for regulated terminology...', icon: BookOpen, duration: 800 },
-  { label: 'Matching against 8 court precedents...', icon: Scale, duration: 1000 },
-  { label: 'Calculating litigation risk score...', icon: BarChart2, duration: 700 },
+  { label: 'Metin çıkarılıyor ve iddialar tespit ediliyor...', icon: Search, duration: 500 },
+  { label: 'Düzenlemeye tabi terminoloji taranıyor...', icon: BookOpen, duration: 800 },
+  { label: '8 emsal karara göre eşleştirme yapılıyor...', icon: Scale, duration: 1000 },
+  { label: 'Dava riski skoru hesaplanıyor...', icon: BarChart2, duration: 700 },
 ];
 
 const DEMO_CLAIM =
   'Apex Hydrocarbon has committed to becoming carbon neutral by 2050 through a comprehensive portfolio of certified carbon offsets, including REDD+ forest conservation projects and renewable energy credits. Our green certified operations already offset 78% of our Scope 1 emissions.';
 
 const DEMO_SHELL =
-  'Shell has launched a range of carbon neutral petrol and diesel products for retail customers. The carbon neutrality is achieved by offsetting the lifecycle CO2 emissions through certified carbon credits from projects including REDD+ forest conservation in Africa and Asia. Shell\'s carbon neutral products are certified by independent third parties and meet internationally recognized standards. We are committed to helping our customers reach net zero by providing carbon neutral options today.';
+  "Shell has launched a range of carbon neutral petrol and diesel products for retail customers. The carbon neutrality is achieved by offsetting the lifecycle CO2 emissions through certified carbon credits from projects including REDD+ forest conservation in Africa and Asia. Shell's carbon neutral products are certified by independent third parties and meet internationally recognized standards. We are committed to helping our customers reach net zero by providing carbon neutral options today.";
 
 const DEMO_LUFTHANSA =
   "Lufthansa Group offers passengers the opportunity to offset their flight emissions through our Green Fares program. When you book a Green Fare, your flight's CO2 emissions are fully compensated through certified sustainable aviation fuel and carbon offset projects. Fly sustainably and help us build a greener future for aviation.";
 
 const ARTICLE6_FLAG =
-  'CRITICAL — Paris Agreement Article 6.4 violation: Claim references REDD+ offsets without evidence of Article 6.4 authorization — the exact basis of the ClientEarth 2023 challenge.';
+  'KRİTİK — Paris Anlaşması Madde 6.4 İhlali: İddia, Madde 6.4 yetkisi kanıtı olmaksızın REDD+ offsetlerine atıfta bulunuyor — bu durum Shell ClientEarth 2023 davasının tam dayanağını oluşturmaktadır.';
 
 function highlightText(text: string, keywords: string[]): React.ReactNode {
   if (!keywords.length) return <>{text}</>;
@@ -68,10 +68,15 @@ function RiskThermometer({ score, category }: { score: number; category: ClaimAn
     category === 'grey' ? 'var(--amber)' :
     'var(--danger)';
 
+  const categoryLabel =
+    category === 'safe' ? 'Düşük Risk' :
+    category === 'grey' ? 'Gri Alan' :
+    'Dava Edilebilir';
+
   return (
     <div className="card p-6 animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards' }}>
       <div className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-        Litigation Risk Score
+        Dava Riski Skoru
       </div>
 
       <div className="flex items-end gap-4 mb-5">
@@ -81,26 +86,23 @@ function RiskThermometer({ score, category }: { score: number; category: ClaimAn
         <div className="pb-2">
           <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>/100</div>
           <div className="text-xs font-bold uppercase tracking-widest mt-0.5" style={{ color: scoreColor, fontFamily: 'IBM Plex Mono, monospace' }}>
-            {category === 'safe' ? 'Low Risk' : category === 'grey' ? 'Grey Zone' : 'Litigable'}
+            {categoryLabel}
           </div>
         </div>
       </div>
 
-      {/* Gradient bar */}
       <div className="relative mb-3">
         <div className="h-4 rounded-full" style={{ background: 'linear-gradient(to right, #10B981, #F59E0B 50%, #EF4444)' }} />
-        {/* Pointer */}
         <div
           className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-sm shadow-lg"
           style={{ left: `calc(${score}% - 8px)`, background: '#fff', border: `2px solid ${scoreColor}` }}
         />
       </div>
 
-      {/* Zone labels */}
       <div className="flex justify-between text-xs" style={{ fontFamily: 'IBM Plex Mono, monospace' }}>
-        <div style={{ color: 'var(--accent-green)' }}>0–30<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Safe Reporting</span></div>
-        <div className="text-center" style={{ color: 'var(--amber)' }}>30–70<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Grey Zone</span></div>
-        <div className="text-right" style={{ color: 'var(--danger)' }}>70–100<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Litigable</span></div>
+        <div style={{ color: 'var(--accent-green)' }}>0–30<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Güvenli Beyan</span></div>
+        <div className="text-center" style={{ color: 'var(--amber)' }}>30–70<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Gri Alan</span></div>
+        <div className="text-right" style={{ color: 'var(--danger)' }}>70–100<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Dava Edilebilir</span></div>
       </div>
     </div>
   );
@@ -115,27 +117,25 @@ function CasePrecedentMatch({ inputText, keywords, matchedCase }: { inputText: s
       className="grid grid-cols-1 md:grid-cols-2 gap-0 rounded-xl overflow-hidden"
       style={{ border: '1px solid var(--border-normal)' }}
     >
-      {/* LEFT — company claim */}
       <div className="p-5" style={{ background: 'var(--bg-secondary)', borderRight: '1px solid var(--border-subtle)' }}>
         <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-          Company Claim
+          Şirket İddiası
         </div>
         <p className="text-sm" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.7 }}>
           {highlightText(inputText, caseKws.length > 0 ? caseKws : keywords)}
         </p>
       </div>
 
-      {/* RIGHT — court case */}
       <div className="p-5" style={{ background: 'var(--bg-card)' }}>
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-            Matched Court Precedent
+            Eşleşen Emsal Karar
           </div>
           <span
             className="px-2 py-0.5 rounded text-xs font-bold shrink-0"
             style={{ background: 'var(--danger-dim)', color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace', border: '1px solid rgba(239,68,68,0.25)' }}
           >
-            {matchedCase.similarityThreshold}% similar
+            %{matchedCase.similarityThreshold} benzerlik
           </span>
         </div>
         <div className="font-semibold text-sm mb-0.5" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif' }}>
@@ -145,7 +145,7 @@ function CasePrecedentMatch({ inputText, keywords, matchedCase }: { inputText: s
           &ldquo;{matchedCase.claimMade}&rdquo;
         </p>
         <div className="text-xs mb-2" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.6 }}>
-          <strong style={{ color: 'var(--danger-bright)' }}>Court finding: </strong>
+          <strong style={{ color: 'var(--danger-bright)' }}>Mahkeme kararı: </strong>
           {matchedCase.violationReason}
         </div>
         <div className="text-xs" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>
@@ -157,17 +157,16 @@ function CasePrecedentMatch({ inputText, keywords, matchedCase }: { inputText: s
 }
 
 const NEWS_CITATIONS = [
-  { source: 'Reuters', date: 'Jan 2023', headline: "Shell drops 'carbon neutral' claims from petrol products after marketing watchdog challenge", relevance: 'Shell ClientEarth 2023' },
-  { source: 'Guardian', date: 'Jan 2023', headline: 'Revealed: more than 90% of rainforest carbon offsets by biggest certifier are worthless, analysis shows', relevance: 'Kariba / Verra' },
-  { source: 'BBC', date: 'Feb 2023', headline: 'Lufthansa green flying claims banned by German advertising watchdog', relevance: 'Lufthansa 2023' },
-  { source: 'Financial Times', date: '2023', headline: 'Carbon offset market faces credibility crisis as key projects fail scrutiny', relevance: 'Offset Integrity' },
+  { source: 'Reuters', date: 'Oca 2023', headline: "Shell drops 'carbon neutral' claims from petrol products after marketing watchdog challenge", relevance: 'Shell ClientEarth 2023' },
+  { source: 'Guardian', date: 'Oca 2023', headline: 'Revealed: more than 90% of rainforest carbon offsets by biggest certifier are worthless, analysis shows', relevance: 'Kariba / Verra' },
+  { source: 'BBC', date: 'Şub 2023', headline: 'Lufthansa green flying claims banned by German advertising watchdog', relevance: 'Lufthansa 2023' },
+  { source: 'Financial Times', date: '2023', headline: 'Carbon offset market faces credibility crisis as key projects fail scrutiny', relevance: 'Offset Bütünlüğü' },
   { source: 'Guardian', date: '2023', headline: "KLM faces greenwashing lawsuit over 'Fly Responsibly' campaign", relevance: 'KLM 2023' },
 ];
 
 function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResult; showArticle6Flag: boolean }) {
   return (
     <div className="flex flex-col gap-6 mt-6">
-      {/* Article 6 critical flag */}
       {showArticle6Flag && (
         <div
           className="flex items-start gap-3 px-4 py-3 rounded-xl animate-fade-up"
@@ -176,7 +175,7 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
           <AlertTriangle size={16} style={{ color: 'var(--danger)', marginTop: 2, flexShrink: 0 }} />
           <div>
             <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>
-              Paris Agreement Article 6.4 — CRITICAL VIOLATION
+              Paris Anlaşması Madde 6.4 — KRİTİK İHLAL
             </div>
             <p className="text-xs" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65 }}>
               {ARTICLE6_FLAG}
@@ -185,15 +184,13 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
         </div>
       )}
 
-      {/* C1 — Risk Thermometer */}
       <RiskThermometer score={result.litigationRiskScore} category={result.riskCategory} />
 
-      {/* Score breakdown */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Keyword Match', value: result.breakdown.keywordMatchScore, color: 'var(--danger)' },
-          { label: 'Case Match', value: result.breakdown.caseMatchScore, color: 'var(--amber)' },
-          { label: 'Offset Integrity', value: result.breakdown.offsetIntegrityScore, color: 'var(--blue-data)' },
+          { label: 'Anahtar Kelime Eşleşmesi', value: result.breakdown.keywordMatchScore, color: 'var(--danger)' },
+          { label: 'Dava Eşleşmesi', value: result.breakdown.caseMatchScore, color: 'var(--amber)' },
+          { label: 'Offset Bütünlüğü', value: result.breakdown.offsetIntegrityScore, color: 'var(--blue-data)' },
         ].map((b) => (
           <div key={b.label} className="card p-4 text-center animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards', animationDelay: '80ms' }}>
             <div className="text-2xl font-light mb-1" style={{ color: b.color, fontFamily: 'IBM Plex Mono, monospace' }}>{b.value}</div>
@@ -202,11 +199,10 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
         ))}
       </div>
 
-      {/* C2 — Detected keywords */}
       {result.detectedKeywords.length > 0 && (
         <div className="card p-5 animate-fade-up" style={{ opacity: 0, animationDelay: '120ms', animationFillMode: 'forwards' }}>
           <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-            Detected Red-Flag Keywords
+            Tespit Edilen Kırmızı Bayrak Anahtar Kelimeler
           </div>
           <div className="flex flex-wrap gap-2">
             {result.detectedKeywords.map((kw) => (
@@ -222,11 +218,10 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
         </div>
       )}
 
-      {/* C3 — Case Precedent Matches */}
       {result.matchedCases.length > 0 && (
         <div className="animate-fade-up" style={{ opacity: 0, animationDelay: '160ms', animationFillMode: 'forwards' }}>
           <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-            Case Precedent Matches — {result.matchedCases.length} found
+            Emsal Karar Eşleşmeleri — {result.matchedCases.length} adet bulundu
           </div>
           <div className="flex flex-col gap-4">
             {result.matchedCases.slice(0, 2).map((c) => (
@@ -241,12 +236,11 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
         </div>
       )}
 
-      {/* C4 — Recommendations */}
       <div className="card p-5 animate-fade-up" style={{ opacity: 0, animationDelay: '200ms', animationFillMode: 'forwards', border: '1px solid rgba(59,130,246,0.2)' }}>
         <div className="flex items-center gap-2 mb-4">
           <CheckCircle2 size={15} style={{ color: 'var(--accent-green)' }} />
           <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.05rem' }}>
-            Legal Recommendations
+            Hukuki Öneriler
           </span>
         </div>
         <div className="flex flex-col gap-3">
@@ -264,12 +258,11 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
         </div>
       </div>
 
-      {/* C5 — Sources & Evidence */}
       <div className="card p-5 animate-fade-up" style={{ opacity: 0, animationDelay: '240ms', animationFillMode: 'forwards' }}>
         <div className="flex items-center gap-2 mb-4">
           <FileText size={14} style={{ color: 'var(--text-muted)' }} />
           <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.05rem' }}>
-            Sources &amp; Evidence
+            Kaynaklar ve Kanıtlar
           </span>
         </div>
         <div className="flex flex-col gap-2">
@@ -296,7 +289,7 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
           ))}
         </div>
         <p className="text-xs mt-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.55, borderTop: '1px solid var(--border-subtle)', paddingTop: 10 }}>
-          Sources cited for legal reference. This tool aggregates publicly available information for educational and legal research purposes.
+          Kaynaklar hukuki atıf amacıyla sunulmuştur. Bu araç, kamuya açık bilgileri eğitim ve hukuki araştırma amaçlı derlemektedir.
         </p>
       </div>
     </div>
@@ -323,13 +316,11 @@ export default function AnalysisPage() {
 
     const delay = (ms: number) => new Promise<void>((res) => setTimeout(res, ms));
 
-    // Run stages sequentially while firing the API call after stage 2
     await delay(ANALYZE_STAGES[0].duration);
     setAnalyzeStageIdx(1);
     await delay(ANALYZE_STAGES[1].duration);
     setAnalyzeStageIdx(2);
 
-    // Start API call during stage 3
     const apiPromise = fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -388,20 +379,17 @@ export default function AnalysisPage() {
 
   return (
     <div className="px-8 py-6 max-w-5xl mx-auto">
-      {/* Page header */}
       <div className="mb-6 animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards' }}>
         <h2 className="font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.5rem' }}>
-          AI-Powered Claim Investigator
+          Yapay Zeka Destekli İddia Araştırıcısı
         </h2>
         <p className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-          Carbon offset claim verification · Matched against 6 court precedents · Litigation risk scoring
+          Karbon offset iddia doğrulama · 8 emsal karara göre eşleştirme · Dava riski puanlaması
         </p>
       </div>
 
-      {/* Input panel */}
       {analyzeState === 'idle' && (
         <div className="card p-6 animate-fade-up" style={{ opacity: 0, animationDelay: '80ms', animationFillMode: 'forwards' }}>
-          {/* Tabs */}
           <div className="flex gap-1 mb-5 p-1 rounded-lg" style={{ background: 'var(--bg-secondary)', width: 'fit-content' }}>
             {(['text', 'upload'] as InputTab[]).map((tab) => (
               <button
@@ -416,19 +404,18 @@ export default function AnalysisPage() {
                   cursor: 'pointer',
                 }}
               >
-                {tab === 'text' ? 'Enter Claim Text' : 'Upload Report PDF'}
+                {tab === 'text' ? 'İddia Metni Gir' : 'PDF Rapor Yükle'}
               </button>
             ))}
           </div>
 
-          {/* Text tab */}
           {activeTab === 'text' && (
             <div>
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 rows={7}
-                placeholder="Paste the company's environmental claim here — e.g. 'We are carbon neutral through our certified offset program...'"
+                placeholder="Şirketin çevre iddiasını buraya yapıştırın — örn. 'Karbon offsetlerimiz sayesinde karbon nötrüz...' "
                 className="w-full resize-none rounded-lg px-4 py-3 text-sm"
                 style={{
                   background: 'var(--bg-secondary)',
@@ -446,24 +433,23 @@ export default function AnalysisPage() {
                     className="text-xs px-2.5 py-1 rounded"
                     style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace', background: 'var(--danger-dim)', border: '1px solid rgba(239,68,68,0.25)', cursor: 'pointer' }}
                   >
-                    Demo: Shell Carbon Neutral Fuel →
+                    Demo: Shell Karbon Nötr Yakıt →
                   </button>
                   <button
                     onClick={() => loadDemo(DEMO_LUFTHANSA, false)}
                     className="text-xs px-2.5 py-1 rounded"
                     style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Mono, monospace', background: 'var(--amber-dim)', border: '1px solid rgba(245,158,11,0.25)', cursor: 'pointer' }}
                   >
-                    Demo: Lufthansa Green Flying →
+                    Demo: Lufthansa Yeşil Uçuş →
                   </button>
                 </div>
                 <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-                  {inputText.length} chars
+                  {inputText.length} karakter
                 </span>
               </div>
             </div>
           )}
 
-          {/* Upload tab */}
           {activeTab === 'upload' && (
             <div>
               {!uploadedFile ? (
@@ -491,10 +477,10 @@ export default function AnalysisPage() {
                   />
                   <Upload size={28} style={{ color: 'var(--blue-data)', margin: '0 auto 12px' }} />
                   <div className="font-semibold mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.1rem' }}>
-                    Drop PDF or DOCX here
+                    PDF veya DOCX buraya bırakın
                   </div>
                   <p className="text-sm mb-4" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>
-                    or click to browse · max 50 MB
+                    veya tıklayarak seçin · maks. 50 MB
                   </p>
                   <div className="flex justify-center gap-2">
                     {['.PDF', '.DOCX'].map((ext) => (
@@ -509,7 +495,7 @@ export default function AnalysisPage() {
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'IBM Plex Mono, monospace' }}>{uploadedFile.name}</div>
-                    <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>{uploadedFile.size} · Text will be extracted and analyzed automatically.</div>
+                    <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>{uploadedFile.size} · Metin otomatik olarak çıkarılıp analiz edilecek.</div>
                   </div>
                   <button onClick={() => setUploadedFile(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
                     <X size={14} />
@@ -519,7 +505,6 @@ export default function AnalysisPage() {
             </div>
           )}
 
-          {/* Analyze button */}
           <button
             onClick={handleAnalyze}
             disabled={!canAnalyze}
@@ -534,18 +519,17 @@ export default function AnalysisPage() {
             }}
           >
             <Zap size={15} />
-            Analyze Claim
+            İddiaları Analiz Et
           </button>
         </div>
       )}
 
-      {/* 4-stage loading animation */}
       {analyzeState === 'analyzing' && (
         <div className="card p-8 animate-fade-in" style={{ opacity: 0, animationFillMode: 'forwards' }}>
           <div className="flex items-center gap-3 mb-6">
             <Loader2 size={18} style={{ color: 'var(--blue-data)', animation: 'spin 1s linear infinite' }} />
             <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.1rem' }}>
-              Running Legal Analysis…
+              Hukuki Analiz Yürütülüyor…
             </span>
           </div>
 
@@ -597,46 +581,42 @@ export default function AnalysisPage() {
         </div>
       )}
 
-      {/* Results panel */}
       {analyzeState === 'complete' && analysisResult && (
         <div>
-          {/* Re-analyze header */}
           <div className="flex items-center justify-between mb-2">
             <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-              Analysis complete · {new Date().toLocaleTimeString()}
+              Analiz tamamlandı · {new Date().toLocaleTimeString('tr-TR')}
             </div>
             <button
               onClick={reset}
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border-normal)', color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', cursor: 'pointer' }}
             >
-              <X size={11} /> New Analysis
+              <X size={11} /> Yeni Analiz
             </button>
           </div>
           <ResultsPanel result={analysisResult} showArticle6Flag={showArticle6Flag} />
         </div>
       )}
 
-      {/* Error fallback */}
       {analyzeState === 'error' && (
         <div className="card p-6 text-center animate-fade-in" style={{ opacity: 0, animationFillMode: 'forwards', border: '1px solid rgba(239,68,68,0.3)' }}>
           <AlertTriangle size={28} style={{ color: 'var(--danger)', margin: '0 auto 12px' }} />
           <div className="font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.1rem' }}>
-            Analysis service unavailable. Showing demo results.
+            Analiz servisi kullanılamıyor. Demo sonuçları gösteriliyor.
           </div>
           <button onClick={() => { setAnalysisResult(mockAnalysisResult); setAnalyzeState('complete'); }} className="text-xs" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace', background: 'none', border: 'none', cursor: 'pointer' }}>
-            View demo results →
+            Demo sonuçlarını görüntüle →
           </button>
         </div>
       )}
 
-      {/* Info cards — only in idle state */}
       {analyzeState === 'idle' && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
           {[
-            { icon: Scale,        title: '8 Court Precedents',  body: 'Shell NL 2021, Shell ClientEarth 2023, Lufthansa 2023, KLM 2023, Ryanair 2020, DWS 2023, VW 2022, Kariba REDD+ 2023' },
-            { icon: AlertTriangle, title: 'Regulated Keywords',  body: '13 red-flag terms monitored: "carbon neutral", "net zero", "offset", "REDD+", "sustainable", and more' },
-            { icon: FileText,      title: 'Output Delivered',   body: 'Litigation risk score 0–100, case precedent matches, highlighted keyword violations, legal recommendations' },
+            { icon: Scale,         title: '8 Emsal Karar',          body: 'Shell (2021 & 2023), Lufthansa 2023, KLM 2023, Ryanair 2020, DWS 2023, VW 2022, Kariba REDD+ 2023' },
+            { icon: AlertTriangle, title: 'Denetlenen Anahtar Kelimeler', body: '13 kırmızı bayrak terimi izleniyor: "carbon neutral", "net zero", "offset", "REDD+", "sustainable" ve daha fazlası' },
+            { icon: FileText,      title: 'Analiz Çıktısı',         body: 'Dava riski skoru 0–100, emsal karar eşleşmeleri, anahtar kelime ihlal vurguları, hukuki öneriler' },
           ].map((info, i) => {
             const Icon = info.icon;
             return (

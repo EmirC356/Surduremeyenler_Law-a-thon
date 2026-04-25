@@ -18,22 +18,22 @@ const PROJECT_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '
 
 const CRITERIA_INFO = [
   {
-    name: 'Additionality',
-    desc: 'Would the emission reduction have happened anyway without the offset project? If yes, the credit has no real value.',
+    name: 'Ek Katkı (Additionality)',
+    desc: 'Emisyon azaltımı, offset projesi olmasa da gerçekleşecek miydi? Eğer öyleyse, kredi gerçek bir değer taşımıyor demektir.',
   },
   {
-    name: 'Permanence',
-    desc: 'Is the carbon stored permanently? Forest fires, political instability, or land-use changes can reverse sequestration.',
+    name: 'Kalıcılık (Permanence)',
+    desc: 'Karbon kalıcı olarak depolanıyor mu? Orman yangınları, siyasi istikrarsızlık veya arazi kullanımı değişiklikleri sequestrasyonu tersine çevirebilir.',
   },
   {
-    name: 'Leakage',
-    desc: 'Does the project simply push the harmful activity to another location, rather than eliminating it?',
+    name: 'Sızıntı (Leakage)',
+    desc: 'Proje zararlı faaliyeti yok etmek yerine sadece başka bir konuma mı taşıyor?',
   },
 ];
 
 const radarData = [
   {
-    subject: 'Additionality',
+    subject: 'Ek Katkı',
     'Kariba REDD+': 12,
     'Rimba Raya': 28,
     'Boreal Forest': 45,
@@ -42,7 +42,7 @@ const radarData = [
     'Ørsted Wind': 91,
   },
   {
-    subject: 'Permanence',
+    subject: 'Kalıcılık',
     'Kariba REDD+': 8,
     'Rimba Raya': 35,
     'Boreal Forest': 60,
@@ -51,7 +51,7 @@ const radarData = [
     'Ørsted Wind': 98,
   },
   {
-    subject: 'Leakage',
+    subject: 'Sızıntı',
     'Kariba REDD+': 15,
     'Rimba Raya': 22,
     'Boreal Forest': 55,
@@ -71,9 +71,9 @@ function scoreColor(v: number) {
 
 function StatusBadge({ status }: { status: OffsetProject['status'] }) {
   const map = {
-    valid:       { bg: 'var(--accent-green-dim)', text: 'var(--accent-green)',  icon: CheckCircle2, label: 'Valid' },
-    disputed:    { bg: 'var(--amber-dim)',          text: 'var(--amber)',          icon: AlertTriangle, label: 'Disputed' },
-    invalidated: { bg: 'var(--danger-dim)',         text: 'var(--danger-bright)', icon: XCircle,       label: 'Invalidated' },
+    valid:       { bg: 'var(--accent-green-dim)', text: 'var(--accent-green)',  icon: CheckCircle2, label: 'Geçerli' },
+    disputed:    { bg: 'var(--amber-dim)',          text: 'var(--amber)',          icon: AlertTriangle, label: 'Tartışmalı' },
+    invalidated: { bg: 'var(--danger-dim)',         text: 'var(--danger-bright)', icon: XCircle,       label: 'İptal Edildi' },
   };
   const cfg = map[status];
   const Icon = cfg.icon;
@@ -128,13 +128,12 @@ export default function OffsetIntegrityPage() {
 
   return (
     <div className="px-8 py-6 max-w-7xl mx-auto">
-      {/* Header */}
       <div className="mb-6 animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards' }}>
         <h2 className="font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.5rem' }}>
-          Carbon Offset Integrity Analysis
+          Karbon Offset Bütünlük Analizi
         </h2>
         <p className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-          Evaluating offset projects against the three scientific validity criteria: Additionality, Permanence, and Leakage
+          Offset projeleri üç bilimsel geçerlilik kriteriyle değerlendiriliyor: Ek Katkı, Kalıcılık ve Sızıntı
         </p>
       </div>
 
@@ -151,7 +150,7 @@ export default function OffsetIntegrityPage() {
           <div className="flex items-center gap-2">
             <Info size={14} style={{ color: 'var(--blue-data)' }} />
             <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif' }}>
-              The Three Integrity Criteria — Why Offsets Fail
+              Üç Bütünlük Kriteri — Offsetler Neden Başarısız Olur?
             </span>
           </div>
           {infoOpen
@@ -181,29 +180,27 @@ export default function OffsetIntegrityPage() {
         style={{ opacity: 0, animationDelay: '120ms', animationFillMode: 'forwards', border: '1px solid rgba(239,68,68,0.2)' }}
       >
         <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-          <div className="flex items-center gap-2">
-            <div className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>
-              Paris Agreement Article 6 — The Legal Standard
-            </div>
+          <div className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>
+            Paris Anlaşması Madde 6 — Hukuki Standart
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-0">
           <div className="px-5 py-4" style={{ borderRight: '1px solid var(--border-subtle)' }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Article 6.2 — ITMOs</div>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Madde 6.2 — ITMO</div>
             <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65 }}>
-              Internationally Transferred Mitigation Outcomes — any carbon credit transferred across borders requires authorization from the host country government. Credits sold without this authorization cannot legally support a &lsquo;carbon neutral&rsquo; claim.
+              Uluslararası Aktarılan Azaltım Sonuçları — sınır ötesi aktarılan her karbon kredisi, ev sahibi ülke hükümetinin onayını gerektirir. Bu onay olmadan satılan krediler &lsquo;karbon nötr&rsquo; iddiasını hukuken destekleyemez.
             </p>
           </div>
           <div className="px-5 py-4" style={{ borderRight: '1px solid var(--border-subtle)' }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Article 6.4 — Crediting Mechanism</div>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Madde 6.4 — Kredi Mekanizması</div>
             <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65 }}>
-              Credits must meet additionality, permanence, and leakage standards set by the UNFCCC Supervisory Body. Verra VCS and Gold Standard alone are insufficient legal proof of compliance.
+              Krediler, UNFCCC Denetim Kurulu&apos;nun belirlediği ek katkı, kalıcılık ve sızıntı standartlarını karşılamalıdır. Tek başına Verra VCS veya Gold Standard sertifikası yasal uyumluluk için yeterli değildir.
             </p>
           </div>
           <div className="px-5 py-4">
-            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Mono, monospace' }}>Key Implication</div>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Mono, monospace' }}>Temel Sonuç</div>
             <p className="text-xs" style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65, fontWeight: 500 }}>
-              A company claiming &lsquo;carbon neutral&rsquo; using REDD+ offsets purchased before 2023 may be exposed to litigation if those credits lack Article 6.4 authorization — regardless of Verra certification.
+              2023 öncesinde satın alınan REDD+ offsetlerini kullanan bir şirket, Verra sertifikasına sahip olsa bile Madde 6.4 yetkisi eksikse dava riskiyle karşı karşıya kalabilir.
             </p>
           </div>
         </div>
@@ -211,14 +208,13 @@ export default function OffsetIntegrityPage() {
 
       {/* Main content: radar + cards */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Radar chart — takes 3/5 columns */}
         <div className="lg:col-span-3">
           <div className="card p-6 animate-fade-up" style={{ opacity: 0, animationDelay: '160ms', animationFillMode: 'forwards' }}>
             <h3 className="font-semibold mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.15rem' }}>
-              Multi-Project Integrity Radar
+              Çok Projeli Bütünlük Radarı
             </h3>
             <p className="text-xs mb-5" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-              All 6 offset projects · Three scientific validity axes · Scale 0–100
+              6 offset projesi · Üç bilimsel geçerlilik ekseni · Ölçek 0–100
             </p>
 
             <ResponsiveContainer width="100%" height={340}>
@@ -258,13 +254,12 @@ export default function OffsetIntegrityPage() {
 
             <div className="mt-3 px-4 py-2.5 rounded-lg" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
               <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', lineHeight: 1.6 }}>
-                Scores below 50 on any single axis indicate a scientifically contested offset credit.
+                Herhangi bir eksende 50&apos;nin altında puan, bilimsel açıdan tartışmalı bir offset kredisine işaret eder.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Project cards — takes 2/5 columns */}
         <div className="lg:col-span-2 flex flex-col gap-4">
           {mockOffsetProjects.map((project, i) => (
             <div
@@ -289,12 +284,12 @@ export default function OffsetIntegrityPage() {
                 <StatusBadge status={project.status} />
               </div>
 
-              <ScoreBar label="Additionality" value={project.additionalityScore} />
-              <ScoreBar label="Permanence"    value={project.permanenceScore} />
-              <ScoreBar label="Leakage"       value={project.leakageScore} />
+              <ScoreBar label="Ek Katkı" value={project.additionalityScore} />
+              <ScoreBar label="Kalıcılık"  value={project.permanenceScore} />
+              <ScoreBar label="Sızıntı"    value={project.leakageScore} />
 
               <div className="flex items-center justify-between mt-3 pt-2.5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>Integrity Score</span>
+                <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>Bütünlük Skoru</span>
                 <span className="text-xl font-light" style={{ color: scoreColor(project.overallIntegrityScore), fontFamily: 'IBM Plex Mono, monospace' }}>
                   {project.overallIntegrityScore}
                   <span className="text-xs ml-0.5" style={{ color: 'var(--text-muted)' }}>/100</span>

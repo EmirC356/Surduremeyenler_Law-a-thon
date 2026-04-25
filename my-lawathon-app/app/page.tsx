@@ -27,6 +27,13 @@ import {
 import Link from 'next/link';
 import { mockCaseLaw } from '../lib/caseData';
 
+const RISK_LEVEL_TR: Record<string, string> = {
+  LOW: 'DÜŞÜK',
+  MEDIUM: 'ORTA',
+  HIGH: 'YÜKSEK',
+  CRITICAL: 'KRİTİK',
+};
+
 function RiskBadge({ level }: { level: string }) {
   const map: Record<string, { bg: string; text: string; border: string }> = {
     LOW:      { bg: 'var(--accent-green-dim)', text: 'var(--accent-green)',  border: 'var(--border-accent)' },
@@ -40,7 +47,7 @@ function RiskBadge({ level }: { level: string }) {
       className="px-2.5 py-1 rounded text-xs font-semibold tracking-widest uppercase"
       style={{ background: s.bg, color: s.text, border: `1px solid ${s.border}`, fontFamily: 'IBM Plex Mono, monospace' }}
     >
-      {level}
+      {RISK_LEVEL_TR[level] ?? level}
     </span>
   );
 }
@@ -100,7 +107,7 @@ export default function DashboardPage() {
 
   return (
     <div className="px-8 py-6 max-w-7xl mx-auto">
-      {/* Company context banner */}
+      {/* Şirket bağlam bandı */}
       <div className="flex flex-wrap items-center gap-4 mb-6 px-5 py-3.5 rounded-lg animate-fade-in" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-normal)', opacity: 0, animationFillMode: 'forwards' }}>
         <div className="flex items-center justify-center w-8 h-8 rounded-md" style={{ background: 'var(--blue-dim)', border: '1px solid rgba(59,130,246,0.3)' }}>
           <Building2 size={15} style={{ color: 'var(--blue-data)' }} />
@@ -123,15 +130,15 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI cards — 2 rows of 3 */}
+      {/* KPI kartları */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        {/* Compliance score card */}
+        {/* Uyum skoru kartı */}
         <div className="card p-5 flex flex-col gap-3 animate-fade-up" style={{ animationDelay: '0ms', opacity: 0, animationFillMode: 'forwards', border: `1px solid ${scoreColor}33` }}>
           <div className="flex items-start justify-between">
             <div className="flex items-center justify-center w-9 h-9 rounded-md" style={{ background: `${scoreColor}18`, border: `1px solid ${scoreColor}33` }}>
               <ShieldAlert size={17} style={{ color: scoreColor }} />
             </div>
-            <span className="text-xs font-bold tracking-widest uppercase px-2 py-1 rounded" style={{ fontFamily: 'IBM Plex Mono, monospace', background: `${scoreColor}18`, color: scoreColor }}>Grade {data.compliance.grade}</span>
+            <span className="text-xs font-bold tracking-widest uppercase px-2 py-1 rounded" style={{ fontFamily: 'IBM Plex Mono, monospace', background: `${scoreColor}18`, color: scoreColor }}>Derece {data.compliance.grade}</span>
           </div>
           <div>
             <div className="flex items-baseline gap-1">
@@ -141,53 +148,46 @@ export default function DashboardPage() {
             <div className="mt-2 h-1.5 rounded-full" style={{ background: 'var(--border-normal)' }}>
               <div className="h-full rounded-full" style={{ width: `${score}%`, background: scoreColor }} />
             </div>
-            <div className="text-xs mt-1.5" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Overall Compliance Score</div>
+            <div className="text-xs mt-1.5" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Genel Uyum Skoru</div>
           </div>
         </div>
 
-        <KPICard label="Active Documents Analyzed" value={data.compliance.activeDocuments} unit="docs" icon={FileText} trend="neutral" trendLabel="FY2024" color="var(--blue-data)" delay={100} />
-        <KPICard label="Critical Legal Flags Detected" value={data.compliance.criticalFlags} unit={data.compliance.criticalFlags > 0 ? 'flags' : ''} icon={AlertTriangle} trend={data.compliance.criticalFlags > 0 ? 'down' : 'up'} trendLabel={data.compliance.criticalFlags > 0 ? 'Action Required' : 'Compliant'} color={data.compliance.criticalFlags > 0 ? 'var(--danger)' : 'var(--accent-green)'} delay={200} />
+        <KPICard label="Analiz Edilen Aktif Belgeler" value={data.compliance.activeDocuments} unit="belge" icon={FileText} trend="neutral" trendLabel="FY2024" color="var(--blue-data)" delay={100} />
+        <KPICard label="Tespit Edilen Kritik Hukuki İşaretler" value={data.compliance.criticalFlags} unit={data.compliance.criticalFlags > 0 ? 'işaret' : ''} icon={AlertTriangle} trend={data.compliance.criticalFlags > 0 ? 'down' : 'up'} trendLabel={data.compliance.criticalFlags > 0 ? 'Aksiyon Gerekli' : 'Uyumlu'} color={data.compliance.criticalFlags > 0 ? 'var(--danger)' : 'var(--accent-green)'} delay={200} />
 
-        {/* Cases in Database */}
-        <KPICard label="Court Precedents in Database" value={8} unit="cases" icon={Scale} trend="neutral" trendLabel="Updated 2023" color="var(--blue-data)" delay={300} />
+        <KPICard label="Veritabanındaki Emsal Kararlar" value={8} unit="karar" icon={Scale} trend="neutral" trendLabel="Güncellendi 2023" color="var(--blue-data)" delay={300} />
+        <KPICard label="Ort. Dava Riski Skoru" value={76} unit="/100" icon={Thermometer} trend="down" trendLabel="Dava Edilebilir" color="var(--danger)" delay={400} />
 
-        {/* Avg. Litigation Risk */}
-        <KPICard label="Avg. Litigation Risk Score" value={76} unit="/100" icon={Thermometer} trend="down" trendLabel="Litigable" color="var(--danger)" delay={400} />
-
-        {/* Quick links */}
+        {/* Hızlı erişim */}
         <div className="card p-5 flex flex-col gap-3 animate-fade-up" style={{ animationDelay: '500ms', opacity: 0, animationFillMode: 'forwards' }}>
-          <div className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>Risk Areas</div>
-          <Link href="/greenlighting" className="flex items-center justify-between px-3 py-2 rounded-md" style={{ background: 'var(--danger-dim)', border: '1px solid rgba(239,68,68,0.2)' }}>
-            <span className="text-xs" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>Greenlighting</span>
+          <div className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>Hızlı Erişim</div>
+          <Link href="/analysis" className="flex items-center justify-between px-3 py-2 rounded-md" style={{ background: 'var(--danger-dim)', border: '1px solid rgba(239,68,68,0.2)' }}>
+            <span className="text-xs" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>Belge Analizi</span>
             <ArrowRight size={12} style={{ color: 'var(--danger-bright)' }} />
           </Link>
-          <Link href="/greenrinsing" className="flex items-center justify-between px-3 py-2 rounded-md" style={{ background: 'var(--danger-dim)', border: '1px solid rgba(239,68,68,0.2)' }}>
-            <span className="text-xs" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>Greenrinsing</span>
-            <ArrowRight size={12} style={{ color: 'var(--danger-bright)' }} />
-          </Link>
-          <Link href="/export" className="flex items-center justify-between px-3 py-2 rounded-md" style={{ background: 'var(--blue-dim)', border: '1px solid rgba(59,130,246,0.2)' }}>
-            <span className="text-xs" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Export Audit Report</span>
+          <Link href="/offset" className="flex items-center justify-between px-3 py-2 rounded-md" style={{ background: 'var(--blue-dim)', border: '1px solid rgba(59,130,246,0.2)' }}>
+            <span className="text-xs" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Offset Bütünlüğü</span>
             <ArrowRight size={12} style={{ color: 'var(--blue-data)' }} />
           </Link>
         </div>
       </div>
 
-      {/* Emissions Chart */}
+      {/* Emisyon Grafiği */}
       <div className="card p-6 animate-fade-up" style={{ animationDelay: '400ms', opacity: 0, animationFillMode: 'forwards' }}>
         <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
           <div>
             <h2 className="font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.3rem' }}>
-              Scope 1 + 2 Emissions vs. Legal Pledged Reduction Target
+              Kapsam 1+2 Emisyonları — Taahhüt Edilen Azaltım Hedefine Karşı
             </h2>
             <p className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-              ktCO₂e · 5-year historical series · Baseline: FY{data.emissions[0].year}
+              ktCO₂e · 5 yıllık tarihsel seri · Baz yıl: FY{data.emissions[0].year}
             </p>
           </div>
           <div className="flex flex-wrap gap-4">
             {[
-              { color: 'var(--danger)',       label: 'Actual Emissions' },
-              { color: 'var(--accent-green)', label: 'Pledged Target' },
-              { color: 'var(--text-muted)',   label: '2020 Baseline' },
+              { color: 'var(--danger)',       label: 'Gerçek Emisyonlar' },
+              { color: 'var(--accent-green)', label: 'Taahhüt Hedefi' },
+              { color: 'var(--text-muted)',   label: '2020 Baz Değeri' },
             ].map((l) => (
               <div key={l.label} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
                 <span className="w-5 h-px inline-block" style={{ background: l.color, display: 'inline-block', height: '2px' }} />
@@ -201,7 +201,7 @@ export default function DashboardPage() {
           <div className="flex items-start gap-3 px-4 py-3 rounded-lg mb-4" style={{ background: 'var(--danger-dim)', border: '1px solid rgba(239,68,68,0.25)' }}>
             <AlertTriangle size={14} style={{ color: 'var(--danger)', marginTop: 1, flexShrink: 0 }} />
             <p className="text-xs" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace', lineHeight: 1.6 }}>
-              <strong>Divergence Alert:</strong> Actual emissions are trending upward (+3.5% p.a.) while pledged targets require a steep downward trajectory. The compounding gap constitutes a material greenwashing exposure under CSRD / ESRS E1-4.
+              <strong>Sapma Uyarısı:</strong> Gerçek emisyonlar yıllık %3,5 artış eğilimindeyken taahhüt edilen hedefler dik bir düşüş gerektiriyor. Biriken bu uçurum, CSRD / ESRS E1-4 kapsamında önemli bir yeşil aklama riski oluşturmaktadır.
             </p>
           </div>
         )}
@@ -213,20 +213,20 @@ export default function DashboardPage() {
             <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'IBM Plex Mono, monospace' }} axisLine={false} tickLine={false} tickFormatter={(v) => v.toLocaleString()} label={{ value: 'ktCO₂e', angle: -90, position: 'insideLeft', fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'IBM Plex Mono, monospace', dx: -8 }} />
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine y={data.emissions[0].baseline} stroke="var(--text-muted)" strokeDasharray="4 4" strokeWidth={1} opacity={0.35} />
-            <Line type="monotone" dataKey="pledgedTarget" name="Pledged Target" stroke="var(--accent-green)" strokeWidth={2} dot={{ r: 3, fill: 'var(--accent-green)', strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} strokeOpacity={0.8} />
-            <Line type="monotone" dataKey="actual" name="Actual Emissions" stroke="var(--danger)" strokeWidth={2.5} dot={{ r: 4, fill: 'var(--danger)', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
+            <Line type="monotone" dataKey="pledgedTarget" name="Taahhüt Hedefi" stroke="var(--accent-green)" strokeWidth={2} dot={{ r: 3, fill: 'var(--accent-green)', strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} strokeOpacity={0.8} />
+            <Line type="monotone" dataKey="actual" name="Gerçek Emisyonlar" stroke="var(--danger)" strokeWidth={2.5} dot={{ r: 4, fill: 'var(--danger)', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Recent Case Law */}
+      {/* Son Emsal Kararlar */}
       <div className="mt-4 animate-fade-up" style={{ animationDelay: '480ms', opacity: 0, animationFillMode: 'forwards' }}>
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.05rem' }}>
-            Recent Case Law
+            Son Emsal Kararlar
           </h3>
           <Link href="/analysis" className="text-xs flex items-center gap-1" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>
-            Analyze claims <ArrowRight size={11} />
+            İddia analizi yap <ArrowRight size={11} />
           </Link>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
@@ -250,7 +250,7 @@ export default function DashboardPage() {
                   className="px-1.5 py-0.5 rounded text-xs font-bold shrink-0"
                   style={{ background: 'var(--danger-dim)', color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace', border: '1px solid rgba(239,68,68,0.25)' }}
                 >
-                  {c.similarityThreshold}%
+                  %{c.similarityThreshold}
                 </span>
               </div>
               <div className="font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '0.95rem', lineHeight: 1.3 }}>
@@ -264,19 +264,20 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Bottom row */}
+      {/* Alt satır */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Top flags */}
+        {/* En kritik işaretler */}
         <div className="card p-5 animate-fade-up" style={{ animationDelay: '500ms', opacity: 0, animationFillMode: 'forwards' }}>
           <h3 className="font-semibold mb-4" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.05rem' }}>
-            Top Legal Flags — Immediate Review Required
+            En Kritik Hukuki İşaretler — Acil İnceleme Gerekli
           </h3>
           <div className="flex flex-col gap-2">
             {data.exportFlags.slice(0, 4).map((flag) => {
               const c = flag.severity === 'CRITICAL' ? 'var(--danger)' : flag.severity === 'HIGH' ? '#F97316' : flag.severity === 'MEDIUM' ? 'var(--amber)' : 'var(--text-muted)';
+              const severityTr: Record<string, string> = { CRITICAL: 'KRİTİK', HIGH: 'YÜKSEK', MEDIUM: 'ORTA', LOW: 'DÜŞÜK' };
               return (
                 <div key={flag.id} className="flex items-start gap-3 px-3 py-2.5 rounded-md" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-                  <span className="text-xs font-bold shrink-0 mt-0.5" style={{ color: c, fontFamily: 'IBM Plex Mono, monospace', minWidth: '56px' }}>{flag.severity}</span>
+                  <span className="text-xs font-bold shrink-0 mt-0.5" style={{ color: c, fontFamily: 'IBM Plex Mono, monospace', minWidth: '56px' }}>{severityTr[flag.severity] ?? flag.severity}</span>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-medium truncate" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Mono, monospace' }}>{flag.id} · {flag.regulation}</div>
                     <div className="text-xs mt-0.5 line-clamp-2" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.5 }}>{flag.description}</div>
@@ -285,20 +286,20 @@ export default function DashboardPage() {
               );
             })}
           </div>
-          <Link href="/export" className="flex items-center gap-1.5 mt-3 text-xs" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>
-            View all {data.exportFlags.length} flags <ArrowRight size={11} />
+          <Link href="/analysis" className="flex items-center gap-1.5 mt-3 text-xs" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>
+            Detaylı analiz yap <ArrowRight size={11} />
           </Link>
         </div>
 
-        {/* Module scores */}
+        {/* Analiz durumu */}
         <div className="card p-5 animate-fade-up" style={{ animationDelay: '600ms', opacity: 0, animationFillMode: 'forwards' }}>
           <h3 className="font-semibold mb-4" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.05rem' }}>
-            Risk Module Status
+            Analiz Modülü Durumu
           </h3>
           {[
-            { label: 'Greenlighting Analysis', score: 14, color: 'var(--danger)', href: '/greenlighting', desc: `Marketing/CapEx delta: ${data.greenlighting.marketingGreenFocus}% vs ${data.greenlighting.actualGreenCapex}%` },
-            { label: 'Greenrinsing Analysis',  score: 4,  color: 'var(--danger)', href: '/greenrinsing', desc: `Pledge viability: ${data.greenrinsing.viabilityScore}/100 — Mathematically Unviable` },
-            { label: 'Document Integrity',     score: 62, color: 'var(--amber)',  href: '/analysis',    desc: `${data.compliance.activeDocuments} documents parsed · 2 anomalies detected` },
+            { label: 'Belge Analizi',      score: 62, color: 'var(--amber)',  href: '/analysis', desc: `${data.compliance.activeDocuments} belge analiz edildi · 2 anomali tespit edildi` },
+            { label: 'Offset Bütünlüğü',   score: 28, color: 'var(--danger)', href: '/offset',   desc: 'Kariba ve Rimba Raya projeleri iptal edildi · Paris Anl. Mad. 6 riski aktif' },
+            { label: 'Dava Riski Skoru',   score: 76, color: 'var(--danger)', href: '/analysis', desc: '8 emsal kararla karşılaştırıldı · Dava edilebilir eşiğin üzerinde' },
           ].map((mod) => (
             <div key={mod.label} className="mb-4">
               <div className="flex justify-between items-center mb-1">
