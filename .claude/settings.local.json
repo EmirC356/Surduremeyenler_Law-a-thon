@@ -8,7 +8,9 @@
       "Bash(curl -s \"https://raw.githubusercontent.com/google-labs-code/design.md/main/examples/atmospheric-glass/DESIGN.md\")",
       "Bash(curl -s \"https://raw.githubusercontent.com/google-labs-code/design.md/main/examples/paws-and-paths/DESIGN.md\")",
       "Bash(curl -s \"https://stitch.withgoogle.com/docs/design-md/overview/\")",
-      "Bash(curl -s \"https://stitch.withgoogle.com/docs/design-md/format/\")"
+      "Bash(curl -s \"https://stitch.withgoogle.com/docs/design-md/format/\")",
+      "Bash(vercel build *)",
+      "Bash(vercel pull *)"
     ]
   }
 }

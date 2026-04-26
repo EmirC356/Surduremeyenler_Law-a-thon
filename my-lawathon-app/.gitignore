@@ -46,3 +46,5 @@ next-env.d.ts
 # runtime on Vercel (read-only fs). PDFs, DOCX, and TXT files in Case Law/ are
 # intentionally committed so they are available after deployment.
 # Do NOT add *.pdf, *.docx, or Case Law/ to this file.
+
+.vercel
