@@ -1,0 +1,129 @@
+A-olay
+A.1.  Luftansa Carbon Offset dogrulama sikintisi 2 ana problemle çerçevelendirilir. 
+-	Ilki iddia edilen karbon offsetin sadece yüzde 20sinin teyit edilebilir yakit inovasyonu ile geldigi, yüzde 80inin ise çesitli offset projeleri ile 3. Parti kuruluslarin onayi ile yani sertifikasyon ile teyit edilmesidir. (dogrudan kendi web sitesinde yazmakta)
+-	Ikincisi, hürmüz bogazi krizi ile sürdürülebilirlik adina uçus seferlerini sinirladilar, fakat isin aslinda ekonomik ve siyasi çikarlarin oldugu gözlemlenmistir. Örnegin , yakit krizi oldugu bilinmekte, bu sebeple uçak seferleri sayisi düsürülmekte, bu yüzden sürdürülebilir eylem aldiklarini söylemekteler ancak depolama kisminda ise …
+A.2. Sertifikasyon nasil aliniyor ve hangi noktalari sikintili: 
+-	Gold standard, 2003 te wwf (dünya dogal hayati koruma vakfi) tarafindan bulunuyor. 3 farkli scope var: 1) toplum hizmeti, 2) yenilenebilir enerji projeleri 3) toprak kullanimi arastirma. Proje döngüsü nasil çalisir:
+ 
+Bu proje döngüsü tamamen bir model ve metod, fiziksel bir teyit mekanizmasi yok. 
+-	Verra, benzer bir metod uyguluyor, gold standarda göre daha güvenilir sayilir çünkü offset projelerinden karriba projesinde karbon kredisi vermeyi reddetmisler. 
+
+B-sorun
+B.1. Hukuki Sorun
+B.1.i Çevrecilik iddialarinin abartili olmasi / gerçekçi olmamasi
+Karbon nötr iddialari 
+B.1.ii Tüketici açisindan eksik / yaniltici bilgi
+a)	Çevrecilik iddialarinin kendisi yaniltici 
+b)	Çevrecilik iddialarinin sunumu yaniltici
+
+B.2. Teknik Sorun
+B.2.i. Sertifikasyon sistemi hatasi
+B.2.ii fizibilite hatasi / fiziksel somut çikti dogrulama hatasi
+Myclimate (uçus karbon emisyonu kayitlarinin bulundugu data base) adli bir databaseden yakitlarin karbon emisyonunun verilerini aldiklarini idda ediyorlar. Fakat görülen yeni nesil karboin nötr yakitlarin sadece %1’i alinmakta örneklem sayisi yetersizdir. Ayrica yapilan toplumsal sorumluluk projelerinin , fiziksel olarak niceligi ölçülebilir (enerji tasarufu , agaçlarin karbon yakalmasi , ya da üretilen ekserji) bir formda ifadesinde belirsizlikler var. 1 metrik ton denkligi verilmekte fakat diger sera gazlari ya da enerji baglaminda verimlilik ölçütleri daha çok deginilmeli . 
+Kredi kalitesi ise tartismali Avustralya enstitüsü 23 farkli problem kesfetmistir . Karbon kredi kalite inisiyatifi bu kredi kalite kontrolünü saglamaktadir. Genel olarak saptanan problem kredi sisteminin soyut kalmasi ve fiziksel bir ölçütünün evrensel olarak mevcut olmasidir. Validation and Verification bodies önemli 
+
+
+C-hukuk kurallari
+
+
+
+D-mahkeme kararinda aranan nitelikler
+
+
+
+E-bir reklamin saglikli olmasi için AB’ye göre ne lazim.(Compliance Criteria 2016 hükümleri)
+a.	Sirketin çevre hakkindaki iddialari spesifik, belirli ve gerçekçi olmalidir
+b.	Sirketlerin iddialarini destekleyen kanitlari olmalidir
+c.	Sirketler talep halinde bu kanitlari sunmaya hazir olmalidir
+d.	Sirketler ürünün üretim ve dagitim süreçlerindeki önemli etkilerini de göz önünde bulundurmalidir.
+e.	Iddianin ürünün ya da hizmetin hangisinin, hangi kisminin ve ne süreyle kapsamina aldigi açikça belirtilmelidir.
+f.	Iddia ürün ya da hizmetin piyasadaki islevi ile mantiki bir bag içerisinde olmalidir, piyasada bagli etkilerine yönelik olmalidir
+g.	Iddia edilen fayda zarari göz ardi etmeye yönelik olmalidir. Ancak fayda zarardan çok daha büyükse buna izin verilebilir.
+h.	Diger sirketlerle yapilan her türlü kiyas da bu kriterlere baglidir ve dürüstlükle yapilmalidir.
+i.	Basit bir dil kullanilmalidir.
+j.	Genis ve belirsiz ifadeler kullanilmamalidir. Her genis ve belirsiz iddia devaminda kisitlanmalidir. Bu kisitlamalar net ve anlasilir olmalidir.
+k.	Tüketicinin bu ifadelerden ne anlayacagi esas alinarak degerlendirme yapilir.
+l.	Büyük ve ciddi iddialar, mükemmeli gösteren iddialar ancak planlanmis bir sekilde sunulurlarsa, bir lisans ile destekleniyorsa ve bu lisans mükemmel bir sekilde bu ürün ya da hizmetin çevreye tamamen zararsiz oldugunu kanitlayabiliyorsa mümkündür.
+m.	Yasakli islere giren ürün ve hizmetler bu vesile ile hukuka uygun hale gelmez.
+n.	Marka hileleri yasaktir.
+o.	Deliller açik, net ve en uygun sekilde elde edilmis olmalidir. Uzman görüs aksini ifade ederse bu reklam ve iddialar durdurulmalidir.
+p.	Kanit ve rapor yükümlülügü iddianin boyutu ile orantili olarak degerlendirilir.
+q.	Deliller ve raporlar düzenli olarak ve gerektikçe güncellenmelidir.
+r.	Gelecege dönüs temenniler yasaktir. Temenniler delille ispat edilemeyecek iddialardir. Bunlar hedef olarak degerlendirilemez.
+s.	Gelecege dönük kesin sekilde iddia edilemeyen temenniler ancak gerçekçi bir planin, planda yer alan ve risk altina giren herkesin belli olmasinin, hedeflerin, sürelerin ve bagimsiz denetçilerin varligi halinde mümkündür.
+t.	Sirketler her zaman verilerin güncelligi ve gerçekligi hususunda sorumludur.
+u.	Sirketlere halka karsi seffaf olmak zorundadir.
+	
+
+	e2-Türk hukukunda reklamlarin ve iddialarin saglikli olmasi için ne lazim
+a.	Tüketiciyi yaniltici ibarelere reklamlarda yer verilemez. Bunun kisitlamalari yönetmelikle belirlenir.
+b.	Reklamlar tüketicinin bilgi eksikligini ve duyarliligini istismar edecek sekilde yapilamaz.
+c.	“Yesil”, “sürdürülebilir”, “sifir karbon”, gibi reklamlar açiklama yapilmadan yapilamaz. Eger tüketicilerin açiklamaya reklam yapilan platformdan ulasma sansi yoksa tüketici ilgili platforma yönlendirilir.
+d.	Reklamda ifade edilen hedefin gerçeklesmesi için özel kosullar gerekliyse bunlar belirtilmelidir. ger tüketicilerin açiklamaya reklam yapilan platformdan ulasma sansi yoksa tüketici ilgili platforma yönlendirilir.
+e.	Reklami yapilan ifadenin ürün ya da hizmetin hangi kismini ve asamasini kapsadigi belirtilmelidir. Aksi halde tüketici hepsini kapsadigini varsayilabilir.
+f.	Karsilastirmali beyanlarda karsilastirmanin içerigi açikça belirtilmelidir.
+g.	Reklamda kullanilan sertifika ve onaylarin ulusal yetkili kuruluslardan, akademilerden veya ARGE kuruluslarindan alinmis olmasi gerekir.
+h.	Bu sertifika ve onaylarin ne anlam ifade ettigi ve çevrede ne gibi etkilere karsilik geldiginin reklamin yapildigi alanda ya da ürünün internet sitesinde açiklanmis olmasi gerekir.
+e3-Türk Hukukunda raporlarin saglikli olmasi için ne lazim, TSRS hükümlerine giriyorsa ne lazim
+Raporlar dogrudan reklamin sagligini etkilemez. Ama dolayli bir etkisi vardir. Her A.S, SPK kapsaminda rapor tutmakla sorumludur. Finansal aktiviteler bu raporlarla tespit edilir. Bu raporlarin yanlis olmasi durumunda SPK’da ciddi cezalar öngörülmüstür. Kanuna göre bu raporlarin nasil tutulacagi yönetmelikle belirlenecektir. TSRS de sürdürülebilirlikle ilgili olan raporlarin nasil düzenlenmesi gerektigini düzenlemektedir. Bir anonim sirket sürdürülebilirlikle ilgili bir reklam yaparsa ilgili açiklamalari ve gerçekligi ispat ile yükümlüdür. Bunu da finansal raporla yapmasi gerekir. Bu raporlar da TSRS’ye göre düzenlenmis olmalidir. Yani günün sonunda reklamin sagliginin ispati için rapor da saglikli olmalidir. Yoksa ihtilaf halinde bu iddialar ispat edilmemis olur, bu da davanin kaybi ile sonuçlanabilir. Bu durumda dava edilme sansini ekarte etmek ve sorumlulugu üzerinden atabilmek için her A.S’nin reklamlari ile ilgili finansal rapor da tutmasi gerekir. Bu raporlar da su esaslara göre tutulur.
+a.	Her finansal rapor Sermaye Piyasasi Kurulunun öngördügü sekilde hazirlanmalidir.
+b.	Bilgiler potansiyel yatirimcilari ve tüketicileri yaniltacak surette raporlanamaz.
+c.	Sürdürülebilirlikle ilgili tüm firsat ve riskler gerçekçi bir sekilde sunulmalidir.
+d.	Raporlar karsilastirilabilir, dogrulanabilir, zamaninda sunulmus ve açik olmalidir.
+e.	Isletme risk ve firsati hesaplamak için öngördügü tüm metrikleri açiklamalidir.
+f.	Metrigin mutlak bir metrik mi bagli bir metrik oldugu belirtilmelidir.
+g.	Metrigin üçüncü bir taraf tarafindan onaylanip onaylanmadigi.
+h.	Kullanilan yöntemin kisitlamalari belirtilmelidir.
+i.	Hedefler için metrikler usulüne uygun bir sekilde belirtilmelidir.
+j.	Hedeflenen nicel ve nitel hedef açikça belirtilmelidir.
+k.	Hedefin geçerli oldugu dönem belirtilmelidir.
+l.	Ilerlemenin ölçümünde baz alinan dönem belirtilmelidir.
+m.	Dönüm noktalari ve ara hedefler belirlenmelidir.
+n.	Performanstaki trendlerin ve degisikliklerin analizi belirtilmelidir.
+o.	Hedefteki her olasi revizyona yer verilmelidir.
+p.	Metrikler ve hedefler net, açik ve belirli bir sekilde ifade edilmelidir.
+	e4-Mahkeme Kararina göre ne lazim (Lufthansa)
+	e5-Türkiye’de bulunan ve Avrupa ile ticaret yapan bir sirketin hepsine ihtiyaci var (yetki ve dava edilebilirlik hükümleri)
+
+
+
+F-Bu sorunun Türk sirketleri açisindan impact alani ne
+
+
+
+G-Sirketlere bunu nasil satariz
+
+
+
+H-Bu neyi degistirir ve hangi sürdürülebilirlik hedefine hizmet ediyor
+
+BM Sürdürülebilir Kalkinma Hedefleri
+
+12- Sorumlu Tüketim ve Üretim
+Hedef 12.6:  Basta büyük ve sinirötesi sirketler olmak üzere, firmalari sürdürülebilir uygulamalari benimsemeleri ve raporlama döngülerine sürdürülebilirlik bilgilerini eklemeleri için özendirmek
+Hedef 12.8:  2030 yilina kadar insanlarin her yerde sürdürülebilir kalkinma ve dogayla uyumlu yasam tarzlari hakkinda gerekli bilgilere ve farkindaliga sahip olmalarini saglamak
+13- Iklim Eylemi
+Hedef 13.2:  Iklim degisikligine yönelik önlemleri ulusal politikalara, stratejilere ve planlama süreçlerine dâhil etmek
+Hedef 13.3:  Iklim degisikliginin önlenmesi ve etkilerinin azaltilmasi ile iklim degisikligine uyum ve erken uyari konularinda egitim, farkindalik bireysel ve kurumsal kapasite gelistirmek
+16- Baris, Adalet ve Güçlü Kurumlar 
+Hedef 16.3:  Ulusal ve uluslararasi düzeylerde hukukun üstünlügünü yayginlastirmak ve herkesin adalete esit erisimini saglamak
+Hedef 16.6:  Her düzeyde etkili, hesap verebilir ve seffaf kurumlar gelistirmek
+17- Amaçlar Için Ortakliklar
+Hedef 17.16:  Gelismekte olan ülkeler basta olmak üzere tüm ülkelerde sürdürülebilir kalkinma hedeflerine ulasilmasini desteklemek için bilgiyi, uzmanligi, teknolojiyi ve finansal kaynaklari paylasan ve seferber eden çok paydasli ortakliklarin tamamlayiciliginda Sürdürülebilir Kalkinma için Küresel Isbirligini gelistirmek
+Hedef 17.17:  Ortakliklarin tecrübelerinden ve kaynak yaratma stratejilerinden yararlanarak etkili kamu, kamu-özel ve sivil toplum ortakliklarini tesvik etmek ve yayginlastirmak
+TC Anayasasi
+Madde 56 – Saglikli ve Dengeli Çevrede Yasama Hakki
+Madde 172 – Tüketicinin Korunmasi
+Madde 74 – Dilekçe ve Bilgi Edinme Hakki
+Madde 125 – Idarenin Yargi Denetimi
+Madde 2 – Hukuk Devleti Ilkesi
+
+
+ÇÖZÜM
+
+Projenin Çözdügü Problem ve Çözüm Yaklasimi
+Projemiz, sirketlerin çevresel sürdürülebilirlik beyanlarindaki (örnegin "karbon nötr", "net sifir" uçus) hukuki ve finansal riskleri tespit eden yapay zeka destekli bir "Yesil Uyum ve Risk Analiz" (Compliance & Integrity) platformudur. Günümüzde sirketler, AB Yesil Iddia Direktifi (Green Claims Directive) ve emsal mahkeme kararlari (Shell, Lufthansa) isiginda, yeterli bilimsel kanita dayanmayan çevresel vaatler nedeniyle milyonlarca euroluk "yesil badana" (greenwashing) davalariyla ve itibar kayiplariyla karsi karsiya kalmaktadir. Gelistirdigimiz çözüm, sirketlerin pazarlama materyallerini ve ESG raporlarini yayina girmeden önce denetleyerek, bu beyanlarin dava edilebilirligini objektif metriklerle ölçen proaktif bir "hukuki ve finansal koruma kalkani" görevi görmektedir.
+
+Kullanilan Metodoloji ve Teknik Altyapi
+Sistemimiz; hukuk, kimya ve bilgisayar bilimlerini entegre eden hibrit bir analiz metodolojisiyle çalismaktadir. Ilk asamada, Dogal Dil Isleme (NLP) ve Büyük Dil Modelleri (LLM) kullanilarak sisteme yüklenen dokümanlardaki çevresel iddialar ve riskli anahtar kelimeler otomatik olarak ayristirilir. Ikinci asamada bu iddialar, güncel hukuki içtihatlarla (emsal karar eslesmesi ve ispat yükü analizi) karsilastirilarak bir "Hukuki Risk Skoru" üretir. Es zamanli çalisan "Bilimsel Bütünlük Motoru" ise sirketin dayandigi karbon denklestirme (offset) projelerini; ektiklik (additionality), kalicilik (permanence) ve MRV (Ölçüm, Raporlama, Dogrulama) kalitesi üzerinden uluslararasi verilerle (Verra, Germanwatch vb.) çapraz dogrulamaya tabi tutar. Bu çok katmanli yapi sayesinde, sadece kagit üzerindeki sertifikalara güvenilmez; iddialarin arkasindaki fiziksel ve hukuki gerçeklik analiz edilerek uçtan uca seffaf bir risk raporlamasi sunulur.
+

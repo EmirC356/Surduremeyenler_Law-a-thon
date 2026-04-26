@@ -202,16 +202,21 @@ function InfoTooltip({ text }: { text: string }) {
 
 function ScoreCell({ value }: { value: number | null }) {
   if (value === null) {
-    return <span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '13px' }}>—</span>;
+    return (
+      <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-sans)', fontSize: '20px', fontWeight: 600 }}>
+        —
+      </span>
+    );
   }
-  const isHighRisk = value < 30;
   return (
     <span
       style={{
         color: cellColor(value),
-        fontFamily: 'IBM Plex Mono, monospace',
-        fontSize: '13px',
-        fontWeight: isHighRisk ? 700 : 500,
+        fontFamily: 'var(--font-sans)',
+        fontSize: '22px',
+        fontWeight: 800,
+        letterSpacing: '-0.03em',
+        lineHeight: 1,
       }}
     >
       {value}
@@ -225,14 +230,14 @@ function OverallCell({ value }: { value: number | 'Litigation Risk' }) {
       <span
         style={{
           display: 'inline-block',
-          padding: '2px 8px',
-          borderRadius: '4px',
+          padding: '4px 10px',
+          borderRadius: '6px',
           background: 'rgba(239,68,68,0.15)',
           border: '1px solid rgba(239,68,68,0.35)',
           color: '#EF4444',
           fontFamily: 'var(--font-sans)',
-          fontSize: '10px',
-          fontWeight: 700,
+          fontSize: '12px',
+          fontWeight: 800,
           letterSpacing: '0.04em',
           whiteSpace: 'nowrap',
         }}
@@ -241,18 +246,22 @@ function OverallCell({ value }: { value: number | 'Litigation Risk' }) {
       </span>
     );
   }
-  const isHighRisk = value < 30;
   return (
     <span
       style={{
         color: cellColor(value),
-        fontFamily: 'IBM Plex Mono, monospace',
-        fontSize: '14px',
-        fontWeight: isHighRisk ? 700 : 600,
+        fontFamily: 'var(--font-sans)',
+        fontSize: '24px',
+        fontWeight: 800,
+        letterSpacing: '-0.03em',
+        lineHeight: 1,
+        display: 'inline-flex',
+        alignItems: 'baseline',
+        gap: '2px',
       }}
     >
       {value}
-      <span style={{ color: 'var(--text-muted)', fontSize: '10px', marginLeft: '2px' }}>/100</span>
+      <span style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 600 }}>/100</span>
     </span>
   );
 }

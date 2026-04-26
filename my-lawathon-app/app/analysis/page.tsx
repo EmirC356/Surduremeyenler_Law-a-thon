@@ -14,21 +14,21 @@ import {
   Search,
   BookOpen,
   BarChart2,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { mockAnalysisResult, type ClaimAnalysisResult, type CourtCase } from '../../lib/caseData';
+import { buildHighlightRegex, isHighlightTerm } from '../../lib/highlightTerms';
 
 type InputTab = 'text' | 'upload';
 type AnalyzeState = 'idle' | 'analyzing' | 'complete' | 'error';
 
 const ANALYZE_STAGES = [
-  { label: 'Metin çıkarılıyor ve iddialar tespit ediliyor...', icon: Search, duration: 500 },
-  { label: 'Düzenlemeye tabi terminoloji taranıyor...', icon: BookOpen, duration: 800 },
-  { label: '8 emsal karara göre eşleştirme yapılıyor...', icon: Scale, duration: 1000 },
-  { label: 'Uyum risk skoru hesaplanıyor...', icon: BarChart2, duration: 700 },
+  { label: 'Metin çıkarılıyor ve iddialar tespit ediliyor...', icon: Search, duration: 1300 },
+  { label: 'Düzenlemeye tabi terminoloji taranıyor...', icon: BookOpen, duration: 1700 },
+  { label: '8 emsal karara göre eşleştirme yapılıyor...', icon: Scale, duration: 2100 },
+  { label: 'Uyum risk skoru hesaplanıyor...', icon: BarChart2, duration: 1500 },
 ];
-
-const DEMO_CLAIM =
-  'Apex Hydrocarbon has committed to becoming carbon neutral by 2050 through a comprehensive portfolio of certified carbon offsets, including REDD+ forest conservation projects and renewable energy credits. Our green certified operations already offset 78% of our Scope 1 emissions.';
 
 const DEMO_SHELL =
   "Shell has launched a range of carbon neutral petrol and diesel products for retail customers. The carbon neutrality is achieved by offsetting the lifecycle CO2 emissions through certified carbon credits from projects including REDD+ forest conservation in Africa and Asia. Shell's carbon neutral products are certified by independent third parties and meet internationally recognized standards. We are committed to helping our customers reach net zero by providing carbon neutral options today.";
@@ -39,24 +39,33 @@ const DEMO_LUFTHANSA =
 const ARTICLE6_FLAG =
   'KRİTİK — Paris Anlaşması Madde 6.4 İhlali: İddia, Madde 6.4 yetkisi kanıtı olmaksızın REDD+ offsetlerine atıfta bulunuyor — bu durum Shell ClientEarth 2023 davasının tam dayanağını oluşturmaktadır.';
 
-function highlightText(text: string, keywords: string[]): React.ReactNode {
-  if (!keywords.length) return <>{text}</>;
-  const escaped = keywords.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-  const regex = new RegExp(`(${escaped.join('|')})`, 'gi');
+function highlightText(text: string, extraKeywords: string[] = []): React.ReactNode {
+  // Highlights every term in lib/highlightTerms.ts plus any extra keywords
+  // (e.g. case-specific keywords from the matched precedent). Sorted longest
+  // first so "REDD+" wins over "REDD" and "carbon neutral fuel" over
+  // "carbon neutral".
+  const regex = buildHighlightRegex(extraKeywords);
   const parts = text.split(regex);
   return (
     <>
       {parts.map((part, i) =>
-        keywords.some((k) => k.toLowerCase() === part.toLowerCase()) ? (
+        isHighlightTerm(part, extraKeywords) ? (
           <mark
             key={i}
-            style={{ background: 'rgba(176,125,42,0.18)', color: 'var(--amber)', borderRadius: '2px', padding: '0 2px' }}
+            style={{
+              background: 'rgba(196, 98, 45, 0.16)',
+              color: 'var(--orange-dark)',
+              borderRadius: '3px',
+              padding: '1px 4px',
+              fontWeight: 600,
+              boxShadow: 'inset 0 -1.5px 0 rgba(196, 98, 45, 0.4)',
+            }}
           >
             {part}
           </mark>
         ) : (
           <span key={i}>{part}</span>
-        )
+        ),
       )}
     </>
   );
@@ -112,18 +121,80 @@ function CasePrecedentMatch({ inputText, keywords, matchedCase }: { inputText: s
   const caseKws = keywords.filter((k) =>
     matchedCase.keywords.some((mk) => mk.toLowerCase() === k.toLowerCase())
   );
+  const [expanded, setExpanded] = useState(false);
+
+  // Roughly 8 lines at typical line-height; use line-clamp for truthful trimming
+  const PREVIEW_CHAR_THRESHOLD = 380;
+  const isLong = inputText.length > PREVIEW_CHAR_THRESHOLD;
+
   return (
     <div
       className="grid grid-cols-1 md:grid-cols-2 gap-0 rounded-xl overflow-hidden"
       style={{ border: '1px solid var(--border)' }}
     >
       <div className="p-5" style={{ background: 'var(--bg-surface-2)', borderRight: '1px solid var(--border)' }}>
-        <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>
+        <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>
           Şirket İddiası
         </div>
-        <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-md)', lineHeight: 'var(--line-height-body-md)', maxWidth: '72ch' }}>
-          {highlightText(inputText, caseKws.length > 0 ? caseKws : keywords)}
-        </p>
+        <div style={{ position: 'relative' }}>
+          <p
+            style={{
+              color: 'var(--text-secondary)',
+              fontFamily: 'var(--font-sans)',
+              fontSize: 'var(--font-size-body-md)',
+              lineHeight: 'var(--line-height-body-md)',
+              maxWidth: '72ch',
+              ...(isLong && !expanded
+                ? {
+                    display: '-webkit-box',
+                    WebkitLineClamp: 8,
+                    WebkitBoxOrient: 'vertical' as const,
+                    overflow: 'hidden',
+                  }
+                : {}),
+            }}
+          >
+            {highlightText(inputText, caseKws)}
+          </p>
+          {isLong && !expanded && (
+            <div
+              aria-hidden
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '32px',
+                background: 'linear-gradient(to bottom, transparent, var(--bg-surface-2))',
+                pointerEvents: 'none',
+              }}
+            />
+          )}
+        </div>
+        {isLong && (
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="focusable"
+            style={{
+              marginTop: '10px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              color: 'var(--green-text)',
+              fontFamily: 'var(--font-sans)',
+              fontSize: 'var(--font-size-label-lg)',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'background 0.15s ease',
+            }}
+          >
+            {expanded ? (<>Daralt <ChevronUp size={12} /></>) : (<>Tümünü göster <ChevronDown size={12} /></>)}
+          </button>
+        )}
       </div>
 
       <div className="p-5" style={{ background: 'var(--bg-surface)' }}>
@@ -164,6 +235,7 @@ const NEWS_CITATIONS = [
 ];
 
 function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResult; showArticle6Flag: boolean }) {
+  const [citationsOpen, setCitationsOpen] = useState(false);
   return (
     <div className="flex flex-col gap-5 mt-5">
       {showArticle6Flag && (
@@ -184,6 +256,107 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
       )}
 
       <RiskThermometer score={result.litigationRiskScore} category={result.riskCategory} />
+
+      {/* ── Breakdown stats — sits below the headline score ────────────── */}
+      {(() => {
+        const offsetMentioned = result.detectedKeywords.some((k) =>
+          /offset|redd|carbon credit|karbon offset|karbon kredi/i.test(k),
+        );
+        const offsetScore = result.breakdown.offsetIntegrityScore;
+        const offsetColor =
+          offsetScore < 40 ? 'var(--danger)' :
+          offsetScore < 70 ? 'var(--amber)' :
+          'var(--accent-green)';
+        const stats: { value: React.ReactNode; label: string; sub?: string; color?: string }[] = [
+          {
+            value: result.matchedCases.length,
+            label: 'Emsal Karar Eşleşmesi',
+            sub: result.matchedCases.length > 0
+              ? `Ort. benzerlik %${result.breakdown.caseMatchScore}`
+              : 'Eşleşme bulunamadı',
+            color: result.matchedCases.length > 0 ? 'var(--text-primary)' : 'var(--text-secondary)',
+          },
+          {
+            value: result.detectedKeywords.length,
+            label: 'Tespit Edilen Anahtar Kelime',
+            sub: result.detectedKeywords.length > 3 ? 'Yüksek yoğunluk' : result.detectedKeywords.length > 0 ? 'Düşük yoğunluk' : 'Tespit yok',
+            color: result.detectedKeywords.length > 3 ? 'var(--orange-dark)' : 'var(--text-primary)',
+          },
+        ];
+        if (offsetMentioned) {
+          stats.push({
+            value: (<><span>{offsetScore}</span><span style={{ color: 'var(--text-secondary)', fontSize: '0.45em', fontWeight: 500, marginLeft: '2px' }}>/100</span></>),
+            label: 'Offset Bütünlük Skoru',
+            sub: offsetScore < 40 ? 'Kritik risk' : offsetScore < 70 ? 'Dikkat' : 'Güvenilir',
+            color: offsetColor,
+          });
+        }
+        return (
+          <div
+            className="card card-animated"
+            style={{
+              animationDelay: '60ms',
+              padding: '20px 24px',
+              display: 'grid',
+              gridTemplateColumns: `repeat(${stats.length}, minmax(0, 1fr))`,
+              gap: '0',
+            }}
+          >
+            {stats.map((s, i) => (
+              <div
+                key={i}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  paddingLeft: i === 0 ? 0 : '20px',
+                  paddingRight: i === stats.length - 1 ? 0 : '20px',
+                  borderLeft: i === 0 ? 'none' : '1px solid var(--border)',
+                }}
+              >
+                <div
+                  style={{
+                    color: s.color ?? 'var(--text-primary)',
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '36px',
+                    fontWeight: 800,
+                    letterSpacing: '-0.04em',
+                    lineHeight: 1,
+                    marginBottom: '8px',
+                  }}
+                >
+                  {s.value}
+                </div>
+                <div
+                  style={{
+                    color: 'var(--text-secondary)',
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: 'var(--font-size-label-lg)',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    marginBottom: '2px',
+                  }}
+                >
+                  {s.label}
+                </div>
+                {s.sub && (
+                  <div
+                    style={{
+                      color: 'var(--text-secondary)',
+                      fontFamily: 'var(--font-sans)',
+                      fontSize: 'var(--font-size-label-md)',
+                      opacity: 0.8,
+                    }}
+                  >
+                    {s.sub}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        );
+      })()}
 
       {result.detectedKeywords.length > 0 && (
         <>
@@ -251,38 +424,88 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
         </div>
       </div>
 
-      <div className="card card-animated p-5" style={{ animationDelay: '240ms' }}>
-        <div className="flex items-center gap-2 mb-4">
-          <FileText size={20} style={{ color: 'var(--text-secondary)' }} />
-          <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600 }}>
-            Kaynaklar ve Kanıtlar
-          </span>
-        </div>
-        <div className="flex flex-col gap-2">
-          {NEWS_CITATIONS.map((c, i) => (
-            <div
-              key={i}
-              className="flex items-start gap-3 px-3 py-2.5 rounded-lg"
-              style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border)' }}
+      <div className="card card-animated" style={{ animationDelay: '240ms', overflow: 'hidden' }}>
+        <button
+          onClick={() => setCitationsOpen((v) => !v)}
+          className="focusable"
+          aria-expanded={citationsOpen}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '16px 20px',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left',
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <FileText size={18} style={{ color: 'var(--text-secondary)' }} />
+            <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 700, letterSpacing: '-0.02em' }}>
+              Kaynaklar ve Kanıtlar
+            </span>
+            <span
+              style={{
+                background: 'var(--bg-surface-2)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border)',
+                fontFamily: 'var(--font-sans)',
+                fontSize: 'var(--font-size-label-md)',
+                fontWeight: 600,
+                padding: '2px 8px',
+                borderRadius: '10px',
+              }}
             >
-              <div
-                style={{ background: 'var(--bg-surface)', color: 'var(--blue-data)', border: '1px solid var(--border)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-md)', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', flexShrink: 0, minWidth: '68px', textAlign: 'center' as const }}
-              >
-                {c.source}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.55, maxWidth: '72ch' }}>{c.headline}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', opacity: 0.6 }}>{c.date}</span>
-                  <span className="reg-pill">{c.relevance}</span>
+              {NEWS_CITATIONS.length}
+            </span>
+          </span>
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: 'var(--green-text)',
+              fontFamily: 'var(--font-sans)',
+              fontSize: 'var(--font-size-label-lg)',
+              fontWeight: 600,
+            }}
+          >
+            {citationsOpen ? 'Gizle' : 'Göster'}
+            {citationsOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </span>
+        </button>
+
+        {citationsOpen && (
+          <div style={{ padding: '0 20px 18px', borderTop: '1px solid var(--border)' }}>
+            <div className="flex flex-col gap-2" style={{ paddingTop: '14px' }}>
+              {NEWS_CITATIONS.map((c, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-3 px-3 py-2.5 rounded-lg"
+                  style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border)' }}
+                >
+                  <div
+                    style={{ background: 'var(--bg-surface)', color: 'var(--blue-data)', border: '1px solid var(--border)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-md)', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', flexShrink: 0, minWidth: '68px', textAlign: 'center' as const }}
+                  >
+                    {c.source}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.55, maxWidth: '72ch' }}>{c.headline}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-sm)', opacity: 0.6 }}>{c.date}</span>
+                      <span className="reg-pill">{c.relevance}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.6, opacity: 0.7, borderTop: '1px solid var(--border)', paddingTop: '12px', marginTop: '12px', maxWidth: '72ch' }}>
-          Kaynaklar hukuki atıf amacıyla sunulmuştur. Bu araç, kamuya açık bilgileri eğitim ve hukuki araştırma amaçlı derlemektedir.
-        </p>
+            <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.6, opacity: 0.7, borderTop: '1px solid var(--border)', paddingTop: '12px', marginTop: '14px', maxWidth: '72ch' }}>
+              Kaynaklar bilgilendirme amacıyla sunulmuştur. Bu araç, kamuya açık bilgileri eğitim ve uyum araştırması amaçlı derlemektedir.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -291,7 +514,8 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
 export default function AnalysisPage() {
   const [activeTab, setActiveTab] = useState<InputTab>('text');
   const [inputText, setInputText] = useState('');
-  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: string } | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: string; file: File } | null>(null);
+  const [extractError, setExtractError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [analyzeState, setAnalyzeState] = useState<AnalyzeState>('idle');
   const [analyzeStageIdx, setAnalyzeStageIdx] = useState(0);
@@ -340,17 +564,55 @@ export default function AnalysisPage() {
     runAnalysis(text, flagArticle6);
   };
 
-  const handleAnalyze = () => {
-    const text = activeTab === 'text' ? inputText : DEMO_CLAIM;
-    const hasRedd = text.toLowerCase().includes('redd+') || text.toLowerCase().includes('redd');
-    runAnalysis(text, hasRedd);
+  const extractTextFromFile = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const resp = await fetch('/api/extract-text', { method: 'POST', body: formData });
+    const data = (await resp.json()) as { text?: string; error?: string };
+    if (!resp.ok || !data.text) {
+      throw new Error(data.error ?? 'Belge metni çıkarılamadı.');
+    }
+    return data.text;
+  };
+
+  const handleAnalyze = async () => {
+    setExtractError(null);
+
+    if (activeTab === 'text') {
+      const text = inputText;
+      const hasRedd = text.toLowerCase().includes('redd+') || text.toLowerCase().includes('redd');
+      runAnalysis(text, hasRedd);
+      return;
+    }
+
+    // Upload tab — extract text from the actual file, then analyse
+    if (!uploadedFile) return;
+    setAnalyzeState('analyzing');
+    setAnalyzeStageIdx(0);
+    try {
+      const extracted = await extractTextFromFile(uploadedFile.file);
+      const hasRedd =
+        extracted.toLowerCase().includes('redd+') || extracted.toLowerCase().includes('redd');
+      runAnalysis(extracted, hasRedd);
+    } catch (err) {
+      setExtractError(err instanceof Error ? err.message : 'Belge işlenirken hata oluştu.');
+      setAnalyzeState('idle');
+    }
   };
 
   const handleFile = (file: File) => {
-    if (!file.name.match(/\.(pdf|docx)$/i)) return;
+    if (!file.name.match(/\.(pdf|docx)$/i)) {
+      setExtractError('Yalnızca PDF veya DOCX dosyaları desteklenir.');
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      setExtractError('Dosya boyutu 50 MB’ı aşıyor. Daha küçük bir dosya yükleyin veya metin sekmesini kullanın.');
+      return;
+    }
     const kb = (file.size / 1024).toFixed(0);
     const size = Number(kb) > 1024 ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : `${kb} KB`;
-    setUploadedFile({ name: file.name, size });
+    setUploadedFile({ name: file.name, size, file });
+    setExtractError(null);
   };
 
   const onDrop = useCallback((e: React.DragEvent) => {
@@ -365,6 +627,7 @@ export default function AnalysisPage() {
     setAnalysisResult(null);
     setInputText('');
     setUploadedFile(null);
+    setExtractError(null);
     setAnalyzeStageIdx(0);
     setShowArticle6Flag(false);
   };
@@ -496,9 +759,18 @@ export default function AnalysisPage() {
                     <div style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-body-sm)', fontWeight: 500 }}>{uploadedFile.name}</div>
                     <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', opacity: 0.7, marginTop: '2px' }}>{uploadedFile.size} · Metin otomatik olarak çıkarılıp analiz edilecek.</div>
                   </div>
-                  <button onClick={() => setUploadedFile(null)} className="focusable" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px' }}>
+                  <button onClick={() => { setUploadedFile(null); setExtractError(null); }} className="focusable" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px' }}>
                     <X size={16} />
                   </button>
+                </div>
+              )}
+
+              {extractError && (
+                <div className="flex items-start gap-2 mt-3 px-3 py-2 rounded-md" style={{ background: 'var(--danger-dim)', border: '1px solid rgba(181,61,46,0.3)' }}>
+                  <AlertTriangle size={14} style={{ color: 'var(--danger)', marginTop: 2, flexShrink: 0 }} />
+                  <span style={{ color: 'var(--danger-bright)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.5 }}>
+                    {extractError}
+                  </span>
                 </div>
               )}
             </div>

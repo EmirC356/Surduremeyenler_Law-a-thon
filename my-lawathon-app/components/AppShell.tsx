@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
-import Header from './Header';
+import FloatingActions from './FloatingActions';
 
 const STANDALONE_ROUTES = ['/', '/pricing'];
 
@@ -24,7 +24,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <>
       <Sidebar />
       <div className="flex flex-col flex-1 min-w-0 h-screen overflow-hidden">
-        <Header />
+        <FloatingActions />
         <main className="flex-1 overflow-y-auto" style={{ background: 'var(--bg-page)' }}>
           <div key={pathname} className="page-wrapper">
             {children}

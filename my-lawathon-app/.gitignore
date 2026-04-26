@@ -41,3 +41,8 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# Case Law documents must NOT be excluded — they are read by the API route at
+# runtime on Vercel (read-only fs). PDFs, DOCX, and TXT files in Case Law/ are
+# intentionally committed so they are available after deployment.
+# Do NOT add *.pdf, *.docx, or Case Law/ to this file.
