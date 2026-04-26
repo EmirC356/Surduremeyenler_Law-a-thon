@@ -9,7 +9,7 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   {
     label: 'Panel',
-    route: '/',
+    route: '/dashboard',
     icon: 'LayoutDashboard',
     sublabel: 'Genel Bakış',
     enabled: true,
@@ -32,7 +32,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Fiyatlandırma',
     route: '/pricing',
     icon: 'CreditCard',
-    sublabel: 'SaaS İş Modeli & ROI',
+    sublabel: 'Plan & Erişim',
     enabled: true,
   },
 ];

@@ -11,10 +11,122 @@ import {
   Legend,
   Tooltip,
 } from 'recharts';
-import { ChevronDown, ChevronUp, Info, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
-import { mockOffsetProjects, type OffsetProject } from '../../lib/caseData';
+import { ChevronDown, ChevronUp, Info, AlertTriangle, BookOpen } from 'lucide-react';
 
-const PROJECT_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899'];
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type OffsetDataEntry = {
+  project: string;
+  additionality: number | null;
+  permanence: number | null;
+  leakage: number | null;
+  mrv: number | null;
+  overall: number | 'Litigation Risk';
+  source: string;
+  note: string;
+};
+
+// ─── Real Source Data ─────────────────────────────────────────────────────────
+
+const offsetData: OffsetDataEntry[] = [
+  {
+    project: 'Kariba REDD+ Forest Conservation',
+    additionality: 25,
+    permanence: null,
+    leakage: null,
+    mrv: 10,
+    overall: 15,
+    source: "Verra (2023). 'Verra Acts on Kariba Project: Cancels Excess Credits, Advances Independent Review.' verra.org",
+    note: "Scores derived from Verra's institutional action — credit cancellation and launch of independent review — NOT from an independent third-party integrity audit. Actual additionality deficit may be substantially worse: external reporting placed >90% of credits as worthless. Permanence and leakage scores remain null because those dimensions were not addressed in the Verra statement.",
+  },
+  {
+    project: 'Amazon Biome (Voluntary REDD+)',
+    additionality: 35,
+    permanence: 35,
+    leakage: 35,
+    mrv: 35,
+    overall: 35,
+    source: "ScienceDirect (n.d.). 'Integrity challenges in carbon markets: Comparing UNFCCC and voluntary REDD+ verification in the Amazon Biome.' doi.org/[DOI]",
+    note: "Score of 35 reflects the paper's central finding that voluntary REDD+ verification is materially weaker than UNFCCC verification, mapping to 'Low/Questionable' on the conversion scale. Treat as approximate mid-point within that band — exact qualitative language could not be fully re-verified in this session.",
+  },
+  {
+    project: 'VCS/ACR Standard Benchmark',
+    additionality: 85,
+    permanence: 85,
+    leakage: 85,
+    mrv: 85,
+    overall: 85,
+    source: "Schmidt & Gerber (2016). 'A comparison of carbon market standards for REDD+ projects.' Germanwatch e.V. germanwatch.org/en/12479",
+    note: "Reflects standard-level performance on climate integrity criteria as scored by Germanwatch (2016). CRITICAL CAVEAT: These scores do NOT represent real-world project performance. Deployed projects can fall substantially below standard-level expectations — as the Kariba case (15/100 actual vs. 85/100 standard) demonstrates.",
+  },
+  {
+    project: 'Household / Cookstoves',
+    additionality: 30,
+    permanence: null,
+    leakage: null,
+    mrv: null,
+    overall: 30,
+    source: "Sylvera (2026). 'Carbon Credit Project Types 101: Understanding the Various Offset Initiatives.' sylvera.com",
+    note: "Type-level floor estimate only. Based on Sylvera's observation that household device projects 'often face additionality scrutiny'. No specific named cookstove project from the 14-document corpus. Permanence, leakage, and MRV were not assessed at type level in the source.",
+  },
+  {
+    project: 'Lufthansa Green Fares (Bundled)',
+    additionality: null,
+    permanence: null,
+    leakage: null,
+    mrv: null,
+    overall: 'Litigation Risk',
+    source: "Reuters (2023). 'Lufthansa introduces fares with offsetting already built in.' reuters.com",
+    note: "Product bundles: 80% climate protection projects, 20% SAF. High legal vulnerability — bundled offset claims without per-project integrity disclosure violate EU Green Claims Directive 2024/825. Active litigation risk under Shell/ClientEarth precedent. No integrity scores extractable from the source.",
+  },
+];
+
+const REFERENCES = [
+  'Verra. (2023). "Verra Acts on Kariba Project: Cancels Excess Credits, Advances Independent Review." Verra. verra.org',
+  'Schmidt, L. & Gerber, K. (2016). "A comparison of carbon market standards for REDD+ projects." Germanwatch e.V. www.germanwatch.org/en/12479',
+  'Author(s) unknown. (n.d.). "Integrity challenges in carbon markets: Comparing UNFCCC and voluntary REDD+ verification in the Amazon Biome." ScienceDirect. doi.org/[DOI not extractable from document]',
+  'Denton, [First Initial unknown]. (2020). "[Title not recoverable from filename alone]." [Journal/publisher not recoverable.]',
+  'Author unknown. (n.d.). "Blue Carbon Feasibility Assessment." [Publisher not identified in document.]',
+  'EcoSecurities. (n.d.). "Standards Overview." EcoSecurities.',
+  'Author unknown. (n.d.). "Carbon Offset Standards Comparison: Verra VCS vs. Gold Standard." EcoHedge. ecohedge.com',
+  'Author unknown. (2025). "Comparison of carbon credits: prices and standards in 2025." [Publisher not identified in document.]',
+  'Author unknown. (n.d.). "Verra VCS vs. Gold Standard." [Publisher not identified in document.]',
+  'Sylvera. (2026). "Carbon Credit Project Types 101: Understanding the Various Offset Initiatives." Sylvera Blog. sylvera.com',
+  'Persefoni. (2025). "Carbon Offset Programs Guide and Examples for 2026." Persefoni Blog. persefoni.com',
+  'Urs, K. (n.d.). "Comparing Gold Standard and Verra Certification for Biochar Carbon Credits: Key Features and Differences." India BioChar and BioResources Network. ibbn.in',
+  'Reuters. (2023). "Lufthansa introduces fares with offsetting already built in." Reuters. reuters.com',
+  'AQUILA. (2026). "Verra vs. Gold Standard: Which Certification is Right for Your Project?" AQUILA Knowledge Hub. aquila.is',
+];
+
+const CONFIDENCE_NOTES = [
+  {
+    project: 'Kariba (Additionality: 25, MRV Quality: 10, Overall: 15)',
+    note: "Scores derived from Verra's institutional action — credit cancellation and launch of independent review — not from an independent third-party integrity audit; the actual additionality deficit may be substantially worse (external reporting outside this corpus placed the figure at over 90% worthless credits), and permanence and leakage scores remain null because those dimensions were not addressed in the Verra statement.",
+  },
+  {
+    project: 'Amazon Biome voluntary REDD+ cohort (all criteria: 35)',
+    note: "The paper's exact qualitative language was read in the prior session and cannot be fully verified in this window; the score of 35 reflects the paper's central finding that voluntary REDD+ verification is materially weaker than UNFCCC verification, mapping to 'Low/Questionable' in the conversion scale, and should be treated as an approximate mid-point within that band.",
+  },
+  {
+    project: 'VCS/ACR standard-level benchmarks (85)',
+    note: "These scores reflect the performance of the certification standard on climate integrity criteria, as scored by Germanwatch (2016); they do not represent the real-world performance of any specific deployed project, which can fall substantially below standard-level expectations, as the Kariba case demonstrates.",
+  },
+  {
+    project: 'Cookstoves (Additionality: 30)',
+    note: "Based solely on Sylvera's type-level observation that household device projects 'often face additionality scrutiny'; no Kenya-specific named cookstove project appears in any of the 14 documents, and the score is a type-level floor estimate only.",
+  },
+];
+
+// Radar: null values rendered as 0 (see footnote). Lufthansa excluded (no numeric scores).
+const radarData = [
+  { subject: 'Ek Katkı', 'Kariba REDD+': 25, 'Amazon (Gönüllü)': 35, 'VCS/ACR Standardı': 85, Cookstoves: 30 },
+  { subject: 'Kalıcılık', 'Kariba REDD+': 0,  'Amazon (Gönüllü)': 35, 'VCS/ACR Standardı': 85, Cookstoves: 0 },
+  { subject: 'Sızıntı',   'Kariba REDD+': 0,  'Amazon (Gönüllü)': 35, 'VCS/ACR Standardı': 85, Cookstoves: 0 },
+  { subject: 'MRV Kalitesi', 'Kariba REDD+': 10, 'Amazon (Gönüllü)': 35, 'VCS/ACR Standardı': 85, Cookstoves: 0 },
+];
+
+const PROJECT_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6'];
+const projectKeys = ['Kariba REDD+', 'Amazon (Gönüllü)', 'VCS/ACR Standardı', 'Cookstoves'] as const;
 
 const CRITERIA_INFO = [
   {
@@ -31,155 +143,270 @@ const CRITERIA_INFO = [
   },
 ];
 
-const radarData = [
-  {
-    subject: 'Ek Katkı',
-    'Kariba REDD+': 12,
-    'Rimba Raya': 28,
-    'Boreal Forest': 45,
-    'Solar Rajasthan': 82,
-    'Cookstoves Kenya': 55,
-    'Ørsted Wind': 91,
-  },
-  {
-    subject: 'Kalıcılık',
-    'Kariba REDD+': 8,
-    'Rimba Raya': 35,
-    'Boreal Forest': 60,
-    'Solar Rajasthan': 95,
-    'Cookstoves Kenya': 70,
-    'Ørsted Wind': 98,
-  },
-  {
-    subject: 'Sızıntı',
-    'Kariba REDD+': 15,
-    'Rimba Raya': 22,
-    'Boreal Forest': 55,
-    'Solar Rajasthan': 88,
-    'Cookstoves Kenya': 48,
-    'Ørsted Wind': 94,
-  },
-];
+// ─── Utilities ────────────────────────────────────────────────────────────────
 
-const projectKeys = ['Kariba REDD+', 'Rimba Raya', 'Boreal Forest', 'Solar Rajasthan', 'Cookstoves Kenya', 'Ørsted Wind'] as const;
-
-function scoreColor(v: number) {
-  if (v < 50) return 'var(--danger)';
-  if (v <= 75) return 'var(--amber)';
-  return 'var(--accent-green)';
+function cellColor(v: number): string {
+  if (v < 30) return '#EF4444';
+  if (v < 60) return '#F59E0B';
+  return '#10B981';
 }
 
-function StatusBadge({ status }: { status: OffsetProject['status'] }) {
-  const map = {
-    valid:       { bg: 'var(--accent-green-dim)', text: 'var(--accent-green)',  icon: CheckCircle2, label: 'Geçerli' },
-    disputed:    { bg: 'var(--amber-dim)',          text: 'var(--amber)',          icon: AlertTriangle, label: 'Tartışmalı' },
-    invalidated: { bg: 'var(--danger-dim)',         text: 'var(--danger-bright)', icon: XCircle,       label: 'İptal Edildi' },
-  };
-  const cfg = map[status];
-  const Icon = cfg.icon;
+function shortSource(s: string): string {
+  const m = s.match(/^([^(]+\(\d{4}[^)]*\))/);
+  if (m) return m[1].trim();
+  const dot = s.match(/^([^.]+\.)/);
+  if (dot) return dot[1].trim();
+  return s.slice(0, 28);
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function InfoTooltip({ text }: { text: string }) {
+  const [visible, setVisible] = useState(false);
   return (
-    <span
-      className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-bold tracking-widest uppercase"
-      style={{
-        background: cfg.bg,
-        color: cfg.text,
-        border: `1px solid ${cfg.text}33`,
-        fontFamily: 'IBM Plex Mono, monospace',
-        animation: status === 'invalidated' ? 'blink 2.4s ease-in-out infinite' : 'none',
-      }}
-    >
-      <Icon size={11} />
-      {cfg.label}
+    <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: '5px' }}>
+      <Info
+        size={12}
+        style={{ color: 'var(--text-muted)', cursor: 'help', flexShrink: 0 }}
+        onMouseEnter={() => setVisible(true)}
+        onMouseLeave={() => setVisible(false)}
+      />
+      {visible && (
+        <span
+          style={{
+            position: 'absolute',
+            bottom: 'calc(100% + 8px)',
+            left: 0,
+            background: 'rgba(10,14,20,0.97)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid var(--border-normal)',
+            borderRadius: '8px',
+            padding: '10px 14px',
+            color: 'var(--text-secondary)',
+            fontFamily: 'IBM Plex Sans, sans-serif',
+            fontSize: '11px',
+            lineHeight: 1.65,
+            width: '300px',
+            zIndex: 50,
+            pointerEvents: 'none',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+            whiteSpace: 'normal',
+          }}
+        >
+          {text}
+        </span>
+      )}
     </span>
   );
 }
 
-function ScoreBar({ label, value }: { label: string; value: number }) {
-  const color = scoreColor(value);
+function ScoreCell({ value }: { value: number | null }) {
+  if (value === null) {
+    return <span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '13px' }}>—</span>;
+  }
+  const isHighRisk = value < 30;
   return (
-    <div className="mb-2">
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>{label}</span>
-        <span className="text-xs font-bold" style={{ color, fontFamily: 'IBM Plex Mono, monospace' }}>{value}</span>
-      </div>
-      <div className="h-1.5 rounded-full" style={{ background: 'var(--border-normal)' }}>
-        <div className="h-full rounded-full transition-all" style={{ width: `${value}%`, background: color }} />
-      </div>
-    </div>
+    <span
+      style={{
+        color: cellColor(value),
+        fontFamily: 'IBM Plex Mono, monospace',
+        fontSize: '13px',
+        fontWeight: isHighRisk ? 700 : 500,
+      }}
+    >
+      {value}
+    </span>
+  );
+}
+
+function OverallCell({ value }: { value: number | 'Litigation Risk' }) {
+  if (value === 'Litigation Risk') {
+    return (
+      <span
+        style={{
+          display: 'inline-block',
+          padding: '2px 8px',
+          borderRadius: '4px',
+          background: 'rgba(239,68,68,0.15)',
+          border: '1px solid rgba(239,68,68,0.35)',
+          color: '#EF4444',
+          fontFamily: 'var(--font-sans)',
+          fontSize: '10px',
+          fontWeight: 700,
+          letterSpacing: '0.04em',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        YÜKSEK RİSK
+      </span>
+    );
+  }
+  const isHighRisk = value < 30;
+  return (
+    <span
+      style={{
+        color: cellColor(value),
+        fontFamily: 'IBM Plex Mono, monospace',
+        fontSize: '14px',
+        fontWeight: isHighRisk ? 700 : 600,
+      }}
+    >
+      {value}
+      <span style={{ color: 'var(--text-muted)', fontSize: '10px', marginLeft: '2px' }}>/100</span>
+    </span>
   );
 }
 
 function CustomRadarTooltip({ active, payload }: { active?: boolean; payload?: { name: string; value: number }[] }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg p-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-normal)', fontFamily: 'IBM Plex Mono, monospace', fontSize: 11, boxShadow: '0 8px 24px rgba(0,0,0,0.4)', minWidth: 180 }}>
+    <div
+      style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-normal)',
+        borderRadius: '8px',
+        padding: '10px 14px',
+        fontFamily: 'IBM Plex Mono, monospace',
+        fontSize: 11,
+        boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+        minWidth: 200,
+      }}
+    >
       {payload.map((p, i) => (
-        <div key={i} className="flex items-center justify-between gap-4 py-0.5">
+        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', padding: '2px 0' }}>
           <span style={{ color: 'var(--text-muted)' }}>{p.name}</span>
-          <span style={{ color: scoreColor(p.value), fontWeight: 600 }}>{p.value}</span>
+          <span style={{ color: p.value === 0 ? 'var(--text-muted)' : cellColor(p.value), fontWeight: 600 }}>
+            {p.value === 0 ? '—' : p.value}
+          </span>
         </div>
       ))}
     </div>
   );
 }
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function OffsetIntegrityPage() {
-  const [infoOpen, setInfoOpen] = useState(false);
+  const [infoOpen, setInfoOpen]   = useState(false);
+  const [refsOpen, setRefsOpen]   = useState(false);
+  const [notesOpen, setNotesOpen] = useState(false);
 
   return (
     <div className="px-8 py-6 max-w-7xl mx-auto">
-      <div className="mb-6 animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards' }}>
-        <h2 className="font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.5rem' }}>
+
+      {/* ── Header ── */}
+      <div className="card-animated mb-5" style={{ animationDelay: '0ms' }}>
+        <h2 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-lg)', lineHeight: 'var(--line-height-headline-lg)', fontWeight: 600, marginBottom: '4px' }}>
           Karbon Offset Bütünlük Analizi
         </h2>
-        <p className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-          Offset projeleri üç bilimsel geçerlilik kriteriyle değerlendiriliyor: Ek Katkı, Kalıcılık ve Sızıntı
+        <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)' }}>
+          Gerçek akademik ve hukuki kaynaklardan derlenen veriler · 5 proje / 4 değerlendirme boyutu
         </p>
       </div>
 
-      {/* Collapsible criteria info */}
+      {/* ── WARNING BANNER ── */}
       <div
-        className="card mb-6 animate-fade-up"
-        style={{ opacity: 0, animationDelay: '80ms', animationFillMode: 'forwards', border: '1px solid rgba(59,130,246,0.2)' }}
+        className="card-animated mb-5"
+        style={{
+          animationDelay: '60ms',
+          background: 'rgba(239,68,68,0.07)',
+          border: '1px solid rgba(239,68,68,0.35)',
+          borderRadius: '12px',
+          padding: '16px 20px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <AlertTriangle size={16} style={{ color: '#EF4444', marginTop: '2px', flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div
+              style={{
+                fontFamily: 'IBM Plex Mono, monospace',
+                fontSize: '11px',
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: '#EF4444',
+                marginBottom: '10px',
+              }}
+            >
+              UYARI: Teorik Standart ile Gerçek Bütünlük Arasındaki Uçurum
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  background: 'rgba(16,185,129,0.1)',
+                  border: '1px solid rgba(16,185,129,0.25)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  textAlign: 'center',
+                  minWidth: '140px',
+                }}
+              >
+                <div style={{ color: '#10B981', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-data-md)', lineHeight: 'var(--line-height-data-md)', fontWeight: 300 }}>85</div>
+                <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-md)', marginTop: '4px' }}>VCS/ACR Standardı (Teorik)</div>
+                <div style={{ color: '#10B981', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-sm)' }}>Germanwatch (2016)</div>
+              </div>
+              <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '1.4rem', color: 'var(--text-muted)' }}>→</div>
+              <div
+                style={{
+                  background: 'rgba(239,68,68,0.12)',
+                  border: '1px solid rgba(239,68,68,0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  textAlign: 'center',
+                  minWidth: '140px',
+                }}
+              >
+                <div style={{ color: '#EF4444', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-data-md)', lineHeight: 'var(--line-height-data-md)', fontWeight: 700 }}>15</div>
+                <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-md)', marginTop: '4px' }}>Kariba REDD+ Gerçek Skor</div>
+                <div style={{ color: '#EF4444', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-sm)' }}>Verra Kredi İptali (2023)</div>
+              </div>
+              <div style={{ flex: 1, minWidth: '200px' }}>
+                <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-md)', lineHeight: 'var(--line-height-body-md)', maxWidth: '72ch' }}>
+                  Sertifika standardının teorik skoru <strong style={{ color: 'var(--text-primary)' }}>85/100</strong> iken sahada uygulanan projenin gerçek bütünlük skoru <strong style={{ color: '#EF4444' }}>15/100</strong>. Şirketler Verra sertifikasına güvenerek satın aldıkları kredilerin bu sistemik riskini hukuki süreçlerde savunamaz.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Collapsible criteria info ── */}
+      <div
+        className="card card-animated mb-5"
+        style={{ animationDelay: '100ms', border: '1px solid rgba(59,130,246,0.2)' }}
       >
         <button
-          onClick={() => setInfoOpen((v) => !v)}
+          onClick={() => setInfoOpen(v => !v)}
           className="flex items-center justify-between w-full px-5 py-4"
           style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
         >
           <div className="flex items-center gap-2">
             <Info size={14} style={{ color: 'var(--blue-data)' }} />
-            <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif' }}>
+            <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600 }}>
               Üç Bütünlük Kriteri — Offsetler Neden Başarısız Olur?
             </span>
           </div>
-          {infoOpen
-            ? <ChevronUp size={14} style={{ color: 'var(--text-muted)' }} />
-            : <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
-          }
+          {infoOpen ? <ChevronUp size={14} style={{ color: 'var(--text-muted)' }} /> : <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />}
         </button>
-
         {infoOpen && (
-          <div
-            className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-5 pb-5"
-            style={{ borderTop: '1px solid var(--border-subtle)' }}
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-5 pb-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
             {CRITERIA_INFO.map((c) => (
               <div key={c.name} className="pt-4">
                 <div className="text-xs font-bold mb-1 uppercase tracking-widest" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>{c.name}</div>
-                <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65 }}>{c.desc}</p>
+                <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.7, maxWidth: '72ch' }}>{c.desc}</p>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Paris Agreement Article 6 legal context */}
+      {/* ── Paris Agreement Article 6 ── */}
       <div
-        className="card mb-6 animate-fade-up"
-        style={{ opacity: 0, animationDelay: '120ms', animationFillMode: 'forwards', border: '1px solid rgba(239,68,68,0.2)' }}
+        className="card card-animated mb-5"
+        style={{ animationDelay: '140ms', border: '1px solid rgba(181,61,46,0.2)' }}
       >
-        <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
           <div className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>
             Paris Anlaşması Madde 6 — Hukuki Standart
           </div>
@@ -187,124 +414,337 @@ export default function OffsetIntegrityPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-0">
           <div className="px-5 py-4" style={{ borderRight: '1px solid var(--border-subtle)' }}>
             <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Madde 6.2 — ITMO</div>
-            <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65 }}>
-              Uluslararası Aktarılan Azaltım Sonuçları — sınır ötesi aktarılan her karbon kredisi, ev sahibi ülke hükümetinin onayını gerektirir. Bu onay olmadan satılan krediler &lsquo;karbon nötr&rsquo; iddiasını hukuken destekleyemez.
+            <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.7, maxWidth: '72ch' }}>
+              Uluslararası Aktarılan Azaltım Sonuçları — sınır ötesi aktarılan her karbon kredisi, ev sahibi ülke hükümetinin onayını gerektirir. Bu onay olmaksızın satılan krediler &lsquo;karbon nötr&rsquo; iddiasını hukuken destekleyemez.
             </p>
           </div>
           <div className="px-5 py-4" style={{ borderRight: '1px solid var(--border-subtle)' }}>
             <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Madde 6.4 — Kredi Mekanizması</div>
-            <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65 }}>
+            <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.7, maxWidth: '72ch' }}>
               Krediler, UNFCCC Denetim Kurulu&apos;nun belirlediği ek katkı, kalıcılık ve sızıntı standartlarını karşılamalıdır. Tek başına Verra VCS veya Gold Standard sertifikası yasal uyumluluk için yeterli değildir.
             </p>
           </div>
           <div className="px-5 py-4">
             <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Mono, monospace' }}>Temel Sonuç</div>
             <p className="text-xs" style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65, fontWeight: 500 }}>
-              2023 öncesinde satın alınan REDD+ offsetlerini kullanan bir şirket, Verra sertifikasına sahip olsa bile Madde 6.4 yetkisi eksikse dava riskiyle karşı karşıya kalabilir.
+              2023 öncesinde satın alınan REDD+ offsetlerini kullanan bir şirket, Verra sertifikasına sahip olsa bile Madde 6.4 yetkisi eksikse yüksek uyum riskiyle karşı karşıya kalabilir.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Main content: radar + cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3">
-          <div className="card p-6 animate-fade-up" style={{ opacity: 0, animationDelay: '160ms', animationFillMode: 'forwards' }}>
-            <h3 className="font-semibold mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.15rem' }}>
-              Çok Projeli Bütünlük Radarı
+      {/* ── Radar Chart ── */}
+      <div
+        className="card card-animated p-6 mb-5"
+        style={{ animationDelay: '180ms' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+          <div>
+            <h3 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600, marginBottom: '4px' }}>
+              Çok Boyutlu Bütünlük Radarı
             </h3>
-            <p className="text-xs mb-5" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-              6 offset projesi · Üç bilimsel geçerlilik ekseni · Ölçek 0–100
+            <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)' }}>
+              4 proje · 4 değerlendirme boyutu · Gerçek kaynak verileri · Ölçek 0–100
             </p>
-
-            <ResponsiveContainer width="100%" height={340}>
-              <RadarChart data={radarData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
-                <PolarGrid stroke="rgba(255,255,255,0.06)" />
-                <PolarAngleAxis
-                  dataKey="subject"
-                  tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: 'IBM Plex Mono, monospace' }}
-                />
-                <PolarRadiusAxis
-                  angle={90}
-                  domain={[0, 100]}
-                  tick={{ fill: 'var(--text-muted)', fontSize: 9, fontFamily: 'IBM Plex Mono, monospace' }}
-                  tickCount={6}
-                />
-                <Tooltip content={<CustomRadarTooltip />} />
-                {projectKeys.map((key, i) => (
-                  <Radar
-                    key={key}
-                    name={key}
-                    dataKey={key}
-                    stroke={PROJECT_COLORS[i]}
-                    fill={PROJECT_COLORS[i]}
-                    fillOpacity={0.12}
-                    strokeWidth={1.5}
-                    dot={{ r: 3, fill: PROJECT_COLORS[i], strokeWidth: 0 }}
-                  />
-                ))}
-                <Legend
-                  formatter={(value: string, entry: { color?: string }) => (
-                    <span style={{ color: entry.color ?? 'var(--text-secondary)', fontFamily: 'IBM Plex Mono, monospace', fontSize: 11 }}>{value}</span>
-                  )}
-                  wrapperStyle={{ paddingTop: 16 }}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-
-            <div className="mt-3 px-4 py-2.5 rounded-lg" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-              <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', lineHeight: 1.6 }}>
-                Herhangi bir eksende 50&apos;nin altında puan, bilimsel açıdan tartışmalı bir offset kredisine işaret eder.
-              </p>
-            </div>
+          </div>
+          <div
+            style={{
+              padding: '5px 12px',
+              borderRadius: '6px',
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.2)',
+            }}
+          >
+            <span style={{ color: '#EF4444', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', fontWeight: 600 }}>
+              * Null boyutlar 0 olarak gösterilmiştir — tablo için gerçek değerlere bakın
+            </span>
           </div>
         </div>
 
-        <div className="lg:col-span-2 flex flex-col gap-4">
-          {mockOffsetProjects.map((project, i) => (
-            <div
-              key={project.projectName}
-              className="card p-4 animate-fade-up"
-              style={{
-                opacity: 0,
-                animationDelay: `${200 + i * 80}ms`,
-                animationFillMode: 'forwards',
-                borderLeft: `3px solid ${PROJECT_COLORS[i]}`,
-              }}
-            >
-              <div className="flex items-start justify-between gap-2 mb-3">
-                <div>
-                  <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif' }}>
-                    {project.projectName}
-                  </div>
-                  <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-                    {project.projectType} · {project.certificationBody}
-                  </div>
-                </div>
-                <StatusBadge status={project.status} />
-              </div>
-
-              <ScoreBar label="Ek Katkı" value={project.additionalityScore} />
-              <ScoreBar label="Kalıcılık"  value={project.permanenceScore} />
-              <ScoreBar label="Sızıntı"    value={project.leakageScore} />
-
-              <div className="flex items-center justify-between mt-3 pt-2.5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>Bütünlük Skoru</span>
-                <span className="text-xl font-light" style={{ color: scoreColor(project.overallIntegrityScore), fontFamily: 'IBM Plex Mono, monospace' }}>
-                  {project.overallIntegrityScore}
-                  <span className="text-xs ml-0.5" style={{ color: 'var(--text-muted)' }}>/100</span>
-                </span>
-              </div>
-
-              {project.notes && (
-                <p className="text-xs mt-2" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.5 }}>
-                  {project.notes}
-                </p>
+        <ResponsiveContainer width="100%" height={320}>
+          <RadarChart data={radarData} margin={{ top: 10, right: 40, bottom: 10, left: 40 }}>
+            <PolarGrid stroke="var(--border)" />
+            <PolarAngleAxis
+              dataKey="subject"
+              tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: 'IBM Plex Mono, monospace' }}
+            />
+            <PolarRadiusAxis
+              angle={90}
+              domain={[0, 100]}
+              tick={{ fill: 'var(--text-muted)', fontSize: 9, fontFamily: 'IBM Plex Mono, monospace' }}
+              tickCount={6}
+            />
+            <Tooltip content={<CustomRadarTooltip />} />
+            {projectKeys.map((key, i) => (
+              <Radar
+                key={key}
+                name={key}
+                dataKey={key}
+                stroke={PROJECT_COLORS[i]}
+                fill={PROJECT_COLORS[i]}
+                fillOpacity={0.1}
+                strokeWidth={1.5}
+                dot={{ r: 3, fill: PROJECT_COLORS[i], strokeWidth: 0 }}
+              />
+            ))}
+            <Legend
+              formatter={(value: string, entry: { color?: string }) => (
+                <span style={{ color: entry.color ?? 'var(--text-secondary)', fontFamily: 'IBM Plex Mono, monospace', fontSize: 11 }}>{value}</span>
               )}
+              wrapperStyle={{ paddingTop: 14 }}
+            />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* ── Data Table ── */}
+      <div
+        className="card card-animated"
+        style={{ animationDelay: '220ms', marginBottom: '16px', overflow: 'hidden' }}
+      >
+        <div className="px-6 py-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <h3 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600, marginBottom: '4px' }}>
+            Ham Bütünlük Verileri — Kaynaklı Tablo
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)' }}>
+            Tüm skorlar akademik veya kurumsal kaynaklardan türetilmiştir · — = değerlendirilmemiş
+          </p>
+        </div>
+
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-secondary)' }}>
+                {['Proje Adı', 'Ek Katkı', 'Kalıcılık', 'Sızıntı', 'MRV Kalitesi', 'Genel Skor', 'Kaynak'].map((h) => (
+                  <th
+                    key={h}
+                    style={{
+                      padding: '10px 14px',
+                      textAlign: 'left',
+                      color: 'var(--text-muted)',
+                      fontFamily: 'IBM Plex Mono, monospace',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {offsetData.map((entry, i) => {
+                const isKariba = entry.project.includes('Kariba');
+                return (
+                  <tr
+                    key={entry.project}
+                    style={{
+                      borderBottom: '1px solid var(--border-subtle)',
+                      background: isKariba ? 'rgba(239,68,68,0.04)' : i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
+                    }}
+                  >
+                    {/* Project Name */}
+                    <td style={{ padding: '13px 14px', maxWidth: '220px' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0px' }}>
+                        <span
+                          style={{
+                            color: isKariba ? '#EF4444' : 'var(--text-primary)',
+                            fontFamily: 'IBM Plex Sans, sans-serif',
+                            fontSize: '12px',
+                            fontWeight: isKariba ? 600 : 500,
+                            lineHeight: 1.45,
+                          }}
+                        >
+                          {entry.project}
+                        </span>
+                        <InfoTooltip text={entry.note} />
+                      </div>
+                    </td>
+                    {/* Scores */}
+                    <td style={{ padding: '13px 14px', textAlign: 'center' }}>
+                      <ScoreCell value={entry.additionality} />
+                    </td>
+                    <td style={{ padding: '13px 14px', textAlign: 'center' }}>
+                      <ScoreCell value={entry.permanence} />
+                    </td>
+                    <td style={{ padding: '13px 14px', textAlign: 'center' }}>
+                      <ScoreCell value={entry.leakage} />
+                    </td>
+                    <td style={{ padding: '13px 14px', textAlign: 'center' }}>
+                      <ScoreCell value={entry.mrv} />
+                    </td>
+                    {/* Overall */}
+                    <td style={{ padding: '13px 14px', textAlign: 'center' }}>
+                      <OverallCell value={entry.overall} />
+                    </td>
+                    {/* Source */}
+                    <td style={{ padding: '13px 14px' }} title={entry.source}>
+                      <span
+                        style={{
+                          color: 'var(--text-muted)',
+                          fontFamily: 'IBM Plex Mono, monospace',
+                          fontSize: '11px',
+                          cursor: 'default',
+                        }}
+                      >
+                        {shortSource(entry.source)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Score legend */}
+        <div className="px-6 py-3" style={{ borderTop: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          <span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Skor Renk Eşiği:</span>
+          {[
+            { label: '< 30 — Kritik Risk', color: '#EF4444' },
+            { label: '30–59 — Düşük / Tartışmalı', color: '#F59E0B' },
+            { label: '≥ 60 — Kabul Edilebilir', color: '#10B981' },
+          ].map((item) => (
+            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color, display: 'inline-block', flexShrink: 0 }} />
+              <span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px' }}>{item.label}</span>
             </div>
           ))}
         </div>
       </div>
+
+      {/* ── Confidence Notes (collapsible) ── */}
+      <div
+        className="card card-animated mb-4"
+        style={{ animationDelay: '240ms', border: '1px solid rgba(176,125,42,0.2)' }}
+      >
+        <button
+          onClick={() => setNotesOpen(v => !v)}
+          className="flex items-center justify-between w-full px-5 py-4"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+        >
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={13} style={{ color: 'var(--amber)' }} />
+            <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600 }}>
+              Güven Notları — Metodolojik Sınırlamalar
+            </span>
+          </div>
+          {notesOpen ? <ChevronUp size={14} style={{ color: 'var(--text-muted)' }} /> : <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />}
+        </button>
+        {notesOpen && (
+          <div className="px-5 pb-5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+            {CONFIDENCE_NOTES.map((note, i) => (
+              <div
+                key={i}
+                style={{
+                  marginTop: '16px',
+                  paddingLeft: '14px',
+                  borderLeft: '2px solid rgba(245,158,11,0.4)',
+                }}
+              >
+                <div style={{ color: 'var(--amber)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, marginBottom: '6px' }}>
+                  {note.project}
+                </div>
+                <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.7, maxWidth: '72ch' }}>
+                  {note.note}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── References Button ── */}
+      <div className="card-animated" style={{ animationDelay: '260ms' }}>
+        <button
+          onClick={() => setRefsOpen(v => !v)}
+          className="focusable"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            background: refsOpen ? 'var(--bg-surface)' : 'var(--bg-surface-2)',
+            border: '1px solid var(--border)',
+            color: 'var(--text-secondary)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 'var(--font-size-label-lg)',
+            fontWeight: 600,
+            cursor: 'pointer',
+            letterSpacing: '0.05em',
+            transition: 'all 0.2s ease',
+            width: '100%',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <BookOpen size={14} style={{ color: 'var(--text-muted)' }} />
+            REFERENCES ({REFERENCES.length} kaynak)
+          </div>
+          {refsOpen ? <ChevronUp size={14} style={{ color: 'var(--text-muted)' }} /> : <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />}
+        </button>
+
+        {refsOpen && (
+          <div
+            style={{
+              marginTop: '4px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-normal)',
+              borderRadius: '8px',
+              padding: '20px 24px',
+            }}
+          >
+            <div
+              style={{
+                color: 'var(--text-primary)',
+                fontFamily: 'IBM Plex Mono, monospace',
+                fontSize: '12px',
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                marginBottom: '16px',
+                paddingBottom: '10px',
+                borderBottom: '1px solid var(--border-subtle)',
+              }}
+            >
+              REFERENCES
+            </div>
+            {REFERENCES.map((ref, i) => (
+              <div
+                key={i}
+                style={{
+                  display: 'flex',
+                  gap: '12px',
+                  marginBottom: '12px',
+                  paddingBottom: '12px',
+                  borderBottom: i < REFERENCES.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+                }}
+              >
+                <span
+                  style={{
+                    color: 'var(--accent-green)',
+                    fontFamily: 'IBM Plex Mono, monospace',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    flexShrink: 0,
+                    paddingTop: '1px',
+                  }}
+                >
+                  [{i + 1}]
+                </span>
+                <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.7, margin: 0, maxWidth: '72ch' }}>
+                  {ref}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }

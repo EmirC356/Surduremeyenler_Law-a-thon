@@ -24,7 +24,7 @@ const ANALYZE_STAGES = [
   { label: 'Metin çıkarılıyor ve iddialar tespit ediliyor...', icon: Search, duration: 500 },
   { label: 'Düzenlemeye tabi terminoloji taranıyor...', icon: BookOpen, duration: 800 },
   { label: '8 emsal karara göre eşleştirme yapılıyor...', icon: Scale, duration: 1000 },
-  { label: 'Dava riski skoru hesaplanıyor...', icon: BarChart2, duration: 700 },
+  { label: 'Uyum risk skoru hesaplanıyor...', icon: BarChart2, duration: 700 },
 ];
 
 const DEMO_CLAIM =
@@ -50,7 +50,7 @@ function highlightText(text: string, keywords: string[]): React.ReactNode {
         keywords.some((k) => k.toLowerCase() === part.toLowerCase()) ? (
           <mark
             key={i}
-            style={{ background: 'rgba(245,158,11,0.22)', color: 'var(--amber)', borderRadius: '2px', padding: '0 2px' }}
+            style={{ background: 'rgba(176,125,42,0.18)', color: 'var(--amber)', borderRadius: '2px', padding: '0 2px' }}
           >
             {part}
           </mark>
@@ -71,38 +71,38 @@ function RiskThermometer({ score, category }: { score: number; category: ClaimAn
   const categoryLabel =
     category === 'safe' ? 'Düşük Risk' :
     category === 'grey' ? 'Gri Alan' :
-    'Dava Edilebilir';
+    'Yüksek Risk';
 
   return (
-    <div className="card p-6 animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards' }}>
-      <div className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-        Dava Riski Skoru
+    <div className="card card-animated p-6" style={{ animationDelay: '0ms' }}>
+      <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px' }}>
+        Uyum Risk Skoru
       </div>
 
-      <div className="flex items-end gap-4 mb-5">
-        <div className="text-6xl font-light" style={{ color: scoreColor, fontFamily: 'IBM Plex Mono, monospace', letterSpacing: '-0.04em' }}>
+      <div className="flex items-end gap-4 mb-6">
+        <div style={{ color: scoreColor, fontFamily: 'var(--font-sans)', fontSize: '80px', lineHeight: 1, fontWeight: 800, letterSpacing: '-0.05em' }}>
           {score}
         </div>
-        <div className="pb-2">
-          <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>/100</div>
-          <div className="text-xs font-bold uppercase tracking-widest mt-0.5" style={{ color: scoreColor, fontFamily: 'IBM Plex Mono, monospace' }}>
+        <div style={{ paddingBottom: '10px' }}>
+          <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: '18px', fontWeight: 500 }}>/100</div>
+          <div style={{ color: scoreColor, fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '2px' }}>
             {categoryLabel}
           </div>
         </div>
       </div>
 
-      <div className="relative mb-3">
+      <div className="relative mb-4">
         <div className="h-4 rounded-full" style={{ background: 'linear-gradient(to right, #10B981, #F59E0B 50%, #EF4444)' }} />
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-sm shadow-lg"
-          style={{ left: `calc(${score}% - 8px)`, background: '#fff', border: `2px solid ${scoreColor}` }}
+          className="thermometer-marker absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-sm shadow-lg"
+          style={{ left: `calc(${score}% - 8px)`, background: 'var(--bg-surface-2)', border: `2px solid ${scoreColor}` }}
         />
       </div>
 
-      <div className="flex justify-between text-xs" style={{ fontFamily: 'IBM Plex Mono, monospace' }}>
-        <div style={{ color: 'var(--accent-green)' }}>0–30<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Güvenli Beyan</span></div>
-        <div className="text-center" style={{ color: 'var(--amber)' }}>30–70<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Gri Alan</span></div>
-        <div className="text-right" style={{ color: 'var(--danger)' }}>70–100<br /><span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Dava Edilebilir</span></div>
+      <div className="flex justify-between" style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-md)' }}>
+        <div style={{ color: 'var(--accent-green)' }}>0–30<br /><span style={{ color: 'var(--text-secondary)' }}>Güvenli Beyan</span></div>
+        <div className="text-center" style={{ color: 'var(--amber)' }}>30–70<br /><span style={{ color: 'var(--text-secondary)' }}>Gri Alan</span></div>
+        <div className="text-right" style={{ color: 'var(--danger)' }}>70–100<br /><span style={{ color: 'var(--text-secondary)' }}>Yüksek Risk</span></div>
       </div>
     </div>
   );
@@ -115,42 +115,41 @@ function CasePrecedentMatch({ inputText, keywords, matchedCase }: { inputText: s
   return (
     <div
       className="grid grid-cols-1 md:grid-cols-2 gap-0 rounded-xl overflow-hidden"
-      style={{ border: '1px solid var(--border-normal)' }}
+      style={{ border: '1px solid var(--border)' }}
     >
-      <div className="p-5" style={{ background: 'var(--bg-secondary)', borderRight: '1px solid var(--border-subtle)' }}>
-        <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+      <div className="p-5" style={{ background: 'var(--bg-surface-2)', borderRight: '1px solid var(--border)' }}>
+        <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>
           Şirket İddiası
         </div>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.7 }}>
+        <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-md)', lineHeight: 'var(--line-height-body-md)', maxWidth: '72ch' }}>
           {highlightText(inputText, caseKws.length > 0 ? caseKws : keywords)}
         </p>
       </div>
 
-      <div className="p-5" style={{ background: 'var(--bg-card)' }}>
+      <div className="p-5" style={{ background: 'var(--bg-surface)' }}>
         <div className="flex items-start justify-between gap-2 mb-3">
-          <div className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+          <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             Eşleşen Emsal Karar
           </div>
           <span
-            className="px-2 py-0.5 rounded text-xs font-bold shrink-0"
-            style={{ background: 'var(--danger-dim)', color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace', border: '1px solid rgba(239,68,68,0.25)' }}
+            style={{ background: 'var(--danger-dim)', color: 'var(--danger-bright)', fontFamily: 'var(--font-mono)', border: '1px solid rgba(181,61,46,0.25)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', flexShrink: 0 }}
           >
             %{matchedCase.similarityThreshold} benzerlik
           </span>
         </div>
-        <div className="font-semibold text-sm mb-0.5" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif' }}>
+        <div style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600, marginBottom: '8px' }}>
           {matchedCase.caseName} ({matchedCase.year})
         </div>
-        <p className="text-xs italic mb-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.6 }}>
+        <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.7, fontStyle: 'italic', marginBottom: '12px', maxWidth: '72ch' }}>
           &ldquo;{matchedCase.claimMade}&rdquo;
         </p>
-        <div className="text-xs mb-2" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.6 }}>
+        <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.65, marginBottom: '8px', maxWidth: '72ch' }}>
           <strong style={{ color: 'var(--danger-bright)' }}>Mahkeme kararı: </strong>
           {matchedCase.violationReason}
         </div>
-        <div className="text-xs" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>
-          <Scale size={10} className="inline mr-1" />{matchedCase.regulationCited}
-        </div>
+        <span className="reg-pill">
+          {matchedCase.regulationCited}
+        </span>
       </div>
     </div>
   );
@@ -166,18 +165,18 @@ const NEWS_CITATIONS = [
 
 function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResult; showArticle6Flag: boolean }) {
   return (
-    <div className="flex flex-col gap-6 mt-6">
+    <div className="flex flex-col gap-5 mt-5">
       {showArticle6Flag && (
         <div
-          className="flex items-start gap-3 px-4 py-3 rounded-xl animate-fade-up"
-          style={{ opacity: 0, animationFillMode: 'forwards', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.4)' }}
+          className="flex items-start gap-3 px-4 py-3 rounded-xl card-animated"
+          style={{ animationDelay: '0ms', background: 'rgba(181,61,46,0.07)', border: '1px solid rgba(181,61,46,0.35)' }}
         >
-          <AlertTriangle size={16} style={{ color: 'var(--danger)', marginTop: 2, flexShrink: 0 }} />
+          <AlertTriangle size={20} style={{ color: 'var(--danger)', marginTop: 2, flexShrink: 0 }} />
           <div>
-            <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>
+            <div style={{ color: 'var(--danger-bright)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>
               Paris Anlaşması Madde 6.4 — KRİTİK İHLAL
             </div>
-            <p className="text-xs" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65 }}>
+            <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.7, maxWidth: '72ch' }}>
               {ARTICLE6_FLAG}
             </p>
           </div>
@@ -186,82 +185,76 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
 
       <RiskThermometer score={result.litigationRiskScore} category={result.riskCategory} />
 
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: 'Anahtar Kelime Eşleşmesi', value: result.breakdown.keywordMatchScore, color: 'var(--danger)' },
-          { label: 'Dava Eşleşmesi', value: result.breakdown.caseMatchScore, color: 'var(--amber)' },
-          { label: 'Offset Bütünlüğü', value: result.breakdown.offsetIntegrityScore, color: 'var(--blue-data)' },
-        ].map((b) => (
-          <div key={b.label} className="card p-4 text-center animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards', animationDelay: '80ms' }}>
-            <div className="text-2xl font-light mb-1" style={{ color: b.color, fontFamily: 'IBM Plex Mono, monospace' }}>{b.value}</div>
-            <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>{b.label}</div>
-          </div>
-        ))}
-      </div>
-
       {result.detectedKeywords.length > 0 && (
-        <div className="card p-5 animate-fade-up" style={{ opacity: 0, animationDelay: '120ms', animationFillMode: 'forwards' }}>
-          <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-            Tespit Edilen Kırmızı Bayrak Anahtar Kelimeler
+        <>
+          <hr className="section-divider" />
+          <div className="card card-animated p-5" style={{ animationDelay: '120ms' }}>
+            <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>
+              Tespit Edilen Kırmızı Bayrak Anahtar Kelimeler
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {result.detectedKeywords.map((kw) => (
+                <span
+                  key={kw}
+                  style={{ background: 'var(--danger-dim)', color: 'var(--danger-bright)', border: '1px solid rgba(181,61,46,0.25)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 500, padding: '4px 10px', borderRadius: '4px' }}
+                >
+                  {kw}
+                </span>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {result.detectedKeywords.map((kw) => (
-              <span
-                key={kw}
-                className="px-2.5 py-1 rounded text-xs font-medium"
-                style={{ background: 'var(--danger-dim)', color: 'var(--danger-bright)', border: '1px solid rgba(239,68,68,0.25)', fontFamily: 'IBM Plex Mono, monospace' }}
-              >
-                {kw}
-              </span>
-            ))}
-          </div>
-        </div>
+        </>
       )}
 
       {result.matchedCases.length > 0 && (
-        <div className="animate-fade-up" style={{ opacity: 0, animationDelay: '160ms', animationFillMode: 'forwards' }}>
-          <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-            Emsal Karar Eşleşmeleri — {result.matchedCases.length} adet bulundu
+        <>
+          <hr className="section-divider" />
+          <div className="card-animated" style={{ animationDelay: '160ms' }}>
+            <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>
+              Emsal Karar Eşleşmeleri — {result.matchedCases.length} adet bulundu
+            </div>
+            <div className="flex flex-col gap-4">
+              {result.matchedCases.slice(0, 2).map((c) => (
+                <CasePrecedentMatch
+                  key={c.id}
+                  inputText={result.inputText}
+                  keywords={result.detectedKeywords}
+                  matchedCase={c}
+                />
+              ))}
+            </div>
           </div>
-          <div className="flex flex-col gap-4">
-            {result.matchedCases.slice(0, 2).map((c) => (
-              <CasePrecedentMatch
-                key={c.id}
-                inputText={result.inputText}
-                keywords={result.detectedKeywords}
-                matchedCase={c}
-              />
-            ))}
-          </div>
-        </div>
+        </>
       )}
 
-      <div className="card p-5 animate-fade-up" style={{ opacity: 0, animationDelay: '200ms', animationFillMode: 'forwards', border: '1px solid rgba(59,130,246,0.2)' }}>
+      <hr className="section-divider" />
+
+      <div className="card card-animated p-5" style={{ animationDelay: '200ms' }}>
         <div className="flex items-center gap-2 mb-4">
-          <CheckCircle2 size={15} style={{ color: 'var(--accent-green)' }} />
-          <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.05rem' }}>
-            Hukuki Öneriler
+          <CheckCircle2 size={20} style={{ color: 'var(--accent-green)' }} />
+          <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 700 }}>
+            Uyum Önerileri
           </span>
         </div>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           {result.recommendations.map((rec, i) => (
             <div key={i} className="flex items-start gap-3">
               <div
-                className="shrink-0 flex items-center justify-center w-5 h-5 rounded-full mt-0.5"
-                style={{ background: 'var(--blue-dim)', border: '1px solid rgba(59,130,246,0.3)' }}
+                className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full mt-0.5"
+                style={{ background: 'var(--green-light)', border: '1px solid var(--border-strong)', flexShrink: 0 }}
               >
-                <span className="text-xs font-bold" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>{i + 1}</span>
+                <span style={{ color: 'var(--green-text)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-md)', fontWeight: 700 }}>{i + 1}</span>
               </div>
-              <p className="text-sm" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.7 }}>{rec}</p>
+              <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-md)', lineHeight: 'var(--line-height-body-md)', maxWidth: '72ch' }}>{rec}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="card p-5 animate-fade-up" style={{ opacity: 0, animationDelay: '240ms', animationFillMode: 'forwards' }}>
+      <div className="card card-animated p-5" style={{ animationDelay: '240ms' }}>
         <div className="flex items-center gap-2 mb-4">
-          <FileText size={14} style={{ color: 'var(--text-muted)' }} />
-          <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.05rem' }}>
+          <FileText size={20} style={{ color: 'var(--text-secondary)' }} />
+          <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600 }}>
             Kaynaklar ve Kanıtlar
           </span>
         </div>
@@ -270,25 +263,24 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
             <div
               key={i}
               className="flex items-start gap-3 px-3 py-2.5 rounded-lg"
-              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}
+              style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border)' }}
             >
               <div
-                className="shrink-0 px-1.5 py-0.5 rounded text-xs font-bold"
-                style={{ background: 'var(--bg-card)', color: 'var(--blue-data)', border: '1px solid var(--border-normal)', fontFamily: 'IBM Plex Mono, monospace', minWidth: 68, textAlign: 'center' }}
+                style={{ background: 'var(--bg-surface)', color: 'var(--blue-data)', border: '1px solid var(--border)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-md)', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', flexShrink: 0, minWidth: '68px', textAlign: 'center' as const }}
               >
                 {c.source}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.5 }}>{c.headline}</p>
+                <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.55, maxWidth: '72ch' }}>{c.headline}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>{c.date}</span>
-                  <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--blue-dim)', color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>{c.relevance}</span>
+                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', opacity: 0.6 }}>{c.date}</span>
+                  <span className="reg-pill">{c.relevance}</span>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        <p className="text-xs mt-3" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.55, borderTop: '1px solid var(--border-subtle)', paddingTop: 10 }}>
+        <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.6, opacity: 0.7, borderTop: '1px solid var(--border)', paddingTop: '12px', marginTop: '12px', maxWidth: '72ch' }}>
           Kaynaklar hukuki atıf amacıyla sunulmuştur. Bu araç, kamuya açık bilgileri eğitim ve hukuki araştırma amaçlı derlemektedir.
         </p>
       </div>
@@ -379,28 +371,33 @@ export default function AnalysisPage() {
 
   return (
     <div className="px-8 py-6 max-w-5xl mx-auto">
-      <div className="mb-6 animate-fade-up" style={{ opacity: 0, animationFillMode: 'forwards' }}>
-        <h2 className="font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.5rem' }}>
+
+      {/* Page heading */}
+      <div className="card-animated mb-5" style={{ animationDelay: '0ms' }}>
+        <h2 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-lg)', lineHeight: 'var(--line-height-headline-lg)', fontWeight: 600, marginBottom: '4px' }}>
           Yapay Zeka Destekli İddia Araştırıcısı
         </h2>
-        <p className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
-          Karbon offset iddia doğrulama · 8 emsal karara göre eşleştirme · Dava riski puanlaması
+        <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)' }}>
+          Karbon offset iddia doğrulama · 8 emsal karara göre eşleştirme · Uyum risk puanlaması
         </p>
       </div>
 
+      {/* Input card */}
       {analyzeState === 'idle' && (
-        <div className="card p-6 animate-fade-up" style={{ opacity: 0, animationDelay: '80ms', animationFillMode: 'forwards' }}>
-          <div className="flex gap-1 mb-5 p-1 rounded-lg" style={{ background: 'var(--bg-secondary)', width: 'fit-content' }}>
+        <div className="card card-animated p-6" style={{ animationDelay: '60ms' }}>
+          {/* Tab switcher */}
+          <div className="flex gap-1 mb-5 p-1 rounded-lg" style={{ background: 'var(--bg-surface-2)', width: 'fit-content' }}>
             {(['text', 'upload'] as InputTab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className="px-4 py-2 rounded-md text-xs font-medium transition-all"
+                className="focusable px-4 py-2 rounded-md font-medium transition-all"
                 style={{
-                  background: activeTab === tab ? 'var(--bg-card)' : 'transparent',
-                  color: activeTab === tab ? 'var(--text-primary)' : 'var(--text-muted)',
-                  border: activeTab === tab ? '1px solid var(--border-normal)' : '1px solid transparent',
-                  fontFamily: 'IBM Plex Mono, monospace',
+                  background: activeTab === tab ? 'var(--bg-surface)' : 'transparent',
+                  color: activeTab === tab ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  border: activeTab === tab ? '1px solid var(--border)' : '1px solid transparent',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 'var(--font-size-label-lg)',
                   cursor: 'pointer',
                 }}
               >
@@ -415,14 +412,15 @@ export default function AnalysisPage() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 rows={7}
-                placeholder="Şirketin çevre iddiasını buraya yapıştırın — örn. 'Karbon offsetlerimiz sayesinde karbon nötrüz...' "
-                className="w-full resize-none rounded-lg px-4 py-3 text-sm"
+                placeholder="Şirketin çevre iddiasını buraya yapıştırın — örn. 'Karbon offsetlerimiz sayesinde karbon nötrüz...'"
+                className="focusable w-full resize-none rounded-lg px-4 py-3"
                 style={{
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-normal)',
+                  background: 'var(--bg-surface-2)',
+                  border: '1px solid var(--border)',
                   color: 'var(--text-primary)',
-                  fontFamily: 'IBM Plex Sans, sans-serif',
-                  lineHeight: 1.7,
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: 'var(--font-size-body-md)',
+                  lineHeight: 'var(--line-height-body-md)',
                   outline: 'none',
                 }}
               />
@@ -430,20 +428,20 @@ export default function AnalysisPage() {
                 <div className="flex items-center gap-3 flex-wrap">
                   <button
                     onClick={() => loadDemo(DEMO_SHELL, true)}
-                    className="text-xs px-2.5 py-1 rounded"
-                    style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace', background: 'var(--danger-dim)', border: '1px solid rgba(239,68,68,0.25)', cursor: 'pointer' }}
+                    className="focusable px-3 py-1.5 rounded"
+                    style={{ color: 'var(--danger-bright)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', background: 'var(--danger-dim)', border: '1px solid rgba(181,61,46,0.25)', cursor: 'pointer' }}
                   >
                     Demo: Shell Karbon Nötr Yakıt →
                   </button>
                   <button
                     onClick={() => loadDemo(DEMO_LUFTHANSA, false)}
-                    className="text-xs px-2.5 py-1 rounded"
-                    style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Mono, monospace', background: 'var(--amber-dim)', border: '1px solid rgba(245,158,11,0.25)', cursor: 'pointer' }}
+                    className="focusable px-3 py-1.5 rounded"
+                    style={{ color: 'var(--amber)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', background: 'var(--amber-light)', border: '1px solid rgba(176,125,42,0.25)', cursor: 'pointer' }}
                   >
                     Demo: Lufthansa Yeşil Uçuş →
                   </button>
                 </div>
-                <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+                <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', opacity: 0.6 }}>
                   {inputText.length} karakter
                 </span>
               </div>
@@ -458,10 +456,11 @@ export default function AnalysisPage() {
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
                   onClick={() => fileInputRef.current?.click()}
+                  className="focusable"
                   style={{
                     cursor: 'pointer',
-                    background: isDragging ? 'rgba(59,130,246,0.08)' : 'var(--bg-secondary)',
-                    border: `2px dashed ${isDragging ? 'var(--blue-data)' : 'var(--border-normal)'}`,
+                    background: isDragging ? 'var(--green-light)' : 'var(--bg-surface-2)',
+                    border: `2px dashed ${isDragging ? 'var(--green-text)' : 'var(--border)'}`,
                     borderRadius: '10px',
                     padding: '48px 32px',
                     textAlign: 'center',
@@ -475,30 +474,30 @@ export default function AnalysisPage() {
                     className="hidden"
                     onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }}
                   />
-                  <Upload size={28} style={{ color: 'var(--blue-data)', margin: '0 auto 12px' }} />
-                  <div className="font-semibold mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.1rem' }}>
+                  <Upload size={32} style={{ color: 'var(--green-mid)', margin: '0 auto 12px' }} />
+                  <div style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', fontWeight: 600, marginBottom: '6px' }}>
                     PDF veya DOCX buraya bırakın
                   </div>
-                  <p className="text-sm mb-4" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif' }}>
+                  <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', marginBottom: '16px' }}>
                     veya tıklayarak seçin · maks. 50 MB
                   </p>
                   <div className="flex justify-center gap-2">
                     {['.PDF', '.DOCX'].map((ext) => (
-                      <span key={ext} className="px-2 py-1 rounded text-xs" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-normal)', color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>{ext}</span>
+                      <span key={ext} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', padding: '3px 10px', borderRadius: '4px' }}>{ext}</span>
                     ))}
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-4 px-4 py-3 rounded-lg" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)' }}>
-                  <div className="flex items-center justify-center w-10 h-10 rounded-md" style={{ background: 'var(--accent-green-dim)', border: '1px solid var(--border-accent)' }}>
-                    <File size={18} style={{ color: 'var(--accent-green)' }} />
+                <div className="flex items-center gap-4 px-4 py-3 rounded-lg" style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border-strong)' }}>
+                  <div className="flex items-center justify-center w-10 h-10 rounded-md" style={{ background: 'var(--green-light)', border: '1px solid var(--border-strong)' }}>
+                    <File size={20} style={{ color: 'var(--accent-green)' }} />
                   </div>
                   <div className="flex-1">
-                    <div className="text-sm font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'IBM Plex Mono, monospace' }}>{uploadedFile.name}</div>
-                    <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>{uploadedFile.size} · Metin otomatik olarak çıkarılıp analiz edilecek.</div>
+                    <div style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-body-sm)', fontWeight: 500 }}>{uploadedFile.name}</div>
+                    <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', opacity: 0.7, marginTop: '2px' }}>{uploadedFile.size} · Metin otomatik olarak çıkarılıp analiz edilecek.</div>
                   </div>
-                  <button onClick={() => setUploadedFile(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                    <X size={14} />
+                  <button onClick={() => setUploadedFile(null)} className="focusable" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px' }}>
+                    <X size={16} />
                   </button>
                 </div>
               )}
@@ -508,27 +507,59 @@ export default function AnalysisPage() {
           <button
             onClick={handleAnalyze}
             disabled={!canAnalyze}
-            className="mt-5 w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-sm transition-all"
+            className="focusable mt-5 w-full flex items-center justify-center gap-2 py-4 rounded-xl font-medium transition-all"
             style={{
-              background: canAnalyze ? 'linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%)' : 'var(--bg-secondary)',
-              color: canAnalyze ? '#fff' : 'var(--text-muted)',
-              border: canAnalyze ? '1px solid rgba(59,130,246,0.4)' : '1px solid var(--border-subtle)',
-              fontFamily: 'IBM Plex Sans, sans-serif',
+              background: canAnalyze ? 'linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%)' : 'var(--bg-surface-2)',
+              color: canAnalyze ? '#fff' : 'var(--text-secondary)',
+              border: canAnalyze ? '1px solid var(--border-strong)' : '1px solid var(--border)',
+              fontFamily: 'var(--font-sans)',
+              fontSize: 'var(--font-size-body-md)',
+              fontWeight: 500,
               cursor: canAnalyze ? 'pointer' : 'not-allowed',
               letterSpacing: '0.02em',
             }}
           >
-            <Zap size={15} />
+            <Zap size={16} />
             İddiaları Analiz Et
           </button>
         </div>
       )}
 
+      {/* Empty state — shown below input when nothing analyzed yet */}
+      {analyzeState === 'idle' && !inputText && !uploadedFile && (
+        <div className="card-animated mt-5 flex flex-col items-center justify-center py-16 px-8 text-center" style={{ animationDelay: '120ms' }}>
+          <Scale size={64} style={{ color: 'var(--border)', marginBottom: '20px' }} />
+          <h3 style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', fontWeight: 600, marginBottom: '10px' }}>
+            Henüz analiz yapılmadı
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-md)', lineHeight: 'var(--line-height-body-md)', maxWidth: '52ch', marginBottom: '24px' }}>
+            Bir şirketin çevresel iddiasını girin veya sürdürülebilirlik raporu yükleyin; uyum değerlendirmesi alın.
+          </p>
+          <div className="flex gap-3 flex-wrap justify-center">
+            <button
+              onClick={() => loadDemo(DEMO_SHELL, true)}
+              className="focusable flex items-center gap-2 px-4 py-2 rounded-lg"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', cursor: 'pointer', transition: 'all 0.15s ease' }}
+            >
+              Shell Demo Yükle
+            </button>
+            <button
+              onClick={() => loadDemo(DEMO_LUFTHANSA, false)}
+              className="focusable flex items-center gap-2 px-4 py-2 rounded-lg"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', cursor: 'pointer', transition: 'all 0.15s ease' }}
+            >
+              Lufthansa Demo Yükle
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Analyzing state */}
       {analyzeState === 'analyzing' && (
-        <div className="card p-8 animate-fade-in" style={{ opacity: 0, animationFillMode: 'forwards' }}>
+        <div className="card card-animated p-8 mt-5" style={{ animationDelay: '0ms' }}>
           <div className="flex items-center gap-3 mb-6">
-            <Loader2 size={18} style={{ color: 'var(--blue-data)', animation: 'spin 1s linear infinite' }} />
-            <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.1rem' }}>
+            <Loader2 size={20} style={{ color: 'var(--green-mid)', animation: 'spin 1s linear infinite' }} />
+            <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600 }}>
               Hukuki Analiz Yürütülüyor…
             </span>
           </div>
@@ -543,35 +574,32 @@ export default function AnalysisPage() {
                   key={i}
                   className="flex items-center gap-4 px-5 py-4 rounded-lg transition-all"
                   style={{
-                    background: isCurrent ? 'var(--blue-dim)' : 'var(--bg-secondary)',
-                    border: `1px solid ${isCurrent ? 'rgba(59,130,246,0.25)' : 'var(--border-subtle)'}`,
+                    background: isCurrent ? 'var(--green-light)' : 'var(--bg-surface-2)',
+                    border: `1px solid ${isCurrent ? 'var(--border-strong)' : 'var(--border)'}`,
                   }}
                 >
                   <div
                     className="flex items-center justify-center w-8 h-8 rounded-full shrink-0"
                     style={{
-                      background: isDone ? 'var(--accent-green-dim)' : isCurrent ? 'var(--blue-dim)' : 'var(--bg-card)',
-                      border: `1px solid ${isDone ? 'var(--border-accent)' : isCurrent ? 'rgba(59,130,246,0.4)' : 'var(--border-subtle)'}`,
+                      background: isDone ? 'var(--accent-green-dim)' : isCurrent ? 'var(--green-light)' : 'var(--bg-surface)',
+                      border: `1px solid ${isDone ? 'var(--border-strong)' : isCurrent ? 'var(--border-strong)' : 'var(--border)'}`,
                     }}
                   >
                     {isDone
-                      ? <CheckCircle2 size={14} style={{ color: 'var(--accent-green)' }} />
+                      ? <CheckCircle2 size={16} style={{ color: 'var(--accent-green)' }} />
                       : isCurrent
-                        ? <Loader2 size={13} style={{ color: 'var(--blue-data)', animation: 'spin 1s linear infinite' }} />
-                        : <Icon size={13} style={{ color: 'var(--text-muted)' }} />
+                        ? <Loader2 size={14} style={{ color: 'var(--green-mid)', animation: 'spin 1s linear infinite' }} />
+                        : <Icon size={14} style={{ color: 'var(--text-secondary)' }} />
                     }
                   </div>
-                  <div>
-                    <div
-                      className="text-sm"
-                      style={{
-                        color: isDone ? 'var(--accent-green)' : isCurrent ? 'var(--text-primary)' : 'var(--text-muted)',
-                        fontFamily: 'IBM Plex Mono, monospace',
-                        fontSize: '12px',
-                      }}
-                    >
-                      {stage.label}
-                    </div>
+                  <div
+                    style={{
+                      color: isDone ? 'var(--accent-green)' : isCurrent ? 'var(--text-primary)' : 'var(--text-secondary)',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 'var(--font-size-body-sm)',
+                    }}
+                  >
+                    {stage.label}
                   </div>
                 </div>
               );
@@ -581,18 +609,19 @@ export default function AnalysisPage() {
         </div>
       )}
 
+      {/* Results */}
       {analyzeState === 'complete' && analysisResult && (
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace' }}>
+          <div className="flex items-center justify-between mt-5 mb-2">
+            <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', opacity: 0.6 }}>
               Analiz tamamlandı · {new Date().toLocaleTimeString('tr-TR')}
-            </div>
+            </span>
             <button
               onClick={reset}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border-normal)', color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', cursor: 'pointer' }}
+              className="focusable flex items-center gap-1.5 px-3 py-1.5 rounded-md"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', cursor: 'pointer' }}
             >
-              <X size={11} /> Yeni Analiz
+              <X size={12} /> Yeni Analiz
             </button>
           </div>
           <ResultsPanel result={analysisResult} showArticle6Flag={showArticle6Flag} />
@@ -600,35 +629,14 @@ export default function AnalysisPage() {
       )}
 
       {analyzeState === 'error' && (
-        <div className="card p-6 text-center animate-fade-in" style={{ opacity: 0, animationFillMode: 'forwards', border: '1px solid rgba(239,68,68,0.3)' }}>
-          <AlertTriangle size={28} style={{ color: 'var(--danger)', margin: '0 auto 12px' }} />
-          <div className="font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.1rem' }}>
+        <div className="card card-animated mt-5 p-6 text-center" style={{ animationDelay: '0ms', border: '1px solid rgba(181,61,46,0.3)' }}>
+          <AlertTriangle size={32} style={{ color: 'var(--danger)', margin: '0 auto 12px' }} />
+          <div style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', fontWeight: 600, marginBottom: '8px' }}>
             Analiz servisi kullanılamıyor. Demo sonuçları gösteriliyor.
           </div>
-          <button onClick={() => { setAnalysisResult(mockAnalysisResult); setAnalyzeState('complete'); }} className="text-xs" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace', background: 'none', border: 'none', cursor: 'pointer' }}>
+          <button onClick={() => { setAnalysisResult(mockAnalysisResult); setAnalyzeState('complete'); }} style={{ color: 'var(--blue-data)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-body-sm)', background: 'none', border: 'none', cursor: 'pointer' }}>
             Demo sonuçlarını görüntüle →
           </button>
-        </div>
-      )}
-
-      {analyzeState === 'idle' && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-          {[
-            { icon: Scale,         title: '8 Emsal Karar',          body: 'Shell (2021 & 2023), Lufthansa 2023, KLM 2023, Ryanair 2020, DWS 2023, VW 2022, Kariba REDD+ 2023' },
-            { icon: AlertTriangle, title: 'Denetlenen Anahtar Kelimeler', body: '13 kırmızı bayrak terimi izleniyor: "carbon neutral", "net zero", "offset", "REDD+", "sustainable" ve daha fazlası' },
-            { icon: FileText,      title: 'Analiz Çıktısı',         body: 'Dava riski skoru 0–100, emsal karar eşleşmeleri, anahtar kelime ihlal vurguları, hukuki öneriler' },
-          ].map((info, i) => {
-            const Icon = info.icon;
-            return (
-              <div key={i} className="card p-4 animate-fade-up" style={{ animationDelay: `${200 + i * 80}ms`, opacity: 0, animationFillMode: 'forwards' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <Icon size={13} style={{ color: 'var(--accent-green)' }} />
-                  <span className="text-xs font-semibold" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Mono, monospace' }}>{info.title}</span>
-                </div>
-                <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.6 }}>{info.body}</p>
-              </div>
-            );
-          })}
         </div>
       )}
     </div>

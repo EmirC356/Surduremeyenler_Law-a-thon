@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   Check,
   Shield,
@@ -17,6 +18,8 @@ import {
   BarChart2,
   Info,
   Award,
+  Leaf,
+  LayoutDashboard,
 } from 'lucide-react';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -165,9 +168,8 @@ function InfoTooltip({ text }: { text: string }) {
             bottom: 'calc(100% + 8px)',
             left: '50%',
             transform: 'translateX(-50%)',
-            background: 'rgba(10,14,20,0.97)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid var(--border-normal)',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border)',
             borderRadius: '8px',
             padding: '9px 13px',
             color: 'var(--text-secondary)',
@@ -177,7 +179,7 @@ function InfoTooltip({ text }: { text: string }) {
             width: '240px',
             zIndex: 50,
             pointerEvents: 'none',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.55)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
             whiteSpace: 'normal',
           }}
         >
@@ -246,6 +248,46 @@ export default function PricingPage() {
   const totalMonthly = REVENUE_ROWS.reduce((s, r) => s + r.monthly, 0);
 
   return (
+    <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
+      {/* Standalone nav */}
+      <nav
+        style={{
+          background: 'var(--bg-nav)',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          padding: '0 32px',
+          height: '56px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Leaf size={15} style={{ color: '#FFFFFF' }} />
+          </div>
+          <span style={{ color: '#FFFFFF', fontFamily: 'var(--font-serif)', fontSize: '17px', fontWeight: 600 }}>ESG Lens</span>
+        </div>
+        <Link
+          href="/dashboard"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 14px',
+            borderRadius: '6px',
+            background: 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            color: 'rgba(255,255,255,0.8)',
+            fontFamily: 'var(--font-sans)',
+            fontSize: '13px',
+            textDecoration: 'none',
+          }}
+        >
+          <LayoutDashboard size={13} />
+          Panele Dön
+        </Link>
+      </nav>
+
     <div className="px-8 py-6 max-w-7xl mx-auto">
 
       {/* ── Header ── */}
@@ -546,7 +588,7 @@ export default function PricingPage() {
             </div>
             <div>
               <h4 style={{ color: 'var(--text-primary)', fontFamily: 'Crimson Pro, serif', fontSize: '1.1rem', fontWeight: 600 }}>Tekil Analiz</h4>
-              <p style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px' }}>Pay-per-use · Abonelik gerektirmez</p>
+              <p style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px' }}>Kullandığın kadar öde · Abonelik gerektirmez</p>
             </div>
           </div>
 
@@ -638,22 +680,22 @@ export default function PricingPage() {
           {/* Code snippet */}
           <div
             style={{
-              background: 'rgba(0,0,0,0.3)',
-              border: '1px solid var(--border-subtle)',
+              background: 'var(--bg-surface-2)',
+              border: '1px solid var(--border)',
               borderRadius: '8px',
               padding: '12px 14px',
               fontFamily: 'IBM Plex Mono, monospace',
               fontSize: '11px',
               lineHeight: 1.7,
-              color: 'var(--text-muted)',
+              color: 'var(--text-secondary)',
             }}
           >
-            <span style={{ color: '#8B5CF6' }}>POST</span>{' '}
-            <span style={{ color: '#3B82F6' }}>https://api.offsetdenetci.com/v1/analyze</span>
+            <span style={{ color: 'var(--green-mid)' }}>POST</span>{' '}
+            <span style={{ color: 'var(--green-dark)' }}>https://api.offsetdenetci.com/v1/analyze</span>
             <br />
-            <span style={{ color: '#6B7280' }}>Authorization:</span> Bearer {'<API_KEY>'}
+            <span style={{ color: 'var(--text-secondary)' }}>Authorization:</span> Bearer {'<API_KEY>'}
             <br />
-            <span style={{ color: '#6B7280' }}>Content-Type:</span> application/json
+            <span style={{ color: 'var(--text-secondary)' }}>Content-Type:</span> application/json
           </div>
         </div>
       </div>
@@ -816,7 +858,7 @@ export default function PricingPage() {
               <span style={{ color: 'var(--accent-green)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '1.6rem', fontWeight: 300, letterSpacing: '-0.03em' }}>
                 ${totalMonthly.toLocaleString()}
               </span>
-              <InfoTooltip text={`100 Starter ($9,900) + 30 Pro ($14,970) + 5 Enterprise ($25,000) + 200 Pay-per-use rapor ($15,000) = $${totalMonthly.toLocaleString()} MRR. Muhafazakâr KOBİ/Enterprise dağılımına dayalı.`} />
+              <InfoTooltip text={`100 Başlangıç ($9.900) + 30 Profesyonel ($14.970) + 5 Kurumsal ($25.000) + 200 Tekil rapor ($15.000) = $${totalMonthly.toLocaleString()} MRR. Muhafazakâr KOBİ/Kurumsal dağılımına dayalı.`} />
             </div>
             <div style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px' }}>
               MRR · ~${Math.round(totalMonthly * 12 / 1000)}K ARR
@@ -956,7 +998,7 @@ export default function PricingPage() {
             },
             {
               label: 'Offset Denetçi Onaylı',
-              sublabel: 'Hukuki tarama + mahkeme eşleşmesi',
+              sublabel: 'Uyum taraması + mahkeme eşleşmesi',
               score: 85,
               color: 'var(--accent-green)',
               colorBg: 'rgba(16,185,129,0.1)',
@@ -1014,6 +1056,7 @@ export default function PricingPage() {
         </p>
       </div>
 
+    </div>
     </div>
   );
 }

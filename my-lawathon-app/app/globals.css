@@ -1,120 +1,180 @@
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #060C18;
-  --bg-secondary: #0B1220;
-  --bg-card: #0E1729;
-  --bg-card-hover: #111D32;
-  --bg-sidebar: #040910;
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-normal: rgba(255, 255, 255, 0.08);
-  --border-accent: rgba(16, 185, 129, 0.3);
+  /* ── New Light Design System ─────────────────────────────────── */
+  --bg-page:          #F7F5F0;
+  --bg-surface:       #FFFFFF;
+  --bg-surface-2:     #F0EDE6;
+  --bg-nav:           #1A3D2B;
+  --bg-nav-hover:     #2D6A4F;
+  --bg-nav-active:    rgba(255, 255, 255, 0.08);
 
-  --text-primary: #E2E8F0;
-  --text-secondary: #94A3B8;
-  --text-muted: #475569;
-  --text-accent: #10B981;
+  --text-primary:     #1A1A1A;
+  --text-secondary:   #6B6860;
+  --text-nav:         #D4E8DC;
+  --text-nav-active:  #FFFFFF;
 
-  --accent-green: #10B981;
-  --accent-green-dim: rgba(16, 185, 129, 0.12);
-  --accent-green-glow: rgba(16, 185, 129, 0.2);
+  --green-dark:       #1A3D2B;
+  --green-mid:        #2D6A4F;
+  --green-light:      #D8ECD4;
+  --green-text:       #1A5C35;
 
-  --amber: #F59E0B;
-  --amber-dim: rgba(245, 158, 11, 0.12);
+  --orange:           #C4622D;
+  --orange-light:     #FAE8DC;
+  --orange-dark:      #8B3A18;
 
-  --danger: #EF4444;
-  --danger-dim: rgba(239, 68, 68, 0.12);
-  --danger-bright: #F87171;
+  --red:              #B53D2E;
+  --red-light:        #FAE0DC;
 
-  --blue-data: #3B82F6;
-  --blue-dim: rgba(59, 130, 246, 0.12);
+  --amber:            #B07D2A;
+  --amber-light:      #FBF0D8;
 
-  --navy: #1E3A5F;
-  --navy-light: #2563EB;
+  --border:           #E2DDD5;
+  --border-strong:    #C8C2B8;
+  --shadow-sm:        0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:        0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg:        0 8px 24px rgba(0,0,0,0.12);
+
+  --font-serif:       'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans:        'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:        'Inter', system-ui, -apple-system, sans-serif;
+  --font-code:        'IBM Plex Mono', 'Courier New', monospace;
+
+  /* ── Typography Scale ────────────────────────────────────────── */
+  --font-size-display:        40px;
+  --line-height-display:      48px;
+
+  --font-size-headline-lg:    28px;
+  --line-height-headline-lg:  36px;
+
+  --font-size-headline-md:    23px;
+  --line-height-headline-md:  30px;
+
+  --font-size-headline-sm:    19px;
+  --line-height-headline-sm:  26px;
+
+  --font-size-body-lg:        17px;
+  --line-height-body-lg:      28px;
+
+  --font-size-body-md:        15px;
+  --line-height-body-md:      24px;
+
+  --font-size-body-sm:        13px;
+  --line-height-body-sm:      20px;
+
+  --font-size-nav:            14px;
+  --line-height-nav:          20px;
+
+  --font-size-data-display:   64px;
+  --line-height-data-display: 68px;
+  --letter-spacing-data-display: -0.05em;
+
+  --font-size-data-lg:        38px;
+  --line-height-data-lg:      42px;
+
+  --font-size-data-md:        22px;
+  --line-height-data-md:      26px;
+
+  --font-size-label-lg:       12px;
+  --font-size-label-md:       11px;
+  --font-size-label-sm:       10px;
+
+  /* ── Legacy aliases — existing page code continues to work ───── */
+  --bg-primary:         var(--bg-page);
+  --bg-secondary:       var(--bg-surface-2);
+  --bg-card:            var(--bg-surface);
+  --bg-card-hover:      var(--bg-surface-2);
+  --bg-sidebar:         var(--bg-nav);
+  --border-subtle:      var(--border);
+  --border-normal:      var(--border);
+  --border-accent:      var(--border-strong);
+  --text-muted:         var(--text-secondary);
+  --text-accent:        var(--green-text);
+  --accent-green:       var(--green-mid);
+  --accent-green-dim:   var(--green-light);
+  --accent-green-glow:  rgba(45, 106, 79, 0.15);
+  --amber-dim:          var(--amber-light);
+  --danger:             var(--red);
+  --danger-dim:         var(--red-light);
+  --danger-bright:      var(--orange);
+  --blue-data:          var(--green-mid);
+  --blue-dim:           var(--green-light);
+  --navy:               var(--green-dark);
+  --navy-light:         var(--green-mid);
 }
 
 @theme inline {
-  --color-background: var(--bg-primary);
+  --color-background: var(--bg-page);
   --color-foreground: var(--text-primary);
-  --font-sans: 'IBM Plex Sans', sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
-  --font-display: 'Crimson Pro', serif;
+  --font-sans:        'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:        'Inter', system-ui, -apple-system, sans-serif;
+  --font-display:     'Inter', system-ui, -apple-system, sans-serif;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 html {
   height: 100%;
-  background: var(--bg-primary);
-  color-scheme: dark;
+  background: var(--bg-page);
+  color-scheme: light;
 }
 
 body {
-  background: var(--bg-primary);
+  background: var(--bg-page);
   color: var(--text-primary);
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-md);
+  line-height: var(--line-height-body-md);
   height: 100%;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: var(--bg-sidebar); }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+::-webkit-scrollbar         { width: 6px; height: 6px; }
+::-webkit-scrollbar-track   { background: var(--bg-surface-2); }
+::-webkit-scrollbar-thumb   { background: var(--border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-/* Noise texture overlay for depth */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* KPI Card pulse glow */
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 var(--accent-green-glow); }
-  50% { box-shadow: 0 0 20px 4px var(--accent-green-glow); }
-}
-
+/* ── Animations ──────────────────────────────────────────────── */
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
 @keyframes slide-in-left {
   from { opacity: 0; transform: translateX(-12px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-green-glow); }
+  50%       { box-shadow: 0 0 16px 4px var(--accent-green-glow); }
+}
 @keyframes progress-fill {
   from { width: 0%; }
   to   { width: var(--target-width, 100%); }
 }
 
-@keyframes counter-up {
+/* ── Page transition animations ──────────────────────────────── */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes card-enter {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-.animate-fade-up   { animation: fade-up 0.5s ease forwards; }
-.animate-fade-in   { animation: fade-in 0.4s ease forwards; }
+.animate-fade-up    { animation: fade-up 0.45s ease forwards; }
+.animate-fade-in    { animation: fade-in 0.35s ease forwards; }
 .animate-slide-left { animation: slide-in-left 0.4s ease forwards; }
 
 .delay-100 { animation-delay: 0.1s; }
@@ -123,34 +183,115 @@ body::before {
 .delay-400 { animation-delay: 0.4s; }
 .delay-500 { animation-delay: 0.5s; }
 
-/* Glass card */
+/* Page wrapper — triggers on every route change via React key */
+.page-wrapper {
+  animation: page-enter 400ms ease both;
+}
+
+/* Card cascade animation — apply delay via inline style */
+.card-animated {
+  animation: card-enter 350ms ease both;
+}
+
+/* Thermometer marker smooth slide */
+.thermometer-marker {
+  transition: left 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ── Core utilities ──────────────────────────────────────────── */
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-normal);
+  background:    var(--bg-surface);
+  border:        1px solid var(--border);
   border-radius: 8px;
-  position: relative;
-  overflow: hidden;
+  box-shadow:    var(--shadow-sm);
+  position:      relative;
 }
 
-.card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.025) 0%, transparent 60%);
-  pointer-events: none;
+.card-nested {
+  background:    var(--bg-surface-2);
+  border:        1px solid var(--border);
+  border-radius: 6px;
+  padding:       16px;
 }
 
-/* Status dot blink */
-.status-dot {
-  animation: blink 2.4s ease-in-out infinite;
+.legal-heading {
+  font-family:    var(--font-sans);
+  font-size:      var(--font-size-headline-sm);
+  line-height:    var(--line-height-headline-sm);
+  font-weight:    700;
+  color:          var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
-/* Legal red flag styling */
-.flag-item {
-  position: relative;
-  padding-left: 1rem;
+.data-value {
+  font-family: var(--font-sans);
+  font-weight: 700;
 }
 
+/* ── Number hierarchy — decimal suppression ──────────────────── */
+.data-integer {
+  font-family: var(--font-mono);
+  font-size:   inherit;
+  font-weight: 300;
+  color:       var(--text-primary);
+}
+
+.data-decimal {
+  font-family:    var(--font-mono);
+  font-size:      0.45em;
+  font-weight:    300;
+  color:          var(--text-secondary);
+  vertical-align: super;
+  margin-left:    1px;
+}
+
+.data-unit {
+  font-family:   var(--font-mono);
+  font-size:     0.4em;
+  font-weight:   400;
+  color:         var(--text-secondary);
+  margin-left:   2px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Section divider ─────────────────────────────────────────── */
+.section-divider {
+  border:     none;
+  border-top: 1px solid var(--border);
+  margin:     24px 0;
+}
+
+/* ── Focus ring for keyboard accessibility ───────────────────── */
+.focusable:focus-visible {
+  outline:        2px solid var(--green-mid);
+  outline-offset: 2px;
+  border-radius:  4px;
+}
+
+/* Badge utilities */
+.badge-green  { background: var(--green-light);  color: var(--green-text);  border: 1px solid rgba(45,106,79,0.2);   border-radius: 4px; padding: 2px 8px; font-size: var(--font-size-label-lg); font-family: var(--font-mono); }
+.badge-orange { background: var(--orange-light); color: var(--orange-dark); border: 1px solid rgba(196,98,45,0.2);   border-radius: 4px; padding: 2px 8px; font-size: var(--font-size-label-lg); font-family: var(--font-mono); }
+.badge-red    { background: var(--red-light);    color: var(--red);         border: 1px solid rgba(181,61,46,0.2);   border-radius: 4px; padding: 2px 8px; font-size: var(--font-size-label-lg); font-family: var(--font-mono); }
+.badge-amber  { background: var(--amber-light);  color: var(--amber);       border: 1px solid rgba(176,125,42,0.2);  border-radius: 4px; padding: 2px 8px; font-size: var(--font-size-label-lg); font-family: var(--font-mono); }
+
+/* Regulation citation pill */
+.reg-pill {
+  display:        inline-block;
+  background:     var(--bg-surface-2);
+  border-radius:  4px;
+  padding:        2px 8px;
+  font-size:      var(--font-size-label-lg);
+  font-family:    var(--font-mono);
+  color:          var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Status dot */
+.status-dot { animation: blink 2.4s ease-in-out infinite; }
+
+/* Legal red flag */
+.flag-item { position: relative; padding-left: 1rem; }
 .flag-item::before {
   content: '';
   position: absolute;
@@ -159,36 +300,39 @@ body::before {
   transform: translateY(-50%);
   width: 2px;
   height: 70%;
-  background: var(--danger);
+  background: var(--red);
   border-radius: 1px;
 }
 
-/* Chart tooltip */
-.recharts-tooltip-wrapper {
-  outline: none !important;
-}
-
+/* Recharts */
+.recharts-tooltip-wrapper { outline: none !important; }
 .recharts-default-tooltip {
-  background: var(--bg-card) !important;
-  border: 1px solid var(--border-normal) !important;
+  background:    var(--bg-surface) !important;
+  border:        1px solid var(--border) !important;
   border-radius: 6px !important;
-  font-family: 'IBM Plex Mono', monospace !important;
-  font-size: 12px !important;
+  font-family:   var(--font-mono) !important;
+  font-size:     12px !important;
+  box-shadow:    var(--shadow-md) !important;
+}
+.recharts-tooltip-label { color: var(--text-secondary) !important; margin-bottom: 4px !important; }
+.recharts-tooltip-item  { color: var(--text-primary)   !important; }
+
+/* Sidebar nav hover (scoped here so sidebar component stays clean) */
+.sidebar-nav-link {
+  border-left: 3px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.sidebar-nav-link:not(.sidebar-nav-active):hover {
+  background: var(--bg-nav-hover);
+  border-left-color: rgba(255, 255, 255, 0.3);
+}
+.sidebar-nav-link:not(.sidebar-nav-active):hover .nav-label {
+  color: #ffffff;
 }
 
-.recharts-tooltip-label {
-  color: var(--text-secondary) !important;
-  margin-bottom: 4px !important;
-}
-
-.recharts-tooltip-item {
-  color: var(--text-primary) !important;
-}
-
-/* Print styles */
+/* Print */
 @media print {
-  .no-print { display: none !important; }
+  .no-print   { display: none !important; }
   .print-only { display: block !important; }
-  body { background: white !important; color: black !important; }
-  body::before { display: none !important; }
+  body { background: white !important; color: black !important; font-family: Georgia, serif; }
 }
