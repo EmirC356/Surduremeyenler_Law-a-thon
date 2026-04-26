@@ -1,3 +1,7 @@
 {
-  "rootDirectory": "my-lawathon-app"
+  "rootDirectory": "my-lawathon-app",
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install"
 }
