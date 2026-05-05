@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Leaf, Shield, ChevronRight, LayoutDashboard, FileSearch, Target, CreditCard, Home } from 'lucide-react';
+import { Leaf, Shield, ChevronRight, LayoutDashboard, FileSearch, Target, CreditCard, Home, ExternalLink } from 'lucide-react';
 import type { ElementType } from 'react';
 import { NAV_ITEMS } from '../lib/navigation';
 
@@ -144,9 +144,10 @@ export default function Sidebar() {
                   </span>
                 )}
               </div>
-              {isActive && (
-                <ChevronRight size={12} style={{ color: 'var(--orange)', flexShrink: 0 }} />
-              )}
+              {item.route === '/pricing'
+                ? <ExternalLink size={12} style={{ color: 'var(--text-nav)', opacity: 0.6, flexShrink: 0 }} />
+                : isActive && <ChevronRight size={12} style={{ color: 'var(--orange)', flexShrink: 0 }} />
+              }
             </Link>
           );
         })}

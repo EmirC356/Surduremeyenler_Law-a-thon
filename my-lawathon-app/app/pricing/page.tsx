@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   Building2,
   ArrowRight,
+  ArrowLeft,
   TrendingUp,
   FileText,
   Key,
@@ -258,34 +259,39 @@ export default function PricingPage() {
           height: '56px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          gap: '16px',
         }}
       >
+        <Link
+          href="/dashboard"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '7px',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            background: 'rgba(255,255,255,0.12)',
+            border: '1px solid rgba(255,255,255,0.18)',
+            color: '#FFFFFF',
+            fontFamily: 'var(--font-sans)',
+            fontSize: '15px',
+            fontWeight: 600,
+            textDecoration: 'none',
+            transition: 'background 0.15s ease',
+            flexShrink: 0,
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.2)'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.12)'; }}
+        >
+          <ArrowLeft size={15} />
+          Panele Dön
+        </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Leaf size={15} style={{ color: '#FFFFFF' }} />
           </div>
           <span style={{ color: '#FFFFFF', fontFamily: 'var(--font-serif)', fontSize: '17px', fontWeight: 600 }}>ESG Lens</span>
         </div>
-        <Link
-          href="/dashboard"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '6px 14px',
-            borderRadius: '6px',
-            background: 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.15)',
-            color: 'rgba(255,255,255,0.8)',
-            fontFamily: 'var(--font-sans)',
-            fontSize: '13px',
-            textDecoration: 'none',
-          }}
-        >
-          <LayoutDashboard size={13} />
-          Panele Dön
-        </Link>
       </nav>
 
     <div className="px-8 py-6 max-w-7xl mx-auto">

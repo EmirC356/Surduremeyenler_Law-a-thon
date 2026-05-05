@@ -236,6 +236,7 @@ const NEWS_CITATIONS = [
 
 function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResult; showArticle6Flag: boolean }) {
   const [citationsOpen, setCitationsOpen] = useState(false);
+  const [showAllCases, setShowAllCases] = useState(false);
   return (
     <div className="flex flex-col gap-5 mt-5">
       {showArticle6Flag && (
@@ -383,11 +384,21 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
         <>
           <hr className="section-divider" />
           <div className="card-animated" style={{ animationDelay: '160ms' }}>
-            <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>
-              Emsal Karar Eşleşmeleri — {result.matchedCases.length} adet bulundu
+            {/* Summary line — always reflects full set */}
+            <div className="flex items-baseline gap-3 mb-3" style={{ flexWrap: 'wrap' }}>
+              <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Emsal Karar Eşleşmeleri
+              </div>
+              <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)' }}>
+                <strong style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{result.matchedCases.length}</strong> karar eşleşti
+                {' · '}Ort. benzerlik{' '}
+                <strong style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
+                  %{Math.round(result.matchedCases.reduce((s, c) => s + c.similarityThreshold, 0) / result.matchedCases.length)}
+                </strong>
+              </span>
             </div>
             <div className="flex flex-col gap-4">
-              {result.matchedCases.slice(0, 2).map((c) => (
+              {(showAllCases ? result.matchedCases : result.matchedCases.slice(0, 2)).map((c) => (
                 <CasePrecedentMatch
                   key={c.id}
                   inputText={result.inputText}
@@ -396,6 +407,30 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
                 />
               ))}
             </div>
+            {result.matchedCases.length > 2 && (
+              <button
+                onClick={() => setShowAllCases((v) => !v)}
+                className="focusable mt-4"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 14px',
+                  borderRadius: '6px',
+                  background: 'var(--bg-surface-2)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--green-text)',
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: 'var(--font-size-label-lg)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {showAllCases
+                  ? <>Daha az göster <ChevronUp size={13} /></>
+                  : <>Diğer {result.matchedCases.length - 2} emsal kararı göster <ChevronDown size={13} /></>}
+              </button>
+            )}
           </div>
         </>
       )}
@@ -521,6 +556,7 @@ export default function AnalysisPage() {
   const [analyzeStageIdx, setAnalyzeStageIdx] = useState(0);
   const [analysisResult, setAnalysisResult] = useState<ClaimAnalysisResult | null>(null);
   const [showArticle6Flag, setShowArticle6Flag] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const canAnalyze = activeTab === 'text' ? inputText.trim().length > 20 : uploadedFile !== null;
@@ -553,6 +589,37 @@ export default function AnalysisPage() {
       const result = await apiPromise;
       setAnalysisResult(result as ClaimAnalysisResult);
       setAnalyzeState('complete');
+
+      // ── Persist detected offset projects to localStorage for /offset page ──
+      const PROJECT_FRAGMENTS = [
+        { fragment: 'kariba',     name: 'Kariba REDD+' },
+        { fragment: 'rimba raya', name: 'Rimba Raya' },
+        { fragment: 'boreal',     name: 'Boreal Forest' },
+        { fragment: 'cookstoves', name: 'Cookstoves Kenya' },
+        { fragment: 'rajasthan',  name: 'Solar Rajasthan' },
+        { fragment: 'ørsted',     name: 'Ørsted Wind' },
+        { fragment: 'orsted',     name: 'Ørsted Wind' },
+      ];
+      const haystack = (text + ' ' + (result as ClaimAnalysisResult).detectedKeywords.join(' ')).toLowerCase();
+      const detectedProjects = Array.from(
+        new Set(
+          PROJECT_FRAGMENTS
+            .filter((p) => haystack.includes(p.fragment))
+            .map((p) => p.name),
+        ),
+      );
+      if (detectedProjects.length > 0) {
+        try {
+          localStorage.setItem(
+            'eslens_last_analysis_projects',
+            JSON.stringify({
+              detectedProjects,
+              analysisTimestamp: Date.now(),
+              claimExcerpt: text.slice(0, 120),
+            }),
+          );
+        } catch { /* localStorage unavailable in some environments */ }
+      }
     } catch {
       setAnalysisResult({ ...mockAnalysisResult, inputText: text });
       setAnalyzeState('complete');
@@ -589,12 +656,21 @@ export default function AnalysisPage() {
     if (!uploadedFile) return;
     setAnalyzeState('analyzing');
     setAnalyzeStageIdx(0);
+    setIsExtracting(true);
     try {
-      const extracted = await extractTextFromFile(uploadedFile.file);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error('Dosya işleme zaman aşımına uğradı. Lütfen daha küçük bir dosya deneyin veya metni doğrudan yapıştırın.')),
+          15000,
+        ),
+      );
+      const extracted = await Promise.race([extractTextFromFile(uploadedFile.file), timeoutPromise]);
+      setIsExtracting(false);
       const hasRedd =
         extracted.toLowerCase().includes('redd+') || extracted.toLowerCase().includes('redd');
       runAnalysis(extracted, hasRedd);
     } catch (err) {
+      setIsExtracting(false);
       setExtractError(err instanceof Error ? err.message : 'Belge işlenirken hata oluştu.');
       setAnalyzeState('idle');
     }
@@ -630,6 +706,7 @@ export default function AnalysisPage() {
     setExtractError(null);
     setAnalyzeStageIdx(0);
     setShowArticle6Flag(false);
+    setIsExtracting(false);
   };
 
   return (
@@ -766,11 +843,19 @@ export default function AnalysisPage() {
               )}
 
               {extractError && (
-                <div className="flex items-start gap-2 mt-3 px-3 py-2 rounded-md" style={{ background: 'var(--danger-dim)', border: '1px solid rgba(181,61,46,0.3)' }}>
+                <div className="flex items-start gap-2 mt-3 px-3 py-3 rounded-md" style={{ background: 'var(--danger-dim)', border: '1px solid rgba(181,61,46,0.3)' }}>
                   <AlertTriangle size={14} style={{ color: 'var(--danger)', marginTop: 2, flexShrink: 0 }} />
-                  <span style={{ color: 'var(--danger-bright)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.5 }}>
-                    {extractError}
-                  </span>
+                  <div className="flex flex-col gap-1.5">
+                    <span style={{ color: 'var(--danger-bright)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.5 }}>
+                      {extractError}
+                    </span>
+                    <button
+                      onClick={() => { setActiveTab('text'); setExtractError(null); setUploadedFile(null); }}
+                      style={{ alignSelf: 'flex-start', color: 'var(--danger-bright)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                    >
+                      Metin sekmesine geç →
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -841,38 +926,42 @@ export default function AnalysisPage() {
               const isDone = analyzeStageIdx > i;
               const isCurrent = analyzeStageIdx === i;
               const Icon = stage.icon;
+              const showIndeterminate = isCurrent && i === 0 && isExtracting;
               return (
                 <div
                   key={i}
-                  className="flex items-center gap-4 px-5 py-4 rounded-lg transition-all"
+                  className="flex flex-col gap-2 px-5 py-4 rounded-lg transition-all"
                   style={{
                     background: isCurrent ? 'var(--green-light)' : 'var(--bg-surface-2)',
                     border: `1px solid ${isCurrent ? 'var(--border-strong)' : 'var(--border)'}`,
                   }}
                 >
-                  <div
-                    className="flex items-center justify-center w-8 h-8 rounded-full shrink-0"
-                    style={{
-                      background: isDone ? 'var(--accent-green-dim)' : isCurrent ? 'var(--green-light)' : 'var(--bg-surface)',
-                      border: `1px solid ${isDone ? 'var(--border-strong)' : isCurrent ? 'var(--border-strong)' : 'var(--border)'}`,
-                    }}
-                  >
-                    {isDone
-                      ? <CheckCircle2 size={16} style={{ color: 'var(--accent-green)' }} />
-                      : isCurrent
-                        ? <Loader2 size={14} style={{ color: 'var(--green-mid)', animation: 'spin 1s linear infinite' }} />
-                        : <Icon size={14} style={{ color: 'var(--text-secondary)' }} />
-                    }
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="flex items-center justify-center w-8 h-8 rounded-full shrink-0"
+                      style={{
+                        background: isDone ? 'var(--accent-green-dim)' : isCurrent ? 'var(--green-light)' : 'var(--bg-surface)',
+                        border: `1px solid ${isDone ? 'var(--border-strong)' : isCurrent ? 'var(--border-strong)' : 'var(--border)'}`,
+                      }}
+                    >
+                      {isDone
+                        ? <CheckCircle2 size={16} style={{ color: 'var(--accent-green)' }} />
+                        : isCurrent
+                          ? <Loader2 size={14} style={{ color: 'var(--green-mid)', animation: 'spin 1s linear infinite' }} />
+                          : <Icon size={14} style={{ color: 'var(--text-secondary)' }} />
+                      }
+                    </div>
+                    <div
+                      style={{
+                        color: isDone ? 'var(--accent-green)' : isCurrent ? 'var(--text-primary)' : 'var(--text-secondary)',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: 'var(--font-size-body-sm)',
+                      }}
+                    >
+                      {stage.label}
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      color: isDone ? 'var(--accent-green)' : isCurrent ? 'var(--text-primary)' : 'var(--text-secondary)',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: 'var(--font-size-body-sm)',
-                    }}
-                  >
-                    {stage.label}
-                  </div>
+                  {showIndeterminate && <div className="progress-indeterminate" />}
                 </div>
               );
             })}

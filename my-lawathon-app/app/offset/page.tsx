@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   RadarChart,
   Radar,
@@ -295,10 +295,39 @@ function CustomRadarTooltip({ active, payload }: { active?: boolean; payload?: {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+type LastAnalysis = {
+  detectedProjects: string[];
+  analysisTimestamp: number;
+  claimExcerpt: string;
+};
+
+const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+
+function relativeTime(ts: number): string {
+  const mins = Math.round((Date.now() - ts) / 60000);
+  if (mins < 1) return 'az önce';
+  if (mins === 1) return '1 dakika önce';
+  if (mins < 60) return `${mins} dakika önce`;
+  const hrs = Math.floor(mins / 60);
+  return hrs === 1 ? '1 saat önce' : `${hrs} saat önce`;
+}
+
 export default function OffsetIntegrityPage() {
   const [infoOpen, setInfoOpen]   = useState(false);
   const [refsOpen, setRefsOpen]   = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
+  const [lastAnalysis, setLastAnalysis] = useState<LastAnalysis | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('eslens_last_analysis_projects');
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as LastAnalysis;
+      if (Date.now() - parsed.analysisTimestamp < TWO_HOURS_MS) {
+        setLastAnalysis(parsed);
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   return (
     <div className="px-8 py-6 max-w-7xl mx-auto">
@@ -312,6 +341,34 @@ export default function OffsetIntegrityPage() {
           Gerçek akademik ve hukuki kaynaklardan derlenen veriler · 5 proje / 4 değerlendirme boyutu
         </p>
       </div>
+
+      {/* ── Last-analysis context banner ── */}
+      {lastAnalysis && (
+        <div
+          className="card-animated mb-4"
+          style={{
+            animationDelay: '0ms',
+            background: 'rgba(196,98,45,0.07)',
+            border: '2px solid var(--orange)',
+            borderRadius: '10px',
+            padding: '12px 18px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '10px',
+          }}
+        >
+          <span style={{ fontSize: '16px', flexShrink: 0 }}>🕐</span>
+          <div>
+            <div style={{ color: 'var(--orange-dark)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>
+              Son Analizinizde Tespit Edilen Projeler — {relativeTime(lastAnalysis.analysisTimestamp)}
+            </div>
+            <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)' }}>
+              {lastAnalysis.detectedProjects.join(' · ')}{' '}
+              <span style={{ opacity: 0.7 }}>· &ldquo;{lastAnalysis.claimExcerpt}{lastAnalysis.claimExcerpt.length === 120 ? '…' : ''}&rdquo;</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── WARNING BANNER ── */}
       <div
@@ -497,9 +554,16 @@ export default function OffsetIntegrityPage() {
               />
             ))}
             <Legend
-              formatter={(value: string, entry: { color?: string }) => (
-                <span style={{ color: entry.color ?? 'var(--text-secondary)', fontFamily: 'IBM Plex Mono, monospace', fontSize: 11 }}>{value}</span>
-              )}
+              formatter={(value: string, entry: { color?: string }) => {
+                const isDetectedLegend = lastAnalysis?.detectedProjects.some(
+                  (p) => value.toLowerCase().includes(p.toLowerCase().split(' ')[0]),
+                ) ?? false;
+                return (
+                  <span style={{ color: entry.color ?? 'var(--text-secondary)', fontFamily: 'IBM Plex Mono, monospace', fontSize: 11, fontWeight: isDetectedLegend ? 700 : 400 }}>
+                    {value}{isDetectedLegend ? ' ◀' : ''}
+                  </span>
+                );
+              }}
               wrapperStyle={{ paddingTop: 14 }}
             />
           </RadarChart>
@@ -547,17 +611,22 @@ export default function OffsetIntegrityPage() {
             <tbody>
               {offsetData.map((entry, i) => {
                 const isKariba = entry.project.includes('Kariba');
+                const isDetected = lastAnalysis?.detectedProjects.some(
+                  (p) => entry.project.toLowerCase().includes(p.toLowerCase().split(' ')[0]),
+                ) ?? false;
                 return (
                   <tr
                     key={entry.project}
                     style={{
                       borderBottom: '1px solid var(--border-subtle)',
                       background: isKariba ? 'rgba(239,68,68,0.04)' : i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
+                      outline: isDetected ? '2px solid var(--orange)' : undefined,
+                      outlineOffset: isDetected ? '-2px' : undefined,
                     }}
                   >
                     {/* Project Name */}
                     <td style={{ padding: '13px 14px', maxWidth: '220px' }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0px' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0px', flexWrap: 'wrap' }}>
                         <span
                           style={{
                             color: isKariba ? '#EF4444' : 'var(--text-primary)',
@@ -570,6 +639,11 @@ export default function OffsetIntegrityPage() {
                           {entry.project}
                         </span>
                         <InfoTooltip text={entry.note} />
+                        {isDetected && (
+                          <span style={{ display: 'inline-block', marginTop: '3px', background: 'var(--orange-light)', color: 'var(--orange-dark)', border: '1px solid rgba(196,98,45,0.3)', fontFamily: 'var(--font-sans)', fontSize: '9px', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, padding: '1px 6px', borderRadius: '3px' }}>
+                            Son Analizde Tespit Edildi
+                          </span>
+                        )}
                       </div>
                     </td>
                     {/* Scores */}
