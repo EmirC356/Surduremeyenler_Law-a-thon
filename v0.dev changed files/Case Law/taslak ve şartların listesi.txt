@@ -1,0 +1,129 @@
+A-olay
+A.1.  Luftansa Carbon Offset dogrulama sikintisi 2 ana problemle �er�evelendirilir. 
+-	Ilki iddia edilen karbon offsetin sadece y�zde 20sinin teyit edilebilir yakit inovasyonu ile geldigi, y�zde 80inin ise �esitli offset projeleri ile 3. Parti kuruluslarin onayi ile yani sertifikasyon ile teyit edilmesidir. (dogrudan kendi web sitesinde yazmakta)
+-	Ikincisi, h�rm�z bogazi krizi ile s�rd�r�lebilirlik adina u�us seferlerini sinirladilar, fakat isin aslinda ekonomik ve siyasi �ikarlarin oldugu g�zlemlenmistir. �rnegin , yakit krizi oldugu bilinmekte, bu sebeple u�ak seferleri sayisi d�s�r�lmekte, bu y�zden s�rd�r�lebilir eylem aldiklarini s�ylemekteler ancak depolama kisminda ise �
+A.2. Sertifikasyon nasil aliniyor ve hangi noktalari sikintili: 
+-	Gold standard, 2003 te wwf (d�nya dogal hayati koruma vakfi) tarafindan bulunuyor. 3 farkli scope var: 1) toplum hizmeti, 2) yenilenebilir enerji projeleri 3) toprak kullanimi arastirma. Proje d�ng�s� nasil �alisir:
+ 
+Bu proje d�ng�s� tamamen bir model ve metod, fiziksel bir teyit mekanizmasi yok. 
+-	Verra, benzer bir metod uyguluyor, gold standarda g�re daha g�venilir sayilir ��nk� offset projelerinden karriba projesinde karbon kredisi vermeyi reddetmisler. 
+
+B-sorun
+B.1. Hukuki Sorun
+B.1.i �evrecilik iddialarinin abartili olmasi / ger�ek�i olmamasi
+Karbon n�tr iddialari 
+B.1.ii T�ketici a�isindan eksik / yaniltici bilgi
+a)	�evrecilik iddialarinin kendisi yaniltici 
+b)	�evrecilik iddialarinin sunumu yaniltici
+
+B.2. Teknik Sorun
+B.2.i. Sertifikasyon sistemi hatasi
+B.2.ii fizibilite hatasi / fiziksel somut �ikti dogrulama hatasi
+Myclimate (u�us karbon emisyonu kayitlarinin bulundugu data base) adli bir databaseden yakitlarin karbon emisyonunun verilerini aldiklarini idda ediyorlar. Fakat g�r�len yeni nesil karboin n�tr yakitlarin sadece %1�i alinmakta �rneklem sayisi yetersizdir. Ayrica yapilan toplumsal sorumluluk projelerinin , fiziksel olarak niceligi �l��lebilir (enerji tasarufu , aga�larin karbon yakalmasi , ya da �retilen ekserji) bir formda ifadesinde belirsizlikler var. 1 metrik ton denkligi verilmekte fakat diger sera gazlari ya da enerji baglaminda verimlilik �l��tleri daha �ok deginilmeli . 
+Kredi kalitesi ise tartismali Avustralya enstit�s� 23 farkli problem kesfetmistir . Karbon kredi kalite inisiyatifi bu kredi kalite kontrol�n� saglamaktadir. Genel olarak saptanan problem kredi sisteminin soyut kalmasi ve fiziksel bir �l��t�n�n evrensel olarak mevcut olmasidir. Validation and Verification bodies �nemli 
+
+
+C-hukuk kurallari
+
+
+
+D-mahkeme kararinda aranan nitelikler
+
+
+
+E-bir reklamin saglikli olmasi i�in AB�ye g�re ne lazim.(Compliance Criteria 2016 h�k�mleri)
+a.	Sirketin �evre hakkindaki iddialari spesifik, belirli ve ger�ek�i olmalidir
+b.	Sirketlerin iddialarini destekleyen kanitlari olmalidir
+c.	Sirketler talep halinde bu kanitlari sunmaya hazir olmalidir
+d.	Sirketler �r�n�n �retim ve dagitim s�re�lerindeki �nemli etkilerini de g�z �n�nde bulundurmalidir.
+e.	Iddianin �r�n�n ya da hizmetin hangisinin, hangi kisminin ve ne s�reyle kapsamina aldigi a�ik�a belirtilmelidir.
+f.	Iddia �r�n ya da hizmetin piyasadaki islevi ile mantiki bir bag i�erisinde olmalidir, piyasada bagli etkilerine y�nelik olmalidir
+g.	Iddia edilen fayda zarari g�z ardi etmeye y�nelik olmalidir. Ancak fayda zarardan �ok daha b�y�kse buna izin verilebilir.
+h.	Diger sirketlerle yapilan her t�rl� kiyas da bu kriterlere baglidir ve d�r�stl�kle yapilmalidir.
+i.	Basit bir dil kullanilmalidir.
+j.	Genis ve belirsiz ifadeler kullanilmamalidir. Her genis ve belirsiz iddia devaminda kisitlanmalidir. Bu kisitlamalar net ve anlasilir olmalidir.
+k.	T�keticinin bu ifadelerden ne anlayacagi esas alinarak degerlendirme yapilir.
+l.	B�y�k ve ciddi iddialar, m�kemmeli g�steren iddialar ancak planlanmis bir sekilde sunulurlarsa, bir lisans ile destekleniyorsa ve bu lisans m�kemmel bir sekilde bu �r�n ya da hizmetin �evreye tamamen zararsiz oldugunu kanitlayabiliyorsa m�mk�nd�r.
+m.	Yasakli islere giren �r�n ve hizmetler bu vesile ile hukuka uygun hale gelmez.
+n.	Marka hileleri yasaktir.
+o.	Deliller a�ik, net ve en uygun sekilde elde edilmis olmalidir. Uzman g�r�s aksini ifade ederse bu reklam ve iddialar durdurulmalidir.
+p.	Kanit ve rapor y�k�ml�l�g� iddianin boyutu ile orantili olarak degerlendirilir.
+q.	Deliller ve raporlar d�zenli olarak ve gerektik�e g�ncellenmelidir.
+r.	Gelecege d�n�s temenniler yasaktir. Temenniler delille ispat edilemeyecek iddialardir. Bunlar hedef olarak degerlendirilemez.
+s.	Gelecege d�n�k kesin sekilde iddia edilemeyen temenniler ancak ger�ek�i bir planin, planda yer alan ve risk altina giren herkesin belli olmasinin, hedeflerin, s�relerin ve bagimsiz denet�ilerin varligi halinde m�mk�nd�r.
+t.	Sirketler her zaman verilerin g�ncelligi ve ger�ekligi hususunda sorumludur.
+u.	Sirketlere halka karsi seffaf olmak zorundadir.
+	
+
+	e2-T�rk hukukunda reklamlarin ve iddialarin saglikli olmasi i�in ne lazim
+a.	T�keticiyi yaniltici ibarelere reklamlarda yer verilemez. Bunun kisitlamalari y�netmelikle belirlenir.
+b.	Reklamlar t�keticinin bilgi eksikligini ve duyarliligini istismar edecek sekilde yapilamaz.
+c.	�Yesil�, �s�rd�r�lebilir�, �sifir karbon�, gibi reklamlar a�iklama yapilmadan yapilamaz. Eger t�keticilerin a�iklamaya reklam yapilan platformdan ulasma sansi yoksa t�ketici ilgili platforma y�nlendirilir.
+d.	Reklamda ifade edilen hedefin ger�eklesmesi i�in �zel kosullar gerekliyse bunlar belirtilmelidir. ger t�keticilerin a�iklamaya reklam yapilan platformdan ulasma sansi yoksa t�ketici ilgili platforma y�nlendirilir.
+e.	Reklami yapilan ifadenin �r�n ya da hizmetin hangi kismini ve asamasini kapsadigi belirtilmelidir. Aksi halde t�ketici hepsini kapsadigini varsayilabilir.
+f.	Karsilastirmali beyanlarda karsilastirmanin i�erigi a�ik�a belirtilmelidir.
+g.	Reklamda kullanilan sertifika ve onaylarin ulusal yetkili kuruluslardan, akademilerden veya ARGE kuruluslarindan alinmis olmasi gerekir.
+h.	Bu sertifika ve onaylarin ne anlam ifade ettigi ve �evrede ne gibi etkilere karsilik geldiginin reklamin yapildigi alanda ya da �r�n�n internet sitesinde a�iklanmis olmasi gerekir.
+e3-T�rk Hukukunda raporlarin saglikli olmasi i�in ne lazim, TSRS h�k�mlerine giriyorsa ne lazim
+Raporlar dogrudan reklamin sagligini etkilemez. Ama dolayli bir etkisi vardir. Her A.S, SPK kapsaminda rapor tutmakla sorumludur. Finansal aktiviteler bu raporlarla tespit edilir. Bu raporlarin yanlis olmasi durumunda SPK�da ciddi cezalar �ng�r�lm�st�r. Kanuna g�re bu raporlarin nasil tutulacagi y�netmelikle belirlenecektir. TSRS de s�rd�r�lebilirlikle ilgili olan raporlarin nasil d�zenlenmesi gerektigini d�zenlemektedir. Bir anonim sirket s�rd�r�lebilirlikle ilgili bir reklam yaparsa ilgili a�iklamalari ve ger�ekligi ispat ile y�k�ml�d�r. Bunu da finansal raporla yapmasi gerekir. Bu raporlar da TSRS�ye g�re d�zenlenmis olmalidir. Yani g�n�n sonunda reklamin sagliginin ispati i�in rapor da saglikli olmalidir. Yoksa ihtilaf halinde bu iddialar ispat edilmemis olur, bu da davanin kaybi ile sonu�lanabilir. Bu durumda dava edilme sansini ekarte etmek ve sorumlulugu �zerinden atabilmek i�in her A.S�nin reklamlari ile ilgili finansal rapor da tutmasi gerekir. Bu raporlar da su esaslara g�re tutulur.
+a.	Her finansal rapor Sermaye Piyasasi Kurulunun �ng�rd�g� sekilde hazirlanmalidir.
+b.	Bilgiler potansiyel yatirimcilari ve t�keticileri yaniltacak surette raporlanamaz.
+c.	S�rd�r�lebilirlikle ilgili t�m firsat ve riskler ger�ek�i bir sekilde sunulmalidir.
+d.	Raporlar karsilastirilabilir, dogrulanabilir, zamaninda sunulmus ve a�ik olmalidir.
+e.	Isletme risk ve firsati hesaplamak i�in �ng�rd�g� t�m metrikleri a�iklamalidir.
+f.	Metrigin mutlak bir metrik mi bagli bir metrik oldugu belirtilmelidir.
+g.	Metrigin ���nc� bir taraf tarafindan onaylanip onaylanmadigi.
+h.	Kullanilan y�ntemin kisitlamalari belirtilmelidir.
+i.	Hedefler i�in metrikler usul�ne uygun bir sekilde belirtilmelidir.
+j.	Hedeflenen nicel ve nitel hedef a�ik�a belirtilmelidir.
+k.	Hedefin ge�erli oldugu d�nem belirtilmelidir.
+l.	Ilerlemenin �l��m�nde baz alinan d�nem belirtilmelidir.
+m.	D�n�m noktalari ve ara hedefler belirlenmelidir.
+n.	Performanstaki trendlerin ve degisikliklerin analizi belirtilmelidir.
+o.	Hedefteki her olasi revizyona yer verilmelidir.
+p.	Metrikler ve hedefler net, a�ik ve belirli bir sekilde ifade edilmelidir.
+	e4-Mahkeme Kararina g�re ne lazim (Lufthansa)
+	e5-T�rkiye�de bulunan ve Avrupa ile ticaret yapan bir sirketin hepsine ihtiyaci var (yetki ve dava edilebilirlik h�k�mleri)
+
+
+
+F-Bu sorunun T�rk sirketleri a�isindan impact alani ne
+
+
+
+G-Sirketlere bunu nasil satariz
+
+
+
+H-Bu neyi degistirir ve hangi s�rd�r�lebilirlik hedefine hizmet ediyor
+
+BM S�rd�r�lebilir Kalkinma Hedefleri
+
+12- Sorumlu T�ketim ve �retim
+Hedef 12.6:  Basta b�y�k ve sinir�tesi sirketler olmak �zere, firmalari s�rd�r�lebilir uygulamalari benimsemeleri ve raporlama d�ng�lerine s�rd�r�lebilirlik bilgilerini eklemeleri i�in �zendirmek
+Hedef 12.8:  2030 yilina kadar insanlarin her yerde s�rd�r�lebilir kalkinma ve dogayla uyumlu yasam tarzlari hakkinda gerekli bilgilere ve farkindaliga sahip olmalarini saglamak
+13- Iklim Eylemi
+Hedef 13.2:  Iklim degisikligine y�nelik �nlemleri ulusal politikalara, stratejilere ve planlama s�re�lerine d�hil etmek
+Hedef 13.3:  Iklim degisikliginin �nlenmesi ve etkilerinin azaltilmasi ile iklim degisikligine uyum ve erken uyari konularinda egitim, farkindalik bireysel ve kurumsal kapasite gelistirmek
+16- Baris, Adalet ve G��l� Kurumlar 
+Hedef 16.3:  Ulusal ve uluslararasi d�zeylerde hukukun �st�nl�g�n� yayginlastirmak ve herkesin adalete esit erisimini saglamak
+Hedef 16.6:  Her d�zeyde etkili, hesap verebilir ve seffaf kurumlar gelistirmek
+17- Ama�lar I�in Ortakliklar
+Hedef 17.16:  Gelismekte olan �lkeler basta olmak �zere t�m �lkelerde s�rd�r�lebilir kalkinma hedeflerine ulasilmasini desteklemek i�in bilgiyi, uzmanligi, teknolojiyi ve finansal kaynaklari paylasan ve seferber eden �ok paydasli ortakliklarin tamamlayiciliginda S�rd�r�lebilir Kalkinma i�in K�resel Isbirligini gelistirmek
+Hedef 17.17:  Ortakliklarin tecr�belerinden ve kaynak yaratma stratejilerinden yararlanarak etkili kamu, kamu-�zel ve sivil toplum ortakliklarini tesvik etmek ve yayginlastirmak
+TC Anayasasi
+Madde 56 � Saglikli ve Dengeli �evrede Yasama Hakki
+Madde 172 � T�keticinin Korunmasi
+Madde 74 � Dilek�e ve Bilgi Edinme Hakki
+Madde 125 � Idarenin Yargi Denetimi
+Madde 2 � Hukuk Devleti Ilkesi
+
+
+��Z�M
+
+Projenin ��zd�g� Problem ve ��z�m Yaklasimi
+Projemiz, sirketlerin �evresel s�rd�r�lebilirlik beyanlarindaki (�rnegin "karbon n�tr", "net sifir" u�us) hukuki ve finansal riskleri tespit eden yapay zeka destekli bir "Yesil Uyum ve Risk Analiz" (Compliance & Integrity) platformudur. G�n�m�zde sirketler, AB Yesil Iddia Direktifi (Green Claims Directive) ve emsal mahkeme kararlari (Shell, Lufthansa) isiginda, yeterli bilimsel kanita dayanmayan �evresel vaatler nedeniyle milyonlarca euroluk "yesil badana" (greenwashing) davalariyla ve itibar kayiplariyla karsi karsiya kalmaktadir. Gelistirdigimiz ��z�m, sirketlerin pazarlama materyallerini ve ESG raporlarini yayina girmeden �nce denetleyerek, bu beyanlarin dava edilebilirligini objektif metriklerle �l�en proaktif bir "hukuki ve finansal koruma kalkani" g�revi g�rmektedir.
+
+Kullanilan Metodoloji ve Teknik Altyapi
+Sistemimiz; hukuk, kimya ve bilgisayar bilimlerini entegre eden hibrit bir analiz metodolojisiyle �alismaktadir. Ilk asamada, Dogal Dil Isleme (NLP) ve B�y�k Dil Modelleri (LLM) kullanilarak sisteme y�klenen dok�manlardaki �evresel iddialar ve riskli anahtar kelimeler otomatik olarak ayristirilir. Ikinci asamada bu iddialar, g�ncel hukuki i�tihatlarla (emsal karar eslesmesi ve ispat y�k� analizi) karsilastirilarak bir "Hukuki Risk Skoru" �retir. Es zamanli �alisan "Bilimsel B�t�nl�k Motoru" ise sirketin dayandigi karbon denklestirme (offset) projelerini; ektiklik (additionality), kalicilik (permanence) ve MRV (�l��m, Raporlama, Dogrulama) kalitesi �zerinden uluslararasi verilerle (Verra, Germanwatch vb.) �apraz dogrulamaya tabi tutar. Bu �ok katmanli yapi sayesinde, sadece kagit �zerindeki sertifikalara g�venilmez; iddialarin arkasindaki fiziksel ve hukuki ger�eklik analiz edilerek u�tan uca seffaf bir risk raporlamasi sunulur.
+
