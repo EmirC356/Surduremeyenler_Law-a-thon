@@ -14,6 +14,7 @@ import {
 // ── Unchanged keyword detection ───────────────────────────────────────────────
 
 const RED_FLAG_KEYWORDS = [
+  // Original 13 terms — do not remove any
   'carbon neutral',
   'net zero',
   'climate positive',
@@ -27,6 +28,37 @@ const RED_FLAG_KEYWORDS = [
   'climate neutral',
   'science-based target',
   'emissions free',
+
+  // New terms — industry synonyms and evasion patterns
+  'carbon balanced',
+  'emission-compensated',
+  'climate responsible',
+  'low carbon',
+  'zero emission',
+  'clean energy',
+  'renewable energy',
+  'eco-friendly',
+  'environmentally friendly',
+  'nature positive',
+  'biodiversity net gain',
+  'sustainable aviation fuel',
+  'SAF',
+  'carbon footprint',
+  'carbon offsetting',
+  'green investment',
+  'ESG',
+  'sustainable finance',
+  'eco-design',
+  'conscious',
+
+  // Turkish-language equivalents
+  'karbon nötr',
+  'sürdürülebilir',
+  'yeşil sertifikalı',
+  'karbon dengeleyici',
+  'iklim nötr',
+  'sıfır emisyon',
+  'yenilenebilir enerji',
 ];
 
 function detectKeywords(text: string): string[] {
