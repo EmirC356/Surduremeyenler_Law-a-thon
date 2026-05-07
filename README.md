@@ -7,7 +7,6 @@ A high-fidelity legal-tech prototype built for the **Law-a-thon hackathon**. The
 ## How to Run
 
 ```bash
-cd my-lawathon-app
 npm install       # only needed the first time
 npm run dev       # starts the dev server
 ```
@@ -34,7 +33,7 @@ No backend, no database — all data is mock JSON defined in `lib/mockData.ts`.
 ## Project Structure
 
 ```
-my-lawathon-app/
+.
 ├── app/                        # Next.js App Router pages
 │   ├── page.tsx                # Dashboard (home)
 │   ├── analysis/page.tsx       # Document upload & parsing simulation
