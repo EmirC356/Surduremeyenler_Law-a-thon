@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { mockCaseLaw } from '../../lib/caseData';
+import LegalDisclaimer from '../../components/LegalDisclaimer';
 
 const RISK_LEVEL_TR: Record<string, string> = {
   LOW: 'DÜŞÜK',
@@ -164,6 +165,10 @@ export default function DashboardPage() {
           </div>
           <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)' }}>Tespit Edilen Kritik İşaretler</div>
         </div>
+      </div>
+
+      <div className="mb-5">
+        <LegalDisclaimer variant="inline" />
       </div>
 
       {/* Emisyon Grafiği */}

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { mockAnalysisResult, type ClaimAnalysisResult, type CourtCase } from '../../lib/caseData';
 import { buildHighlightRegex, isHighlightTerm } from '../../lib/highlightTerms';
+import LegalDisclaimer from '../../components/LegalDisclaimer';
 
 type InputTab = 'text' | 'upload';
 type AnalyzeState = 'idle' | 'analyzing' | 'complete' | 'error';
@@ -239,6 +240,7 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
   const [showAllCases, setShowAllCases] = useState(false);
   return (
     <div className="flex flex-col gap-5 mt-5">
+      <LegalDisclaimer variant="banner" />
       {showArticle6Flag && (
         <div
           className="flex items-start gap-3 px-4 py-3 rounded-xl card-animated"
@@ -542,6 +544,8 @@ function ResultsPanel({ result, showArticle6Flag }: { result: ClaimAnalysisResul
           </div>
         )}
       </div>
+
+      <LegalDisclaimer variant="inline" />
     </div>
   );
 }

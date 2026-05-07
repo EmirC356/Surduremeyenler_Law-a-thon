@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Leaf, Shield, ChevronRight, LayoutDashboard, FileSearch, Target, CreditCard, Home, ExternalLink } from 'lucide-react';
+import { Leaf, Shield, ChevronRight, LayoutDashboard, FileSearch, Target, CreditCard, Home, ExternalLink, BookOpen } from 'lucide-react';
 import type { ElementType } from 'react';
 import { NAV_ITEMS } from '../lib/navigation';
 
@@ -11,6 +11,7 @@ const ICON_MAP: Record<string, ElementType> = {
   FileSearch,
   Target,
   CreditCard,
+  BookOpen,
 };
 
 export default function Sidebar() {

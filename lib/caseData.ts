@@ -692,6 +692,75 @@ export const mockOffsetProjects: OffsetProject[] = [
     notes:
       'Verra suspended Rimba Raya in 2023 after Indonesian government revoked land permits, retroactively invalidating ~100 million credits already sold to Apple, Gucci, and others. Classic permanence failure.',
   },
+  {
+    projectName: 'Climeworks Mammoth — Direct Air Capture',
+    projectType: 'Direct Air Capture (DAC)',
+    certificationBody: 'Puro.earth Standard / ISO 14064',
+    additionalityScore: 98,
+    permanenceScore: 96,
+    leakageScore: 99,
+    overallIntegrityScore: 98,
+    status: 'valid',
+    notes:
+      'Iceland-based DAC plant captures CO₂ directly from atmosphere ' +
+      'and stores it permanently in basaltic rock via mineralisation. ' +
+      'Gold standard for carbon removal permanence — storage is ' +
+      'effectively geological (>10,000 years). Highest-integrity ' +
+      'credit type currently available. Cost: ~$400–1000/tonne CO₂.',
+  },
+  {
+    projectName: 'Great Bear Forest Carbon Project (British Columbia)',
+    projectType: 'REDD+ / Improved Forest Management',
+    certificationBody: 'Verra VCS + Climate, Community & Biodiversity',
+    additionalityScore: 38,
+    permanenceScore: 29,
+    leakageScore: 44,
+    overallIntegrityScore: 37,
+    status: 'disputed',
+    notes:
+      'Originally one of the most cited large-scale REDD+ projects. ' +
+      'Permanence severely compromised by 2023 wildfire season which ' +
+      'burned significant portions of the project area, releasing stored ' +
+      'carbon. Additionality questioned: province-wide logging moratorium ' +
+      'meant deforestation threat was pre-existing policy, not project-' +
+      'driven. Buffer pool adequacy under regulatory review.',
+  },
+  {
+    projectName: 'Indigo Ag Soil Carbon (USA)',
+    projectType: 'Agricultural Soil Carbon Sequestration',
+    certificationBody: 'American Carbon Registry (ACR)',
+    additionalityScore: 21,
+    permanenceScore: 28,
+    leakageScore: 52,
+    overallIntegrityScore: 34,
+    status: 'disputed',
+    notes:
+      'MIT Technology Review (2023) investigation found Indigo Ag enrolled ' +
+      'farmers already using conservation tillage practices prior to ' +
+      'project registration, undermining additionality. Soil carbon is ' +
+      'inherently reversible — a single ploughing event releases decades ' +
+      'of sequestered carbon. ACR issued corrective guidance requiring ' +
+      'retroactive baseline recalculation for enrolled fields.',
+  },
+  {
+    projectName: 'Moss.earth MCO2 Amazon Token (Brazil)',
+    projectType: 'REDD+ / Tokenised Carbon Credit',
+    certificationBody: 'Verra VCS',
+    additionalityScore: 31,
+    permanenceScore: 38,
+    leakageScore: 26,
+    overallIntegrityScore: 32,
+    status: 'disputed',
+    notes:
+      'Brazilian fintech that tokenised Verra-certified Amazon REDD+ credits ' +
+      'as MCO2 cryptocurrency tokens. CoinDesk and Bloomberg investigations ' +
+      '(2022–2023) found the underlying REDD+ projects suffered the same ' +
+      'overcounting and leakage issues identified in the Guardian investigation. ' +
+      'Tokenisation creates additional opacity: retirement of tokenised credits ' +
+      'is harder to verify than standard Verra registry entries. ' +
+      'Cited in EU MiCA consultations as example of greenwashing via ' +
+      'crypto-asset carbon claims.',
+  },
 ];
 
 export const mockAnalysisResult: ClaimAnalysisResult = {

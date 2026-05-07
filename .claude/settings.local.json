@@ -10,7 +10,12 @@
       "Bash(curl -s \"https://stitch.withgoogle.com/docs/design-md/overview/\")",
       "Bash(curl -s \"https://stitch.withgoogle.com/docs/design-md/format/\")",
       "Bash(vercel build *)",
-      "Bash(vercel pull *)"
+      "Bash(vercel pull *)",
+      "Bash(findstr /C:\"karbon nötr\")",
+      "PowerShell(Get-ChildItem my-lawathon-app -Force | Move-Item -Destination . -Force; Remove-Item my-lawathon-app -Recurse -Force; Remove-Item vercel.json -Force; Write-Host \"===ROOT AFTER MOVE===\"; Get-ChildItem . -Force | Where-Object { $_.Name -ne '.git' -and $_.Name -ne '.claude' } | Select-Object Mode, Name | Format-Table -AutoSize)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "PowerShell(@\\('app/analysis/page.tsx','app/dashboard/page.tsx','app/offset/page.tsx'\\) | ForEach-Object { \"{0}: {1} lines\" -f $_, \\(\\(Get-Content $_\\).Count\\) })"
     ]
   }
 }

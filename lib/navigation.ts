@@ -29,6 +29,13 @@ export const NAV_ITEMS: NavItem[] = [
     enabled: true,
   },
   {
+    label: 'Metodoloji',
+    route: '/methodology',
+    icon: 'BookOpen',
+    sublabel: 'Skorlama & Veri Kaynakları',
+    enabled: true,
+  },
+  {
     label: 'Fiyatlandırma',
     route: '/pricing',
     icon: 'CreditCard',
