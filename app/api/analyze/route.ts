@@ -1,80 +1,99 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  mockAnalysisResult,
-  mockCaseLaw,
-  mockOffsetProjects,
-  type ClaimAnalysisResult,
-} from '../../../lib/caseData';
-import {
-  loadCaseLawContext,
-  selectRelevantPassages,
-  serializeOffsetContext,
-} from '../../../lib/caseLawContext';
+import { splitIntoSentences, getCandidateSentences, CANDIDATE_KEYWORDS } from '../../../lib/sentenceSplitter';
+import type { FlaggedPhrase, AnalysisResult } from '../../../lib/types';
 
-// ── Unchanged keyword detection ───────────────────────────────────────────────
+// ── Phrase-level case database ────────────────────────────────────────────────
 
-const RED_FLAG_KEYWORDS = [
-  // Original 13 terms — do not remove any
-  'carbon neutral',
-  'net zero',
-  'climate positive',
-  'carbon negative',
-  'offset',
-  'carbon credit',
-  'REDD+',
-  'sustainable',
-  'green certified',
-  'carbon free',
-  'climate neutral',
-  'science-based target',
-  'emissions free',
-
-  // New terms — industry synonyms and evasion patterns
-  'carbon balanced',
-  'emission-compensated',
-  'climate responsible',
-  'low carbon',
-  'zero emission',
-  'clean energy',
-  'renewable energy',
-  'eco-friendly',
-  'environmentally friendly',
-  'nature positive',
-  'biodiversity net gain',
-  'sustainable aviation fuel',
-  'SAF',
-  'carbon footprint',
-  'carbon offsetting',
-  'green investment',
-  'ESG',
-  'sustainable finance',
-  'eco-design',
-  'conscious',
-
-  // Turkish-language equivalents
-  'karbon nötr',
-  'sürdürülebilir',
-  'yeşil sertifikalı',
-  'karbon dengeleyici',
-  'iklim nötr',
-  'sıfır emisyon',
-  'yenilenebilir enerji',
+const CASE_DB = [
+  {
+    id: 'SHELL-NL-2021',
+    caseName: 'Shell Netherlands — Enerji Dönüşümü İddiası',
+    year: 2021,
+    jurisdiction: 'Netherlands / District Court of The Hague',
+    claimMade: 'Shell positioned itself as a leader in the energy transition without substantiated emission reduction plans',
+    violationReason: 'Court ordered 45% emission reduction by 2030; transition leadership claims without binding plans violate duty of care',
+    regulationCited: 'CSRD/ESRS E1-4; Dutch Civil Code Article 6:162',
+    outcome: '45% emission reduction ordered by 2030',
+    keywords: ['net zero', 'emissions', 'transition', 'energy', 'climate', 'carbon'],
+  },
+  {
+    id: 'LUFTHANSA-DE-2023',
+    caseName: 'Lufthansa Green Fares — Yeşil Bilet İddiası',
+    year: 2023,
+    jurisdiction: 'Germany / Regulatory',
+    claimMade: 'Green fare tickets offset flight emissions via sustainable aviation fuel and carbon offset projects',
+    violationReason: 'Low-quality offsets used without disclosing methodology; vague sustainability claims without quantified evidence',
+    regulationCited: 'EU Unfair Commercial Practices Directive 2005/29/EC; UWG § 5',
+    outcome: '€4M fine',
+    keywords: ['green fare', 'offset', 'carbon', 'flight', 'sustainable', 'SAF', 'sustainable aviation'],
+  },
+  {
+    id: 'RYANAIR-ASA-2020',
+    caseName: 'Ryanair — En Düşük Emisyon İddiası',
+    year: 2020,
+    jurisdiction: 'UK / Advertising Standards Authority',
+    claimMade: "Ryanair is Europe's lowest emissions airline per passenger",
+    violationReason: 'No supporting data provided for lowest emissions claim; comparative advertising without substantiation',
+    regulationCited: 'UK CAP Code Rule 3.7; EU Directive 2006/114/EC on comparative advertising',
+    outcome: 'Advertising ban by UK ASA',
+    keywords: ['lowest emissions', 'CO2', 'per passenger', 'carbon', 'flight', 'emissions', 'carbon footprint'],
+  },
+  {
+    id: 'DWS-SEC-2023',
+    caseName: 'Deutsche Bank DWS — ESG Fon İddiası',
+    year: 2023,
+    jurisdiction: 'Germany / SEC / BaFin',
+    claimMade: 'DWS claimed ESG integration across a majority of its actively managed assets',
+    violationReason: 'Actual AUM with real ESG scores was far lower than claimed; greenwashing in fund marketing',
+    regulationCited: 'SFDR Article 4; EU Regulation 2019/2088',
+    outcome: '€19M fine; CEO resigned',
+    keywords: ['ESG', 'sustainable investment', 'green fund', 'climate', 'sustainable finance'],
+  },
+  {
+    id: 'VW-EU-2022',
+    caseName: 'Volkswagen — Düşük Emisyon Markalama',
+    year: 2022,
+    jurisdiction: 'EU / Multiple jurisdictions',
+    claimMade: 'Volkswagen marketed diesel vehicles as low-emission and eco-friendly',
+    violationReason: 'Emissions cheating software installed; misleading eco-labelling; systematic consumer deception',
+    regulationCited: 'EU Consumer Protection Directive; EU Regulation 715/2007 on emissions',
+    outcome: '€30B+ settlements across jurisdictions',
+    keywords: ['low emission', 'clean', 'eco', 'efficient', 'fuel', 'emissions free', 'carbon free'],
+  },
+  {
+    id: 'KARIBA-REDD-2023',
+    caseName: 'Kariba REDD+ — Geçersiz Offset Kredisi',
+    year: 2023,
+    jurisdiction: 'International / Verra',
+    claimMade: 'Companies marketed carbon neutral products using Kariba REDD+ offset credits',
+    violationReason: 'Verra invalidated over 50% of Kariba credits; offset claims became retroactively unsubstantiated',
+    regulationCited: 'Paris Agreement Article 6.4; EU Green Claims Directive 2024/825',
+    outcome: 'Majority of Kariba REDD+ credits revoked by Verra',
+    keywords: ['carbon neutral', 'REDD+', 'offset', 'carbon credit', 'verified', 'carbon offsetting'],
+  },
+  {
+    id: 'SHELL-CE-2023',
+    caseName: 'Shell — ClientEarth Ürün Etiketi İddiası',
+    year: 2023,
+    jurisdiction: 'UK / Advertising Standards Authority',
+    claimMade: 'Shell labelled petrol and diesel products as carbon neutral via certified carbon credits',
+    violationReason: 'Carbon neutral product claims require full lifecycle accounting and valid Paris Agreement Article 6.4 authorisation',
+    regulationCited: 'EU Green Claims Directive 2024/825, Article 3; Paris Agreement Article 6.4',
+    outcome: 'Shell withdrew carbon neutral product labelling',
+    keywords: ['carbon neutral', 'product label', 'offset', 'certified', 'carbon credit', 'REDD+'],
+  },
+  {
+    id: 'KLM-RCC-2023',
+    caseName: 'KLM — Fly Responsibly Kampanyası',
+    year: 2023,
+    jurisdiction: 'Netherlands / Advertising standards',
+    claimMade: "KLM's Fly Responsibly campaign implied that flying with KLM was environmentally beneficial",
+    violationReason: 'No substantiated evidence that flying could be made sustainable; first EU ruling to apply Paris Agreement standards to airline offset marketing',
+    regulationCited: 'EU Unfair Commercial Practices Directive 2005/29/EC; Paris Agreement Article 6',
+    outcome: 'Dutch ASA halted the campaign',
+    keywords: ['fly responsibly', 'sustainable aviation', 'green flying', 'carbon', 'offset', 'sustainable'],
+  },
 ];
-
-function detectKeywords(text: string): string[] {
-  const lower = text.toLowerCase();
-  return RED_FLAG_KEYWORDS.filter((kw) => lower.includes(kw.toLowerCase()));
-}
-
-function scoreFromKeywords(detected: string[]): number {
-  return Math.min(100, detected.length * 14);
-}
-
-function matchCases(detected: string[]) {
-  return mockCaseLaw.filter((c) =>
-    c.keywords.some((kw) => detected.some((d) => d.toLowerCase() === kw.toLowerCase())),
-  );
-}
 
 // ── POST handler ──────────────────────────────────────────────────────────────
 
@@ -86,113 +105,79 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'text field is required' }, { status: 400 });
     }
 
-    const detectedKeywords = detectKeywords(text);
-    const matchedCases = matchCases(detectedKeywords);
-    const keywordMatchScore = scoreFromKeywords(detectedKeywords);
-    const caseMatchScore =
-      matchedCases.length > 0
-        ? Math.round(
-            matchedCases.reduce((s, c) => s + c.similarityThreshold, 0) / matchedCases.length,
-          )
-        : 0;
+    // ── Step 1: Sentence split and candidate filter ────────────────────────────
+    const sentences = splitIntoSentences(text);
+    const candidates = getCandidateSentences(sentences);
 
-    // ── Load live context from Case Law folder and offset data ────────────────
-    const caseLawDocs = await loadCaseLawContext();
-    const casePassages = selectRelevantPassages(text, caseLawDocs);
-    const offsetContext = serializeOffsetContext(mockOffsetProjects);
-    const hasDocuments = casePassages.length > 0;
-
-    // ── Pre-flight: reject gibberish / non-claims before spending an API call ─
-    // The previous logic fell back to mockAnalysisResult.litigationRiskScore (76)
-    // whenever no keywords matched, so any random string scored ~76. Fix: detect
-    // genuinely empty environmental signal and return safe immediately.
-    const ENV_VOCAB = /\b(carbon|climat|emission|sustainab|green|environ|ecolog|offset|renewable|paris|esg|csrd|net.?zero|neutral|biodivers|deforest|recycl|kyoto|kar.?bon|emisyon|s[uü]rd[uü]r|ye[şs]il|[çc]evre|iklim)\b/i;
-    const hasAnyEnvSignal =
-      detectedKeywords.length > 0 ||
-      casePassages.length > 0 ||
-      ENV_VOCAB.test(text);
-
-    if (!hasAnyEnvSignal || text.trim().length < 15) {
-      const noClaim: ClaimAnalysisResult = {
-        inputText: text,
-        detectedKeywords: [],
-        matchedCases: [],
-        litigationRiskScore: 0,
-        riskCategory: 'safe',
-        breakdown: { keywordMatchScore: 0, caseMatchScore: 0, offsetIntegrityScore: 100 },
-        recommendations: [
-          'Sağlanan metinde değerlendirilebilir bir çevresel iddia tespit edilmedi.',
-          'Analiz için bir şirketin sürdürülebilirlik raporundan, reklam kampanyasından veya kurumsal beyanından bir çevre iddiası girin.',
-          'Örnek iddialar: "karbon nötr ürünler", "net sıfır taahhüdü", "yeşil sertifikalı" gibi ifadeler içeren metinler.',
-        ],
+    if (candidates.length === 0) {
+      const empty: AnalysisResult = {
+        flaggedPhrases: [],
+        overallScore: 0,
+        overallRiskCategory: 'safe',
+        summary: 'Metinde çevresel iddia tespit edilmedi. Analiz için bir sürdürülebilirlik iddiası içeren metin girin.',
+        originalText: text,
       };
-      return NextResponse.json(noClaim);
+      return NextResponse.json(empty);
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
 
     if (apiKey) {
       try {
-        // ── Build five-section system prompt ──────────────────────────────────
+        const caseDbJson = JSON.stringify(
+          CASE_DB.map(({ id, caseName, year, jurisdiction, claimMade, violationReason, regulationCited, outcome, keywords }) =>
+            ({ id, caseName, year, jurisdiction, claimMade, violationReason, regulationCited, outcome, keywords })
+          ),
+          null, 2
+        );
 
-        const section3 = hasDocuments
-          ? `RELEVANT EXCERPTS FROM PROVIDED COURT DOCUMENTS:\n\n${casePassages}\n\nThese excerpts are from actual legal documents provided by the analysis team. They take precedence over general training knowledge where they conflict. When citing a finding, attribute it to the document name shown in the [SOURCE: ...] prefix.`
-          : `No case law documents were provided for this analysis. Base your assessment on your training knowledge of the Shell ClientEarth 2023, Lufthansa 2023, and KLM 2023 cases and EU greenwashing law. Scoring weights for this mode: 30% keyword severity, 70% precedent similarity from training knowledge.`;
-
-        const scoringWeights = hasDocuments
-          ? '30% keyword severity and count, 40% match with provided case law document excerpts, 30% offset project integrity (or general precedent similarity if no specific projects are named)'
-          : '30% keyword severity and count, 70% precedent similarity from training knowledge';
+        const numberedSentences = candidates
+          .map((s, i) => `[${i}] ${s.text}`)
+          .join('\n');
 
         const systemPrompt =
           `## SECTION 1 — ROLE\n` +
-          `You are a legal analyst specialising in European greenwashing law and carbon offset claim verification. ` +
-          `Your task is to assess whether a company's environmental marketing claim is legally vulnerable under current EU case law. ` +
-          `Return ONLY a valid JSON object — no markdown fences, no text outside the JSON.\n\n` +
+          `You are a greenwashing legal analyst specialising in EU consumer protection and environmental law. ` +
+          `Your job is to identify the exact phrases in marketing or sustainability documents that create litigation risk under EU greenwashing law. ` +
+          `Output only valid JSON. No explanations outside the JSON.\n\n` +
 
-          `## SECTION 2 — LEGAL FRAMEWORK (training knowledge)\n` +
-          `You are already familiar with these cases and frameworks from your training:\n` +
-          `1. Shell ClientEarth 2023 — product-level "carbon neutral" claims require full Scope 1+2+3 lifecycle accounting and valid Paris Agreement Article 6.4 offset authorisation.\n` +
-          `2. Lufthansa Green Fares 2023 — vague sustainability claims without quantified evidence constitute unfair commercial practice under EU Directive 2005/29/EC and UWG § 5.\n` +
-          `3. KLM Fly Responsibly 2023 — marketing implying systemic environmental change without evidence is prohibited; first EU ruling to directly apply Paris Agreement standards to corporate offset marketing.\n` +
-          `4. Paris Agreement Article 6.2 & 6.4 — offset credits used in marketing must have UNFCCC Supervisory Body authorisation (ITMOs); unauthorised REDD+ credits create critical legal exposure.\n` +
-          `5. EU Green Claims Directive 2024/825 — all environmental claims must be substantiated with life-cycle assessment evidence.\n` +
-          `These are background knowledge; the primary source of truth is Section 3 below when documents are provided.\n\n` +
+          `## SECTION 2 — CASE DATABASE\n` +
+          `${caseDbJson}\n\n` +
 
-          `## SECTION 3 — CASE LAW CONTEXT\n` +
-          `${section3}\n\n` +
-
-          `## SECTION 4 — CARBON OFFSET PROJECT INTEGRITY SCORES\n` +
-          `CARBON OFFSET PROJECT INTEGRITY SCORES (source: academic and institutional research):\n\n` +
-          `${offsetContext}\n\n` +
-          `If the claim mentions any of these projects by name, you MUST incorporate the actual scores:\n` +
-          `- Overall integrity score BELOW 40 → CRITICAL RISK — flag explicitly in detectedViolations\n` +
-          `- Score 40–70 → CAUTION — note in recommendations\n` +
-          `- Score ABOVE 70 → CREDIBLE — acknowledge as supporting evidence\n\n` +
-
-          `## SECTION 5 — OUTPUT FORMAT AND SCORING\n` +
-          `Return ONLY valid JSON with this exact structure. No markdown code fences. No text outside the JSON object.\n\n` +
-          `LANGUAGE REQUIREMENT (MANDATORY): All free-text strings in the response — every element of detectedViolations, applicableCases, and recommendations — MUST be written in TURKISH. The user interface is Turkish; English strings will look broken to the user. Case names may keep their proper-noun form (e.g. "Shell ClientEarth 2023") but the surrounding sentence must be Turkish. Use professional legal Turkish, not informal language.\n\n` +
+          `## SECTION 3 — OUTPUT FORMAT\n` +
+          `Return a JSON object with exactly this shape:\n` +
           `{\n` +
-          `  "litigationRiskScore": <integer 0-100>,\n` +
-          `  "riskCategory": <"safe"|"grey"|"litigable">,\n` +
-          `  "offsetIntegrityScore": <integer 0-100, credibility of any offset claims>,\n` +
-          `  "detectedViolations": [<Turkish string — one violation per element>],\n` +
-          `  "applicableCases": [<Turkish string — case name and year, with brief Turkish description>],\n` +
-          `  "recommendations": [<Turkish string — 3 to 5 actionable items, professional legal tone>]\n` +
+          `  "flaggedPhrases": [\n` +
+          `    {\n` +
+          `      "phrase": "exact verbatim substring from the sentence",\n` +
+          `      "sentenceIndex": 0,\n` +
+          `      "riskLevel": "high",\n` +
+          `      "matchedCaseId": "SHELL-CE-2023",\n` +
+          `      "matchedCaseName": "Shell — ClientEarth Ürün Etiketi İddiası",\n` +
+          `      "similarity": 91,\n` +
+          `      "reason": "Bu ifade neden riskli olduğunu açıklayan bir cümle (Türkçe)",\n` +
+          `      "regulation": "EU Green Claims Directive 2024/825, Article 3"\n` +
+          `    }\n` +
+          `  ],\n` +
+          `  "overallScore": 81,\n` +
+          `  "overallRiskCategory": "litigable",\n` +
+          `  "summary": "Belgenin genel yeşil aklama riskini özetleyen 2-3 cümle (Türkçe)"\n` +
           `}\n\n` +
-          `SCORING WEIGHTS: ${scoringWeights}\n\n` +
-          `PARIS AGREEMENT ARTICLE 6 CHECK: if REDD+ offsets are mentioned without Article 6.4 compliance evidence, flag as CRITICAL regardless of other scores.\n\n` +
-          `NO-CLAIM HANDLING (CRITICAL — DO NOT SKIP): The pre-filter has flagged some environmental signal in this text, but you MUST verify it contains a real marketing claim. If after analysis the text is gibberish, off-topic, an internal note, a question, or merely mentions environmental words without making any concrete claim about a product/company/practice, you MUST return:\n` +
-          `  - litigationRiskScore: 0 to 10 (proportional to how vague the signal is)\n` +
-          `  - riskCategory: "safe"\n` +
-          `  - detectedViolations: []\n` +
-          `  - applicableCases: []\n` +
-          `  - recommendations: ["Sağlanan metinde değerlendirilebilir bir çevresel iddia tespit edilmedi."]\n` +
-          `Never invent violations to fill the response. Never apply case law to text that contains no claim. The score must be grounded in actual matches against Section 3 (case law excerpts) and Section 4 (offset projects) — if neither matches, the score is low.`;
+
+          `## SECTION 4 — RULES\n` +
+          `- riskLevel MUST be "high" if similarity >= 75, "medium" if similarity 50-74. Omit the phrase if similarity < 50.\n` +
+          `- The "phrase" field MUST be an EXACT verbatim substring from the input sentence — not a paraphrase. The frontend uses this for text highlighting.\n` +
+          `- Do NOT flag generic business language. Only flag phrases making a specific environmental claim.\n` +
+          `- overallScore = weighted average of flagged phrase similarities; high-risk phrases count double.\n` +
+          `- overallRiskCategory: "safe" if score < 30, "grey" if 30-69, "litigable" if >= 70.\n` +
+          `- ALL "reason" fields and "summary" MUST be in Turkish (professional legal Turkish).\n` +
+          `- If no phrases meet the threshold, return empty flaggedPhrases array and score 0.\n` +
+          `- PARIS AGREEMENT ARTICLE 6 CHECK: if REDD+ offsets mentioned without Article 6.4 evidence, set riskLevel "high" and similarity >= 85.`;
 
         const userMessage =
-          `Analyse this environmental marketing claim:\n\n"${text.slice(0, 2000)}"\n\n` +
-          `If the claim mentions a specific offset project by name, look it up in the offset data provided in Section 4 of the system prompt and explicitly reference its scores in detectedViolations and recommendations.`;
+          `Analyse these sentences from a document for greenwashing litigation risk.\n` +
+          `Match each suspicious phrase to the most similar case in the database.\n\n` +
+          `SENTENCES TO ANALYSE:\n${numberedSentences}`;
 
         const openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -215,86 +200,126 @@ export async function POST(request: NextRequest) {
           const openaiData = (await openaiResp.json()) as {
             choices: { message: { content: string } }[];
           };
+
           const parsed = JSON.parse(openaiData.choices[0].message.content) as {
-            litigationRiskScore: number;
-            riskCategory: 'safe' | 'grey' | 'litigable';
-            offsetIntegrityScore: number;
-            recommendations: string[];
+            flaggedPhrases: Omit<FlaggedPhrase, 'startIndex' | 'endIndex'>[];
+            overallScore: number;
+            overallRiskCategory: 'safe' | 'grey' | 'litigable';
+            summary: string;
           };
 
-          const result: ClaimAnalysisResult = {
-            inputText: text,
-            detectedKeywords,
-            matchedCases,
-            litigationRiskScore: parsed.litigationRiskScore,
-            riskCategory: parsed.riskCategory,
-            breakdown: {
-              keywordMatchScore,
-              caseMatchScore,
-              offsetIntegrityScore: parsed.offsetIntegrityScore ?? 50,
-            },
-            recommendations: parsed.recommendations ?? mockAnalysisResult.recommendations,
+          // Resolve startIndex / endIndex by finding the phrase within its sentence
+          const flaggedPhrases: FlaggedPhrase[] = (parsed.flaggedPhrases ?? []).map((fp) => {
+            const sentence = candidates[fp.sentenceIndex] ?? sentences[fp.sentenceIndex];
+            if (!sentence) return { ...fp, startIndex: 0, endIndex: 0 };
+
+            // Search for the phrase starting from the sentence's position in the original text
+            const phraseIdx = text.indexOf(fp.phrase, sentence.startIndex);
+            const startIndex = phraseIdx >= 0 ? phraseIdx : sentence.startIndex;
+            const endIndex = startIndex + fp.phrase.length;
+
+            return { ...fp, startIndex, endIndex };
+          });
+
+          const result: AnalysisResult = {
+            flaggedPhrases,
+            overallScore: parsed.overallScore ?? 0,
+            overallRiskCategory: parsed.overallRiskCategory ?? 'safe',
+            summary: parsed.summary ?? '',
+            originalText: text,
           };
 
           return NextResponse.json(result);
         }
       } catch {
-        // Fall through to mock data on any OpenAI error
+        // Fall through to offline mode
       }
     }
 
-    // ── Offline / demo mode ───────────────────────────────────────────────────
-    // Compute risk from REAL signals only — never default to mock score.
-    // We've already passed the pre-flight, so there is at least some env signal,
-    // but if nothing concrete matched the score will (correctly) be low.
+    // ── Offline / no-key fallback: keyword-to-case matching ──────────────────
     await new Promise<void>((resolve) => setTimeout(resolve, 800));
 
-    const severityBonus =
-      detectedKeywords.length > 3 ? 30 : detectedKeywords.length > 0 ? 15 : 0;
-    const litigationRiskScore = Math.min(
-      100,
-      Math.round(keywordMatchScore * 0.3 + caseMatchScore * 0.4 + severityBonus),
-    );
+    const HIGH_RISK_KEYWORDS = ['carbon neutral', 'net zero', 'REDD+', 'carbon credit', 'climate positive', 'carbon negative', 'carbon offsetting', 'karbon nötr', 'iklim nötr'];
 
-    const riskCategory: 'safe' | 'grey' | 'litigable' =
-      litigationRiskScore >= 70 ? 'litigable' : litigationRiskScore >= 30 ? 'grey' : 'safe';
+    const flaggedPhrases: FlaggedPhrase[] = [];
 
-    let recommendations: string[];
-    if (detectedKeywords.length === 0) {
-      recommendations = [
-        'Metinde çevresel ifadeler geçiyor ancak somut bir uyum riski oluşturacak iddia tespit edilmedi.',
-        'Daha kesin bir analiz için iddianızı ölçülebilir verilerle (kapsam, taban yıl, hedef tarih) destekleyin.',
-      ];
-    } else if (matchedCases.length === 0) {
-      recommendations = [
-        `${detectedKeywords.length} anahtar kelime tespit edildi ancak emsal karar veritabanında doğrudan eşleşme bulunamadı.`,
-        'AB Yeşil İddia Direktifi (2024/825) Madde 3 uyarınca her çevresel iddia bilimsel kanıt ile ispatlanmalıdır.',
-        'Sürdürülebilirlik raporu hazırlanırken iddiaların yaşam döngüsü değerlendirmesi (LCA) ile uyumlu olduğunu doğrulayın.',
-      ];
-    } else {
-      recommendations = mockAnalysisResult.recommendations;
+    for (let i = 0; i < candidates.length; i++) {
+      const sentence = candidates[i];
+      const lower = sentence.text.toLowerCase();
+
+      for (const kw of CANDIDATE_KEYWORDS) {
+        if (!lower.includes(kw.toLowerCase())) continue;
+
+        // Find best matching case by keyword overlap
+        const bestCase = CASE_DB.find((c) =>
+          c.keywords.some((ck) => ck.toLowerCase() === kw.toLowerCase()),
+        ) ?? CASE_DB[6]; // default to SHELL-CE-2023
+
+        const isHigh = HIGH_RISK_KEYWORDS.some((hk) => lower.includes(hk.toLowerCase()));
+        const similarity = isHigh ? 72 : 62;
+
+        // Find the keyword position in the original text
+        const phraseIdx = sentence.text.toLowerCase().indexOf(kw.toLowerCase());
+        const phrase = phraseIdx >= 0 ? sentence.text.slice(phraseIdx, phraseIdx + kw.length) : kw;
+        const startIndex = text.indexOf(phrase, sentence.startIndex);
+
+        flaggedPhrases.push({
+          phrase,
+          sentenceIndex: i,
+          startIndex: startIndex >= 0 ? startIndex : sentence.startIndex,
+          endIndex: startIndex >= 0 ? startIndex + phrase.length : sentence.startIndex + phrase.length,
+          riskLevel: isHigh ? 'high' : 'medium',
+          matchedCaseId: bestCase.id,
+          matchedCaseName: bestCase.caseName,
+          similarity,
+          reason: `"${phrase}" ifadesi ${bestCase.caseName} davasındaki iddiayla benzerlik göstermektedir. ${bestCase.violationReason}`,
+          regulation: bestCase.regulationCited,
+        });
+
+        break; // one keyword match per sentence in offline mode
+      }
     }
 
-    const result: ClaimAnalysisResult = {
-      inputText: text,
-      detectedKeywords,
-      matchedCases,
-      litigationRiskScore,
-      riskCategory,
-      breakdown: {
-        keywordMatchScore,
-        caseMatchScore,
-        offsetIntegrityScore:
-          matchedCases.length > 0 ? mockAnalysisResult.breakdown.offsetIntegrityScore : 75,
-      },
-      recommendations,
+    // Deduplicate by phrase
+    const seen = new Set<string>();
+    const unique = flaggedPhrases.filter((fp) => {
+      if (seen.has(fp.phrase)) return false;
+      seen.add(fp.phrase);
+      return true;
+    });
+
+    const highCount = unique.filter((f) => f.riskLevel === 'high').length;
+    const medCount = unique.filter((f) => f.riskLevel === 'medium').length;
+    const overallScore = unique.length === 0 ? 0 : Math.min(100,
+      Math.round(
+        (unique.filter((f) => f.riskLevel === 'high').reduce((s, f) => s + f.similarity * 2, 0) +
+         unique.filter((f) => f.riskLevel === 'medium').reduce((s, f) => s + f.similarity, 0)) /
+        (highCount * 2 + medCount || 1),
+      ),
+    );
+
+    const overallRiskCategory: 'safe' | 'grey' | 'litigable' =
+      overallScore >= 70 ? 'litigable' : overallScore >= 30 ? 'grey' : 'safe';
+
+    const result: AnalysisResult = {
+      flaggedPhrases: unique,
+      overallScore,
+      overallRiskCategory,
+      summary: unique.length > 0
+        ? `Belgede ${unique.length} riskli ifade tespit edildi (${highCount} yüksek, ${medCount} orta). Bu ifadeler AB Yeşil İddia Direktifi ve ilgili emsal kararlar kapsamında hukuki risk oluşturmaktadır. OpenAI API anahtarı yapılandırıldığında daha ayrıntılı analiz yapılacaktır.`
+        : 'Metinde değerlendirilebilir bir çevresel iddia tespit edilmedi.',
+      originalText: text,
     };
 
     return NextResponse.json(result);
   } catch {
-    return NextResponse.json(
-      { error: 'Analysis failed. Returning demo data.', ...mockAnalysisResult },
-      { status: 200 },
-    );
+    const err: AnalysisResult = {
+      flaggedPhrases: [],
+      overallScore: 0,
+      overallRiskCategory: 'safe',
+      summary: 'Analiz başarısız oldu. Lütfen tekrar deneyin.',
+      originalText: '',
+    };
+    return NextResponse.json(err, { status: 200 });
   }
 }
