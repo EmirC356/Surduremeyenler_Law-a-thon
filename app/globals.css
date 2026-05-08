@@ -359,3 +359,68 @@ body {
   .print-only { display: block !important; }
   body { background: white !important; color: black !important; font-family: Georgia, serif; }
 }
+
+/* ── Mobile sidebar drawer ───────────────────────────────────── */
+.sidebar-drawer {
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (max-width: 767px) {
+  .sidebar-drawer {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    z-index: 60;
+    transform: translateX(-100%);
+  }
+  .sidebar-drawer.sidebar-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Backdrop overlay */
+.sidebar-backdrop {
+  display: none;
+}
+@media (max-width: 767px) {
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 50;
+    backdrop-filter: blur(2px);
+    animation: fade-in 0.2s ease;
+  }
+}
+
+/* ── Responsive page padding ─────────────────────────────────── */
+.page-pad {
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+@media (min-width: 640px) {
+  .page-pad {
+    padding-left: 28px;
+    padding-right: 28px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+@media (min-width: 1024px) {
+  .page-pad {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+/* ── Mobile header helpers ───────────────────────────────────── */
+@media (max-width: 767px) {
+  .header-hide-mobile {
+    display: none !important;
+  }
+}

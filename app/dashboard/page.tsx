@@ -85,7 +85,7 @@ export default function DashboardPage() {
   const scoreColor = score >= 70 ? 'var(--accent-green)' : score >= 40 ? 'var(--amber)' : 'var(--danger)';
 
   return (
-    <div className="px-8 py-6 max-w-7xl mx-auto">
+    <div className="page-pad max-w-7xl mx-auto">
 
       {/* Şirket bağlam bandı */}
       <div

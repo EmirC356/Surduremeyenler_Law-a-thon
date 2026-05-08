@@ -352,7 +352,7 @@ export default function AnalysisPage() {
       : null;
 
   return (
-    <div className="px-8 py-6 max-w-5xl mx-auto">
+    <div className="page-pad max-w-5xl mx-auto">
 
       {/* Page heading */}
       <div className="card-animated mb-5" style={{ animationDelay: '0ms' }}>

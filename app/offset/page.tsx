@@ -330,7 +330,7 @@ export default function OffsetIntegrityPage() {
   }, []);
 
   return (
-    <div className="px-8 py-6 max-w-7xl mx-auto">
+    <div className="page-pad max-w-7xl mx-auto">
 
       {/* ── Header ── */}
       <div className="card-animated mb-5" style={{ animationDelay: '0ms' }}>

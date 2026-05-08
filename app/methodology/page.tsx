@@ -144,7 +144,7 @@ const tableTd: React.CSSProperties = {
 
 export default function MethodologyPage() {
   return (
-    <div style={{ padding: '32px 40px 64px', maxWidth: '1100px', margin: '0 auto' }}>
+    <div className="page-pad" style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
       {/* Section 1 — Platform Hakkında */}
       <section style={{ marginBottom: '48px' }}>

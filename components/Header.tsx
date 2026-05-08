@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Bell, Circle, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Bell, Circle, AlertTriangle, CheckCircle2, Menu } from 'lucide-react';
 import { useDataset, mockRiskCompany, mockCompliantCompany } from '../lib/DatasetContext';
 import ClerkUserMenu from './auth/ClerkUserMenu';
 import Link from 'next/link';
@@ -14,25 +14,17 @@ const HAS_CLERK =
   PK.length > 30;
 
 const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
-  '/dashboard': {
-    title: 'Uyum Paneli',
-    subtitle: 'Gerçek zamanlı ESG risk izleme ve yeşil aklama tespiti',
-  },
-  '/analysis': {
-    title: 'Belge Analizi',
-    subtitle: 'Kurumsal sürdürülebilirlik raporlarını yükle ve analiz et',
-  },
-  '/offset': {
-    title: 'Offset Bütünlüğü',
-    subtitle: 'Gerçek dünya karbon offset puanlaması ve akademik karşılaştırma',
-  },
-  '/methodology': {
-    title: 'Metodoloji',
-    subtitle: 'Skorlama mantığı, veri kaynakları ve platform sınırlamaları',
-  },
+  '/dashboard': { title: 'Compliance Dashboard', subtitle: 'Real-time ESG risk monitoring' },
+  '/analysis':  { title: 'Document Analysis',    subtitle: 'Upload and analyse sustainability reports' },
+  '/offset':    { title: 'Offset Integrity',     subtitle: 'Carbon offset scoring' },
+  '/methodology': { title: 'Methodology',        subtitle: 'Scoring logic and data sources' },
 };
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
   const { activeDataset, setActiveDataset } = useDataset();
   const { lang, t, setLang } = useLang();
@@ -47,15 +39,25 @@ export default function Header() {
 
   return (
     <header
-      className="no-print flex items-center justify-between px-6 py-3 shrink-0 gap-4 flex-wrap"
+      className="no-print flex items-center justify-between px-4 py-3 shrink-0 gap-3 flex-wrap"
       style={{
         background: 'var(--bg-surface)',
         borderBottom: '1px solid var(--border)',
-        minHeight: '60px',
+        minHeight: '56px',
       }}
     >
+      {/* Hamburger — mobile only */}
+      <button
+        onClick={onMenuClick}
+        aria-label="Open navigation"
+        className="focusable md:hidden flex items-center justify-center w-8 h-8 rounded-md shrink-0"
+        style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer' }}
+      >
+        <Menu size={18} />
+      </button>
+
       {/* Page title */}
-      <div className="flex flex-col min-w-0">
+      <div className="flex flex-col min-w-0 flex-1">
         <h1
           className="font-semibold leading-tight truncate"
           style={{
@@ -69,19 +71,19 @@ export default function Header() {
           {meta.title}
         </h1>
         <p
-          style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', marginTop: '2px' }}
-          className="truncate"
+          style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', marginTop: '1px' }}
+          className="truncate header-hide-mobile"
         >
           {meta.subtitle}
         </p>
       </div>
 
       {/* Right controls */}
-      <div className="flex items-center gap-3 ml-auto shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
 
-        {/* Company dataset switcher */}
+        {/* Company dataset switcher — hidden on small mobile */}
         <div
-          className="flex items-center gap-2 px-3 py-2 rounded-md"
+          className="header-hide-mobile flex items-center gap-2 px-3 py-2 rounded-md"
           style={{
             background: isRiskCompany ? 'var(--red-light)' : 'var(--green-light)',
             border: `1px solid ${isRiskCompany ? 'rgba(181,61,46,0.3)' : 'var(--border-strong)'}`,
@@ -99,23 +101,23 @@ export default function Header() {
               fontFamily: 'var(--font-serif)',
               fontSize: 'var(--font-size-body-sm)',
               fontWeight: 500,
-              maxWidth: '200px',
+              maxWidth: '180px',
             }}
             aria-label="Switch active company dataset"
           >
-            <option value="risk">⚠ Apex Hydrocarbon (High Risk)</option>
-            <option value="compliant">✓ Veridian Capital (Compliant)</option>
+            <option value="risk">⚠ Apex Hydrocarbon</option>
+            <option value="compliant">✓ Veridian Capital</option>
           </select>
         </div>
 
-        {/* Verified database indicator */}
+        {/* Verified database indicator — hidden on mobile */}
         <div
-          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md"
+          className="header-hide-mobile hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md"
           style={{ background: 'var(--green-light)', border: '1px solid var(--border-strong)' }}
         >
           <Circle size={6} className="status-dot fill-current" style={{ color: 'var(--green-text)' }} />
           <span style={{ color: 'var(--green-text)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-md)', fontWeight: 500 }}>
-            Verified Database: 20 Case Records
+            20 Case Records
           </span>
         </div>
 
@@ -141,7 +143,7 @@ export default function Header() {
         {/* Notification */}
         <button
           className="focusable relative flex items-center justify-center w-8 h-8 rounded-md"
-          style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
+          style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer' }}
           aria-label="Notifications"
         >
           <Bell size={16} />
@@ -154,7 +156,7 @@ export default function Header() {
         ) : (
           <Link
             href="/sign-in"
-            className="focusable px-4 py-1.5 rounded-md"
+            className="focusable px-3 py-1.5 rounded-md"
             style={{
               background: 'var(--green-dark)',
               color: '#fff',
@@ -162,6 +164,7 @@ export default function Header() {
               fontSize: 'var(--font-size-body-sm)',
               fontWeight: 600,
               textDecoration: 'none',
+              whiteSpace: 'nowrap',
             }}
           >
             Sign In

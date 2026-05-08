@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Leaf, Shield, ChevronRight, LayoutDashboard, FileSearch, Target, CreditCard, Home, ExternalLink, BookOpen } from 'lucide-react';
+import { Leaf, Shield, ChevronRight, LayoutDashboard, FileSearch, Target, CreditCard, Home, ExternalLink, BookOpen, X } from 'lucide-react';
 import type { ElementType } from 'react';
 import { NAV_ITEMS } from '../lib/navigation';
 
@@ -14,66 +14,65 @@ const ICON_MAP: Record<string, ElementType> = {
   BookOpen,
 };
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside
-      className="no-print flex flex-col shrink-0 h-screen sticky top-0"
+      className={`no-print sidebar-drawer flex flex-col shrink-0 h-screen sticky top-0${isOpen ? ' sidebar-open' : ''}`}
       style={{ width: '240px', background: 'var(--bg-nav)' }}
     >
-      {/* Logo */}
-      <Link href="/" style={{ textDecoration: 'none' }}>
-      <div
-        className="flex items-center gap-3 px-5 py-5"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
-      >
+      {/* Logo row — with close button on mobile */}
+      <Link href="/" style={{ textDecoration: 'none' }} onClick={onClose}>
         <div
-          className="flex items-center justify-center w-9 h-9 rounded-lg"
-          style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
+          className="flex items-center gap-3 px-5 py-5"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
         >
-          <Leaf size={18} style={{ color: '#FFFFFF' }} />
-        </div>
-        <div>
           <div
-            style={{
-              color: '#FFFFFF',
-              fontFamily: 'var(--font-serif)',
-              fontSize: '18px',
-              fontWeight: 600,
-              lineHeight: 1.2,
-            }}
+            className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
+            style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
           >
-            ESG Lens
+            <Leaf size={18} style={{ color: '#FFFFFF' }} />
           </div>
-          <div
+          <div className="flex-1 min-w-0">
+            <div style={{ color: '#FFFFFF', fontFamily: 'var(--font-serif)', fontSize: '18px', fontWeight: 600, lineHeight: 1.2 }}>
+              ESG Lens
+            </div>
+            <div style={{ color: 'var(--text-nav)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-sm)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: '1px' }}>
+              Legal Verification
+            </div>
+          </div>
+          {/* Close button — visible only on mobile */}
+          <button
+            onClick={(e) => { e.preventDefault(); onClose(); }}
+            aria-label="Close menu"
             style={{
-              color: 'var(--text-nav)',
-              fontFamily: 'var(--font-sans)',
-              fontSize: 'var(--font-size-label-sm)',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              marginTop: '1px',
+              background: 'rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '6px',
+              color: '#fff',
+              cursor: 'pointer',
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
             }}
+            className="md:hidden"
           >
-            Legal Verification Platform
-          </div>
+            <X size={16} />
+          </button>
         </div>
-      </div>
       </Link>
 
       {/* Nav label */}
       <div className="px-5 pt-5 pb-2">
-        <span
-          style={{
-            color: 'rgba(212,232,220,0.45)',
-            fontFamily: 'var(--font-sans)',
-            fontSize: 'var(--font-size-label-sm)',
-            fontWeight: 600,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-          }}
-        >
+        <span style={{ color: 'rgba(212,232,220,0.45)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-sm)', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
           Navigation
         </span>
       </div>
@@ -104,6 +103,7 @@ export default function Sidebar() {
             <Link
               key={item.route}
               href={item.route}
+              onClick={onClose}
               className={`sidebar-nav-link focusable ${isActive ? 'sidebar-nav-active' : ''} flex items-center gap-3 px-3 py-2.5 rounded-md`}
               style={{
                 background:  isActive ? 'var(--bg-nav-active)' : undefined,
@@ -113,34 +113,17 @@ export default function Sidebar() {
             >
               <Icon
                 size={18}
-                style={{
-                  color: isActive ? 'var(--orange)' : 'var(--text-nav)',
-                  flexShrink: 0,
-                  transition: 'color 0.15s',
-                }}
+                style={{ color: isActive ? 'var(--orange)' : 'var(--text-nav)', flexShrink: 0, transition: 'color 0.15s' }}
               />
               <div className="flex flex-col flex-1 min-w-0">
                 <span
                   className="nav-label"
-                  style={{
-                    color: isActive ? '#FFFFFF' : 'var(--text-nav)',
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: 'var(--font-size-nav)',
-                    lineHeight: 'var(--line-height-nav)',
-                    fontWeight: isActive ? 600 : 500,
-                  }}
+                  style={{ color: isActive ? '#FFFFFF' : 'var(--text-nav)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-nav)', lineHeight: 'var(--line-height-nav)', fontWeight: isActive ? 600 : 500 }}
                 >
                   {item.label}
                 </span>
                 {item.sublabel && (
-                  <span
-                    style={{
-                      color: 'rgba(212,232,220,0.5)',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: 'var(--font-size-label-sm)',
-                      marginTop: '1px',
-                    }}
-                  >
+                  <span style={{ color: 'rgba(212,232,220,0.5)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', marginTop: '1px' }}>
                     {item.sublabel}
                   </span>
                 )}
@@ -155,36 +138,15 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom: SSL indicator */}
-      <div
-        className="px-5 py-4"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
-      >
+      <div className="px-5 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Shield size={13} style={{ color: 'var(--text-nav)', flexShrink: 0 }} />
-          <span
-            className="status-dot"
-            style={{
-              width: '6px',
-              height: '6px',
-              borderRadius: '50%',
-              background: '#4ADE80',
-              display: 'inline-block',
-              flexShrink: 0,
-            }}
-          />
+          <span className="status-dot" style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ADE80', display: 'inline-block', flexShrink: 0 }} />
           <span style={{ color: 'var(--text-nav)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)' }}>
             256-bit SSL
           </span>
         </div>
-        <div
-          style={{
-            color: 'rgba(212,232,220,0.35)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: 'var(--font-size-label-sm)',
-            lineHeight: 1.5,
-            marginTop: '6px',
-          }}
-        >
+        <div style={{ color: 'rgba(212,232,220,0.35)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', lineHeight: 1.5, marginTop: '6px' }}>
           Paris Anl. Mad. 6 · EU 2024/825
         </div>
       </div>
