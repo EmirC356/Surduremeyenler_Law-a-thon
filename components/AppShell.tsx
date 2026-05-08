@@ -6,10 +6,13 @@ import Header from './Header';
 import FloatingActions from './FloatingActions';
 
 const STANDALONE_ROUTES = ['/', '/pricing'];
+const STANDALONE_PREFIXES = ['/sign-in', '/sign-up', '/forgot-password'];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isStandalone = STANDALONE_ROUTES.includes(pathname);
+  const isStandalone =
+    STANDALONE_ROUTES.includes(pathname) ||
+    STANDALONE_PREFIXES.some((p) => pathname.startsWith(p));
 
   if (isStandalone) {
     return (

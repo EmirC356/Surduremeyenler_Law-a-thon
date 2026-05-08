@@ -20,6 +20,13 @@ import {
 import { mockAnalysisResult, type ClaimAnalysisResult, type CourtCase } from '../../lib/caseData';
 import { buildHighlightRegex, isHighlightTerm } from '../../lib/highlightTerms';
 import LegalDisclaimer from '../../components/LegalDisclaimer';
+import ClerkSignInBanner from '../../components/auth/ClerkSignInBanner';
+
+const PK = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '';
+const HAS_CLERK =
+  (PK.startsWith('pk_test_') || PK.startsWith('pk_live_')) &&
+  !PK.includes('YOUR_') &&
+  PK.length > 30;
 
 type InputTab = 'text' | 'upload';
 type AnalyzeState = 'idle' | 'analyzing' | 'complete' | 'error';
@@ -27,7 +34,7 @@ type AnalyzeState = 'idle' | 'analyzing' | 'complete' | 'error';
 const ANALYZE_STAGES = [
   { label: 'Metin çıkarılıyor ve iddialar tespit ediliyor...', icon: Search, duration: 1300 },
   { label: 'Düzenlemeye tabi terminoloji taranıyor...', icon: BookOpen, duration: 1700 },
-  { label: '8 emsal karara göre eşleştirme yapılıyor...', icon: Scale, duration: 2100 },
+  { label: '20 emsal karara göre eşleştirme yapılıyor...', icon: Scale, duration: 2100 },
   { label: 'Uyum risk skoru hesaplanıyor...', icon: BarChart2, duration: 1500 },
 ];
 
@@ -722,9 +729,12 @@ export default function AnalysisPage() {
           Yapay Zeka Destekli İddia Araştırıcısı
         </h2>
         <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)' }}>
-          Karbon offset iddia doğrulama · 8 emsal karara göre eşleştirme · Uyum risk puanlaması
+          Karbon offset iddia doğrulama · 20 emsal karara göre eşleştirme · Uyum risk puanlaması
         </p>
       </div>
+
+      {/* Sign-in prompt for logged-out users (only when Clerk is configured) */}
+      {HAS_CLERK && <ClerkSignInBanner />}
 
       {/* Input card */}
       {analyzeState === 'idle' && (

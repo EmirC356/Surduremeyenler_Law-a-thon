@@ -1,8 +1,16 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Bell, CircleUser, ChevronDown, Circle, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Bell, Circle, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useDataset, mockRiskCompany, mockCompliantCompany } from '../lib/DatasetContext';
+import ClerkUserMenu from './auth/ClerkUserMenu';
+import Link from 'next/link';
+
+const PK = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '';
+const HAS_CLERK =
+  (PK.startsWith('pk_test_') || PK.startsWith('pk_live_')) &&
+  !PK.includes('YOUR_') &&
+  PK.length > 30;
 
 const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   '/dashboard': {
@@ -16,6 +24,10 @@ const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   '/offset': {
     title: 'Offset Bütünlüğü',
     subtitle: 'Gerçek dünya karbon offset puanlaması ve akademik karşılaştırma',
+  },
+  '/methodology': {
+    title: 'Metodoloji',
+    subtitle: 'Skorlama mantığı, veri kaynakları ve platform sınırlamaları',
   },
 };
 
@@ -100,7 +112,7 @@ export default function Header() {
         >
           <Circle size={6} className="status-dot fill-current" style={{ color: 'var(--green-text)' }} />
           <span style={{ color: 'var(--green-text)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-md)', fontWeight: 500 }}>
-            Verified Database: 8 Case Records
+            Verified Database: 20 Case Records
           </span>
         </div>
 
@@ -115,26 +127,24 @@ export default function Header() {
         </button>
 
         {/* User profile */}
-        <div
-          className="flex items-center gap-2.5 px-3 py-1.5 rounded-md cursor-pointer"
-          style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border)' }}
-        >
-          <div
-            className="flex items-center justify-center w-6 h-6 rounded-full"
-            style={{ background: 'var(--green-light)', border: '1px solid var(--border-strong)' }}
+        {HAS_CLERK ? (
+          <ClerkUserMenu />
+        ) : (
+          <Link
+            href="/sign-in"
+            className="focusable px-4 py-1.5 rounded-md"
+            style={{
+              background: 'var(--green-dark)',
+              color: '#fff',
+              fontFamily: 'var(--font-sans)',
+              fontSize: 'var(--font-size-body-sm)',
+              fontWeight: 600,
+              textDecoration: 'none',
+            }}
           >
-            <CircleUser size={14} style={{ color: 'var(--green-text)' }} />
-          </div>
-          <div className="hidden sm:flex flex-col">
-            <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-body-sm)', fontWeight: 500, lineHeight: 1.3 }}>
-              Legal &amp; Compliance Team
-            </span>
-            <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', lineHeight: 1.3, marginTop: '1px' }}>
-              Senior Analyst · EU Division
-            </span>
-          </div>
-          <ChevronDown size={12} style={{ color: 'var(--text-secondary)' }} />
-        </div>
+            Sign In
+          </Link>
+        )}
       </div>
     </header>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import AppShell from '../components/AppShell';
 import { DatasetProvider } from '../lib/DatasetContext';
+import { ClerkProvider } from '@clerk/nextjs';
 
 export const metadata: Metadata = {
   title: 'ESG Lens — Carbon Offset Legal Verification',
@@ -9,12 +10,18 @@ export const metadata: Metadata = {
     'AI-assisted ESG compliance and greenwashing risk analysis for corporate lawyers, investors, and public institutions.',
 };
 
+const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '';
+const hasValidClerkKey =
+  (PUBLISHABLE_KEY.startsWith('pk_test_') || PUBLISHABLE_KEY.startsWith('pk_live_')) &&
+  !PUBLISHABLE_KEY.includes('YOUR_') &&
+  PUBLISHABLE_KEY.length > 30;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
+  const inner = (
     <html lang="en" className="h-full">
       <body
         className="h-full flex"
@@ -26,4 +33,6 @@ export default function RootLayout({
       </body>
     </html>
   );
+
+  return hasValidClerkKey ? <ClerkProvider>{inner}</ClerkProvider> : inner;
 }
