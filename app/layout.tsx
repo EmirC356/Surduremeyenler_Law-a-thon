@@ -3,6 +3,7 @@ import './globals.css';
 import AppShell from '../components/AppShell';
 import { DatasetProvider } from '../lib/DatasetContext';
 import { ClerkProvider } from '@clerk/nextjs';
+import { LangProvider } from '../lib/langContext';
 
 export const metadata: Metadata = {
   title: 'ESG Lens — Carbon Offset Legal Verification',
@@ -23,13 +24,18 @@ export default function RootLayout({
 }>) {
   const inner = (
     <html lang="en" className="h-full">
+      <head>
+        <meta charSet="utf-8" />
+      </head>
       <body
         className="h-full flex"
         style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}
       >
-        <DatasetProvider>
-          <AppShell>{children}</AppShell>
-        </DatasetProvider>
+        <LangProvider>
+          <DatasetProvider>
+            <AppShell>{children}</AppShell>
+          </DatasetProvider>
+        </LangProvider>
       </body>
     </html>
   );

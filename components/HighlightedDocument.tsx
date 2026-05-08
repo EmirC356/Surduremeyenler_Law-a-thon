@@ -1,12 +1,14 @@
 'use client';
 
 import type { FlaggedPhrase } from '../lib/types';
+import type { Translations } from '../lib/i18n';
 
 interface HighlightedDocumentProps {
   originalText: string;
   flaggedPhrases: FlaggedPhrase[];
   activePhraseIndex: number | null;
   onPhraseClick: (index: number) => void;
+  t: Translations;
 }
 
 function getPhraseStyle(riskLevel: 'high' | 'medium', isActive: boolean): React.CSSProperties {
@@ -42,30 +44,25 @@ export default function HighlightedDocument({
   flaggedPhrases,
   activePhraseIndex,
   onPhraseClick,
+  t,
 }: HighlightedDocumentProps) {
   if (!originalText) return null;
 
-  // Build a list of highlight regions sorted by startIndex
   const regions = flaggedPhrases
     .map((fp, idx) => ({ ...fp, idx }))
     .filter((fp) => fp.startIndex < fp.endIndex && fp.phrase.length > 0)
     .sort((a, b) => a.startIndex - b.startIndex);
 
-  // Walk through text and build React nodes
   const nodes: React.ReactNode[] = [];
   let cursor = 0;
 
   for (const region of regions) {
     const { startIndex, endIndex, idx, riskLevel } = region;
 
-    // Skip overlapping regions
     if (startIndex < cursor) continue;
 
-    // Plain text before this highlight
     if (startIndex > cursor) {
-      nodes.push(
-        <span key={`plain-${cursor}`}>{originalText.slice(cursor, startIndex)}</span>,
-      );
+      nodes.push(<span key={`plain-${cursor}`}>{originalText.slice(cursor, startIndex)}</span>);
     }
 
     const isActive = activePhraseIndex === idx;
@@ -74,7 +71,7 @@ export default function HighlightedDocument({
         key={`highlight-${idx}`}
         style={getPhraseStyle(riskLevel, isActive)}
         onClick={() => onPhraseClick(idx)}
-        title={`${riskLevel === 'high' ? 'Yüksek' : 'Orta'} risk — tıklayın`}
+        title={`${riskLevel === 'high' ? t.highRiskLabel : t.medRiskLabel} — ${t.clickHighlight}`}
       >
         {originalText.slice(startIndex, endIndex)}
       </span>,
@@ -83,89 +80,40 @@ export default function HighlightedDocument({
     cursor = endIndex;
   }
 
-  // Remaining plain text
   if (cursor < originalText.length) {
-    nodes.push(<span key={`plain-end`}>{originalText.slice(cursor)}</span>);
+    nodes.push(<span key="plain-end">{originalText.slice(cursor)}</span>);
   }
 
   return (
     <div>
       {/* Legend */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '16px',
-          marginBottom: '12px',
-          flexWrap: 'wrap',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '11px',
-            color: 'var(--text-secondary)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            fontWeight: 600,
-          }}
-        >
-          Renk Kodlaması:
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px', flexWrap: 'wrap' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
+          {t.colorCoding}
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span
-            style={{
-              background: '#ffe4e4',
-              borderBottom: '2px solid #dc2626',
-              color: '#991b1b',
-              borderRadius: '3px',
-              padding: '1px 8px',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '11px',
-            }}
-          >
-            Yüksek Risk
-          </span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span
-            style={{
-              background: '#fef9c3',
-              borderBottom: '2px solid #d97706',
-              color: '#92400e',
-              borderRadius: '3px',
-              padding: '1px 8px',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '11px',
-            }}
-          >
-            Orta Risk
-          </span>
-        </div>
-        <span
-          style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '11px',
-            color: 'var(--text-secondary)',
-            opacity: 0.7,
-          }}
-        >
-          Vurgulanan ifadeye tıklayın
+        <span style={{ background: '#ffe4e4', borderBottom: '2px solid #dc2626', color: '#991b1b', borderRadius: '3px', padding: '1px 8px', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
+          {t.highRiskLabel}
+        </span>
+        <span style={{ background: '#fef9c3', borderBottom: '2px solid #d97706', color: '#92400e', borderRadius: '3px', padding: '1px 8px', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
+          {t.medRiskLabel}
+        </span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)', opacity: 0.7 }}>
+          {t.clickHighlight}
         </span>
       </div>
 
       {/* Document text */}
       <div
         style={{
-          maxHeight: '400px',
+          maxHeight: '480px',
           overflowY: 'auto',
           background: 'var(--bg-surface-2)',
           border: '1px solid var(--border)',
           borderRadius: '8px',
-          padding: '16px',
+          padding: '20px',
           fontFamily: 'var(--font-sans)',
           fontSize: '14px',
-          lineHeight: 1.75,
+          lineHeight: 1.8,
           color: 'var(--text-primary)',
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',

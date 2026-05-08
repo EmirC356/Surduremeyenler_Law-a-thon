@@ -1,51 +1,30 @@
 'use client';
 
 import type { FlaggedPhrase } from '../lib/types';
+import type { Translations } from '../lib/i18n';
 
 interface RiskTableProps {
   flaggedPhrases: FlaggedPhrase[];
   activeRowIndex: number | null;
   onRowClick: (index: number) => void;
+  t: Translations;
 }
 
 function SimilarityBar({ value, riskLevel }: { value: number; riskLevel: 'high' | 'medium' }) {
   const color = riskLevel === 'high' ? '#dc2626' : '#d97706';
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <div
-        style={{
-          flex: 1,
-          height: '6px',
-          background: 'var(--bg-surface-2)',
-          borderRadius: '999px',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            width: `${value}%`,
-            height: '100%',
-            background: color,
-            borderRadius: '999px',
-          }}
-        />
+      <div style={{ flex: 1, height: '6px', background: 'var(--bg-surface-2)', borderRadius: '999px', overflow: 'hidden' }}>
+        <div style={{ width: `${value}%`, height: '100%', background: color, borderRadius: '999px' }} />
       </div>
-      <span
-        style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: '12px',
-          fontWeight: 700,
-          color,
-          minWidth: '32px',
-        }}
-      >
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color, minWidth: '32px' }}>
         {value}%
       </span>
     </div>
   );
 }
 
-function RiskBadge({ level }: { level: 'high' | 'medium' }) {
+function RiskBadge({ level, t }: { level: 'high' | 'medium'; t: Translations }) {
   return (
     <span
       style={{
@@ -62,36 +41,20 @@ function RiskBadge({ level }: { level: 'high' | 'medium' }) {
         whiteSpace: 'nowrap',
       }}
     >
-      {level === 'high' ? 'YÜKSEK' : 'ORTA'}
+      {level === 'high' ? t.highBadge : t.medBadge}
     </span>
   );
 }
 
-export default function RiskTable({ flaggedPhrases, activeRowIndex, onRowClick }: RiskTableProps) {
+export default function RiskTable({ flaggedPhrases, activeRowIndex, onRowClick, t }: RiskTableProps) {
   if (flaggedPhrases.length === 0) {
     return (
-      <div
-        style={{
-          padding: '32px',
-          textAlign: 'center',
-          background: 'var(--bg-surface-2)',
-          border: '1px solid var(--border)',
-          borderRadius: '8px',
-        }}
-      >
-        <div
-          style={{
-            fontFamily: 'var(--font-serif)',
-            fontSize: '16px',
-            fontWeight: 600,
-            color: 'var(--green-text)',
-            marginBottom: '8px',
-          }}
-        >
-          Riskli İfade Tespit Edilmedi
+      <div style={{ padding: '32px', textAlign: 'center', background: 'var(--bg-surface-2)', border: '1px solid var(--border)', borderRadius: '8px' }}>
+        <div style={{ fontFamily: 'var(--font-serif)', fontSize: '16px', fontWeight: 600, color: 'var(--green-text)', marginBottom: '8px' }}>
+          {t.noRiskyPhrase}
         </div>
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', color: 'var(--text-secondary)' }}>
-          Bu belgede öne çıkan bir yeşil aklama iddiası bulunamadı.
+          {t.noRiskyPhraseDesc}
         </p>
       </div>
     );
@@ -111,54 +74,35 @@ export default function RiskTable({ flaggedPhrases, activeRowIndex, onRowClick }
   return (
     <div>
       {/* Summary header */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '16px',
-          flexWrap: 'wrap',
-          marginBottom: '12px',
-          padding: '10px 14px',
-          background: 'var(--bg-surface-2)',
-          border: '1px solid var(--border)',
-          borderRadius: '8px',
-        }}
-      >
+      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '12px', padding: '10px 14px', background: 'var(--bg-surface-2)', border: '1px solid var(--border)', borderRadius: '8px' }}>
         {highCount > 0 && (
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#991b1b', fontWeight: 600 }}>
-            {highCount} yüksek riskli ifade
+            {t.summaryHigh(highCount)}
           </span>
         )}
         {medCount > 0 && (
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#92400e', fontWeight: 600 }}>
-            {medCount} orta riskli ifade
+            {t.summaryMed(medCount)}
           </span>
         )}
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--text-secondary)' }}>
-          {caseIds.size} farklı emsal karar eşleşmesi
+          {t.summaryMatches(caseIds.size)}
         </span>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)', opacity: 0.7, marginLeft: 'auto' }}>
-          Satıra tıklayarak belgede vurgulayın
+          {t.clickRow}
         </span>
       </div>
 
       {/* Table */}
-      <div
-        style={{
-          maxHeight: '360px',
-          overflowY: 'auto',
-          border: '1px solid var(--border)',
-          borderRadius: '8px',
-          background: 'var(--bg-surface)',
-        }}
-      >
+      <div style={{ maxHeight: '440px', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: '8px', background: 'var(--bg-surface)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: 'var(--bg-surface-2)', position: 'sticky', top: 0, zIndex: 1 }}>
-              {['Riskli İfade', 'Risk', 'Emsal Karar', 'Benzerlik', 'Mevzuat'].map((h) => (
+              {[t.colPhrase, t.colRisk, t.colCase, t.colSimilarity, t.colRegulation].map((h) => (
                 <th
                   key={h}
                   style={{
-                    padding: '10px 12px',
+                    padding: '10px 14px',
                     textAlign: 'left',
                     fontFamily: 'var(--font-mono)',
                     fontSize: '10px',
@@ -187,70 +131,30 @@ export default function RiskTable({ flaggedPhrases, activeRowIndex, onRowClick }
                     cursor: 'pointer',
                     borderBottom: '1px solid var(--border)',
                     transition: 'background 0.15s',
+                    borderLeft: `3px solid ${fp.riskLevel === 'high' ? '#dc2626' : '#d97706'}`,
                   }}
                 >
-                  {/* Phrase + reason */}
-                  <td style={{ padding: '10px 12px', maxWidth: '200px' }}>
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-sans)',
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        color: 'var(--text-primary)',
-                        marginBottom: '3px',
-                        wordBreak: 'break-word',
-                      }}
-                    >
+                  <td style={{ padding: '10px 14px', maxWidth: '240px' }}>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '3px', wordBreak: 'break-word' }}>
                       &ldquo;{fp.phrase}&rdquo;
                     </div>
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-sans)',
-                        fontSize: '11px',
-                        color: 'var(--text-secondary)',
-                        lineHeight: 1.5,
-                        wordBreak: 'break-word',
-                      }}
-                    >
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: '11px', color: 'var(--text-secondary)', lineHeight: 1.5, wordBreak: 'break-word' }}>
                       {fp.reason}
                     </div>
                   </td>
-
-                  {/* Risk badge */}
-                  <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
-                    <RiskBadge level={fp.riskLevel} />
+                  <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
+                    <RiskBadge level={fp.riskLevel} t={t} />
                   </td>
-
-                  {/* Matched case */}
-                  <td style={{ padding: '10px 12px', maxWidth: '180px' }}>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-sans)',
-                        fontSize: '12px',
-                        color: 'var(--blue-data)',
-                        fontWeight: 500,
-                        wordBreak: 'break-word',
-                      }}
-                    >
+                  <td style={{ padding: '10px 14px', maxWidth: '200px' }}>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', color: 'var(--blue-data)', fontWeight: 500, wordBreak: 'break-word' }}>
                       {fp.matchedCaseName}
                     </span>
                   </td>
-
-                  {/* Similarity bar */}
-                  <td style={{ padding: '10px 12px', minWidth: '120px' }}>
+                  <td style={{ padding: '10px 14px', minWidth: '130px' }}>
                     <SimilarityBar value={fp.similarity} riskLevel={fp.riskLevel} />
                   </td>
-
-                  {/* Regulation */}
-                  <td style={{ padding: '10px 12px', maxWidth: '160px' }}>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '11px',
-                        color: 'var(--text-secondary)',
-                        wordBreak: 'break-word',
-                      }}
-                    >
+                  <td style={{ padding: '10px 14px', maxWidth: '180px' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)', wordBreak: 'break-word' }}>
                       {fp.regulation}
                     </span>
                   </td>

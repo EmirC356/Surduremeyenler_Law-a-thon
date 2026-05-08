@@ -1,9 +1,8 @@
-﻿'use client';
+'use client';
 
 import { useState, useCallback, useRef } from 'react';
 import {
   Upload,
-  FileText,
   Loader2,
   X,
   File,
@@ -20,6 +19,7 @@ import LegalDisclaimer from '../../components/LegalDisclaimer';
 import ClerkSignInBanner from '../../components/auth/ClerkSignInBanner';
 import HighlightedDocument from '../../components/HighlightedDocument';
 import RiskTable from '../../components/RiskTable';
+import { useLang } from '../../lib/langContext';
 
 const PK = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '';
 const HAS_CLERK =
@@ -30,45 +30,43 @@ const HAS_CLERK =
 type InputTab = 'text' | 'upload';
 type AnalyzeState = 'idle' | 'analyzing' | 'complete' | 'error';
 
-const ANALYZE_STAGES = [
-  { label: 'Metin Ã§Ä±karÄ±lÄ±yor ve iddialar tespit ediliyor...', icon: Search, duration: 1300 },
-  { label: 'DÃ¼zenlemeye tabi terminoloji taranÄ±yor...', icon: BookOpen, duration: 1700 },
-  { label: '20 emsal karara gÃ¶re eÅŸleÅŸtirme yapÄ±lÄ±yor...', icon: Scale, duration: 2100 },
-  { label: 'Uyum risk skoru hesaplanÄ±yor...', icon: BarChart2, duration: 1500 },
-];
-
 const DEMO_SHELL =
   "Shell has launched a range of carbon neutral petrol and diesel products for retail customers. The carbon neutrality is achieved by offsetting the lifecycle CO2 emissions through certified carbon credits from projects including REDD+ forest conservation in Africa and Asia. Shell's carbon neutral products are certified by independent third parties and meet internationally recognized standards. We are committed to helping our customers reach net zero by providing carbon neutral options today.";
 
 const DEMO_LUFTHANSA =
   "Lufthansa Group offers passengers the opportunity to offset their flight emissions through our Green Fares program. When you book a Green Fare, your flight's CO2 emissions are fully compensated through certified sustainable aviation fuel and carbon offset projects. Fly sustainably and help us build a greener future for aviation.";
 
-const ARTICLE6_FLAG =
-  'KRÄ°TÄ°K â€” Paris AnlaÅŸmasÄ± Madde 6.4 Ä°hlali: Ä°ddia, Madde 6.4 yetkisi kanÄ±tÄ± olmaksÄ±zÄ±n REDD+ offsetlerine atÄ±fta bulunuyor â€” bu durum Shell ClientEarth 2023 davasÄ±nÄ±n tam dayanaÄŸÄ±nÄ± oluÅŸturmaktadÄ±r.';
-
-function RiskThermometer({ score, category }: { score: number; category: AnalysisResult['overallRiskCategory'] }) {
+function RiskThermometer({
+  score,
+  category,
+  t,
+}: {
+  score: number;
+  category: AnalysisResult['overallRiskCategory'];
+  t: ReturnType<typeof useLang>['t'];
+}) {
   const scoreColor =
     category === 'safe' ? 'var(--accent-green)' :
     category === 'grey' ? 'var(--amber)' :
     'var(--danger)';
 
   const categoryLabel =
-    category === 'safe' ? 'DÃ¼ÅŸÃ¼k Risk' :
-    category === 'grey' ? 'Gri Alan' :
-    'YÃ¼ksek Risk';
+    category === 'safe' ? t.lowRisk :
+    category === 'grey' ? t.greyArea :
+    t.highRisk;
 
   return (
     <div className="card card-animated p-6" style={{ animationDelay: '0ms' }}>
       <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px' }}>
-        Uyum Risk Skoru
+        {t.complianceScore}
       </div>
 
       <div className="flex items-end gap-4 mb-6">
-        <div style={{ color: scoreColor, fontFamily: 'var(--font-sans)', fontSize: '80px', lineHeight: 1, fontWeight: 800, letterSpacing: '-0.05em' }}>
+        <div style={{ color: scoreColor, fontFamily: 'var(--font-sans)', fontSize: '96px', lineHeight: 1, fontWeight: 800, letterSpacing: '-0.05em' }}>
           {score}
         </div>
-        <div style={{ paddingBottom: '10px' }}>
-          <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: '18px', fontWeight: 500 }}>/100</div>
+        <div style={{ paddingBottom: '12px' }}>
+          <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: '20px', fontWeight: 500 }}>/100</div>
           <div style={{ color: scoreColor, fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '2px' }}>
             {categoryLabel}
           </div>
@@ -84,16 +82,88 @@ function RiskThermometer({ score, category }: { score: number; category: Analysi
       </div>
 
       <div className="flex justify-between" style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-md)' }}>
-        <div style={{ color: 'var(--accent-green)' }}>0â€“30<br /><span style={{ color: 'var(--text-secondary)' }}>GÃ¼venli Beyan</span></div>
-        <div className="text-center" style={{ color: 'var(--amber)' }}>30â€“70<br /><span style={{ color: 'var(--text-secondary)' }}>Gri Alan</span></div>
-        <div className="text-right" style={{ color: 'var(--danger)' }}>70â€“100<br /><span style={{ color: 'var(--text-secondary)' }}>YÃ¼ksek Risk</span></div>
+        <div style={{ color: 'var(--accent-green)' }}>{t.safeLabel}<br /><span style={{ color: 'var(--text-secondary)' }}>{t.safeDesc}</span></div>
+        <div className="text-center" style={{ color: 'var(--amber)' }}>{t.greyLabel}<br /><span style={{ color: 'var(--text-secondary)' }}>{t.greyDesc}</span></div>
+        <div className="text-right" style={{ color: 'var(--danger)' }}>{t.highLabel}<br /><span style={{ color: 'var(--text-secondary)' }}>{t.highDesc}</span></div>
       </div>
     </div>
   );
 }
 
+function PhraseDetailPanel({
+  phrase,
+  onClose,
+  t,
+}: {
+  phrase: FlaggedPhrase;
+  onClose: () => void;
+  t: ReturnType<typeof useLang>['t'];
+}) {
+  const isHigh = phrase.riskLevel === 'high';
+  const color = isHigh ? '#dc2626' : '#d97706';
+  const bg = isHigh ? '#fff5f5' : '#fffbeb';
+  const border = isHigh ? '#fecaca' : '#fde68a';
+
+  return (
+    <div
+      className="card-animated"
+      style={{
+        animationDelay: '0ms',
+        background: bg,
+        border: `1px solid ${border}`,
+        borderLeft: `4px solid ${color}`,
+        borderRadius: '10px',
+        padding: '20px',
+      }}
+    >
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          {t.phraseDetailTitle}
+        </div>
+        <button
+          onClick={onClose}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '0 2px', fontFamily: 'var(--font-mono)', fontSize: '11px' }}
+        >
+          {t.phraseDetailClose} ×
+        </button>
+      </div>
+
+      <blockquote style={{ fontFamily: 'var(--font-serif)', fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px', lineHeight: 1.5, fontStyle: 'italic' }}>
+        &ldquo;{phrase.phrase}&rdquo;
+      </blockquote>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+        <div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>{t.detailRisk}</div>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, color, background: isHigh ? '#fee2e2' : '#fef9c3', padding: '2px 8px', borderRadius: '999px', border: `1px solid ${border}` }}>
+            {isHigh ? t.high : t.medium}
+          </span>
+        </div>
+        <div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>{t.detailSimilarity}</div>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700, color }}>{phrase.similarity}%</span>
+        </div>
+        <div style={{ gridColumn: '1 / -1' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>{t.detailCase}</div>
+          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', color: 'var(--blue-data)', fontWeight: 500 }}>{phrase.matchedCaseName}</span>
+        </div>
+        <div style={{ gridColumn: '1 / -1' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>{t.detailRegulation}</div>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)' }}>{phrase.regulation}</span>
+        </div>
+      </div>
+
+      <div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>{t.detailReason}</div>
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.65 }}>{phrase.reason}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function AnalysisPage() {
+  const { t } = useLang();
+
   const [activeTab, setActiveTab] = useState<InputTab>('text');
   const [inputText, setInputText] = useState('');
   const [uploadedFile, setUploadedFile] = useState<{ name: string; size: string; file: File } | null>(null);
@@ -108,6 +178,13 @@ export default function AnalysisPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const documentRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<HTMLDivElement>(null);
+
+  const ANALYZE_STAGES = [
+    { label: t.stage0, icon: Search, duration: 1300 },
+    { label: t.stage1, icon: BookOpen, duration: 1700 },
+    { label: t.stage2, icon: Scale, duration: 2100 },
+    { label: t.stage3, icon: BarChart2, duration: 1500 },
+  ];
 
   const canAnalyze = activeTab === 'text' ? inputText.trim().length > 20 : uploadedFile !== null;
 
@@ -133,7 +210,7 @@ export default function AnalysisPage() {
         flaggedPhrases: [],
         overallScore: 0,
         overallRiskCategory: 'safe',
-        summary: 'Analiz baÅŸarÄ±sÄ±z. LÃ¼tfen tekrar deneyin.',
+        summary: t.analysisUnavailable,
         originalText: text,
       }));
 
@@ -147,15 +224,13 @@ export default function AnalysisPage() {
       setActivePhraseIndex(null);
       setAnalyzeState('complete');
 
-      // Persist detected offset projects to localStorage for /offset page
       const PROJECT_FRAGMENTS = [
         { fragment: 'kariba',     name: 'Kariba REDD+' },
         { fragment: 'rimba raya', name: 'Rimba Raya' },
         { fragment: 'boreal',     name: 'Boreal Forest' },
         { fragment: 'cookstoves', name: 'Cookstoves Kenya' },
         { fragment: 'rajasthan',  name: 'Solar Rajasthan' },
-        { fragment: 'Ã¸rsted',     name: 'Ã˜rsted Wind' },
-        { fragment: 'orsted',     name: 'Ã˜rsted Wind' },
+        { fragment: 'orsted',     name: 'Orsted Wind' },
       ];
       const haystack = (text + ' ' + result.flaggedPhrases.map((f) => f.phrase).join(' ')).toLowerCase();
       const detectedProjects = Array.from(
@@ -173,12 +248,13 @@ export default function AnalysisPage() {
         flaggedPhrases: [],
         overallScore: 0,
         overallRiskCategory: 'safe',
-        summary: 'Analiz baÅŸarÄ±sÄ±z. LÃ¼tfen tekrar deneyin.',
+        summary: t.analysisUnavailable,
         originalText: text,
       });
       setAnalyzeState('complete');
     }
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t]);
 
   const loadDemo = (text: string, flagArticle6 = false) => {
     setInputText(text);
@@ -191,7 +267,7 @@ export default function AnalysisPage() {
     const resp = await fetch('/api/extract-text', { method: 'POST', body: formData });
     const data = (await resp.json()) as { text?: string; error?: string };
     if (!resp.ok || !data.text) {
-      throw new Error(data.error ?? 'Belge metni Ã§Ä±karÄ±lamadÄ±.');
+      throw new Error(data.error ?? t.extractError);
     }
     return data.text;
   };
@@ -206,37 +282,32 @@ export default function AnalysisPage() {
       return;
     }
 
-    // Upload tab â€” extract text from the actual file, then analyse
     if (!uploadedFile) return;
     setAnalyzeState('analyzing');
     setAnalyzeStageIdx(0);
     setIsExtracting(true);
     try {
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(
-          () => reject(new Error('Dosya iÅŸleme zaman aÅŸÄ±mÄ±na uÄŸradÄ±. LÃ¼tfen daha kÃ¼Ã§Ã¼k bir dosya deneyin veya metni doÄŸrudan yapÄ±ÅŸtÄ±rÄ±n.')),
-          15000,
-        ),
+        setTimeout(() => reject(new Error(t.fileTimeout)), 15000),
       );
       const extracted = await Promise.race([extractTextFromFile(uploadedFile.file), timeoutPromise]);
       setIsExtracting(false);
-      const hasRedd =
-        extracted.toLowerCase().includes('redd+') || extracted.toLowerCase().includes('redd');
+      const hasRedd = extracted.toLowerCase().includes('redd+') || extracted.toLowerCase().includes('redd');
       runAnalysis(extracted, hasRedd);
     } catch (err) {
       setIsExtracting(false);
-      setExtractError(err instanceof Error ? err.message : 'Belge iÅŸlenirken hata oluÅŸtu.');
+      setExtractError(err instanceof Error ? err.message : t.fileProcessError);
       setAnalyzeState('idle');
     }
   };
 
   const handleFile = (file: File) => {
     if (!file.name.match(/\.(pdf|docx)$/i)) {
-      setExtractError('YalnÄ±zca PDF veya DOCX dosyalarÄ± desteklenir.');
+      setExtractError(t.onlyPdfDocx);
       return;
     }
     if (file.size > 50 * 1024 * 1024) {
-      setExtractError('Dosya boyutu 50 MBâ€™Ä± aÅŸÄ±yor. Daha kÃ¼Ã§Ã¼k bir dosya yÃ¼kleyin veya metin sekmesini kullanÄ±n.');
+      setExtractError(t.fileTooLarge);
       return;
     }
     const kb = (file.size / 1024).toFixed(0);
@@ -250,7 +321,8 @@ export default function AnalysisPage() {
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     if (file) handleFile(file);
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t]);
 
   const reset = () => {
     setAnalyzeState('idle');
@@ -265,29 +337,33 @@ export default function AnalysisPage() {
   };
 
   const handlePhraseClick = (index: number) => {
-    setActivePhraseIndex(index);
+    setActivePhraseIndex((prev) => (prev === index ? null : index));
     tableRef.current?.querySelectorAll('tr')[index + 1]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
   const handleRowClick = (index: number) => {
-    setActivePhraseIndex(index);
+    setActivePhraseIndex((prev) => (prev === index ? null : index));
     documentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
+  const activePhrase =
+    activePhraseIndex !== null && analysisResult
+      ? analysisResult.flaggedPhrases[activePhraseIndex] ?? null
+      : null;
+
   return (
-    <div className="px-8 py-6 max-w-6xl mx-auto">
+    <div className="px-8 py-6 max-w-5xl mx-auto">
 
       {/* Page heading */}
       <div className="card-animated mb-5" style={{ animationDelay: '0ms' }}>
         <h2 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-lg)', lineHeight: 'var(--line-height-headline-lg)', fontWeight: 600, marginBottom: '4px' }}>
-          Yapay Zeka Destekli Ä°ddia AraÅŸtÄ±rÄ±cÄ±sÄ±
+          {t.pageTitle}
         </h2>
         <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)' }}>
-          Karbon offset iddia doÄŸrulama Â· 20 emsal karara gÃ¶re eÅŸleÅŸtirme Â· Uyum risk puanlamasÄ±
+          {t.pageSubtitle}
         </p>
       </div>
 
-      {/* Sign-in prompt for logged-out users (only when Clerk is configured) */}
       {HAS_CLERK && <ClerkSignInBanner />}
 
       {/* Input card */}
@@ -309,7 +385,7 @@ export default function AnalysisPage() {
                   cursor: 'pointer',
                 }}
               >
-                {tab === 'text' ? 'Ä°ddia Metni Gir' : 'PDF Rapor YÃ¼kle'}
+                {tab === 'text' ? t.tabText : t.tabUpload}
               </button>
             ))}
           </div>
@@ -320,7 +396,7 @@ export default function AnalysisPage() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 rows={7}
-                placeholder="Åžirketin Ã§evre iddiasÄ±nÄ± buraya yapÄ±ÅŸtÄ±rÄ±n â€” Ã¶rn. 'Karbon offsetlerimiz sayesinde karbon nÃ¶trÃ¼z...'"
+                placeholder={t.textareaPlaceholder}
                 className="focusable w-full resize-none rounded-lg px-4 py-3"
                 style={{
                   background: 'var(--bg-surface-2)',
@@ -339,18 +415,18 @@ export default function AnalysisPage() {
                     className="focusable px-3 py-1.5 rounded"
                     style={{ color: 'var(--danger-bright)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', background: 'var(--danger-dim)', border: '1px solid rgba(181,61,46,0.25)', cursor: 'pointer' }}
                   >
-                    Demo: Shell Karbon NÃ¶tr YakÄ±t â†’
+                    {t.demoShell}
                   </button>
                   <button
                     onClick={() => loadDemo(DEMO_LUFTHANSA, false)}
                     className="focusable px-3 py-1.5 rounded"
                     style={{ color: 'var(--amber)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', background: 'var(--amber-light)', border: '1px solid rgba(176,125,42,0.25)', cursor: 'pointer' }}
                   >
-                    Demo: Lufthansa YeÅŸil UÃ§uÅŸ â†’
+                    {t.demoLufthansa}
                   </button>
                 </div>
                 <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', opacity: 0.6 }}>
-                  {inputText.length} karakter
+                  {inputText.length} {t.charCount}
                 </span>
               </div>
             </div>
@@ -384,10 +460,10 @@ export default function AnalysisPage() {
                   />
                   <Upload size={32} style={{ color: 'var(--green-mid)', margin: '0 auto 12px' }} />
                   <div style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', fontWeight: 600, marginBottom: '6px' }}>
-                    PDF veya DOCX buraya bÄ±rakÄ±n
+                    {t.dropzonePrimary}
                   </div>
                   <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', marginBottom: '16px' }}>
-                    veya tÄ±klayarak seÃ§in Â· maks. 50 MB
+                    {t.dropzoneSecondary}
                   </p>
                   <div className="flex justify-center gap-2">
                     {['.PDF', '.DOCX'].map((ext) => (
@@ -402,7 +478,9 @@ export default function AnalysisPage() {
                   </div>
                   <div className="flex-1">
                     <div style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-body-sm)', fontWeight: 500 }}>{uploadedFile.name}</div>
-                    <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', opacity: 0.7, marginTop: '2px' }}>{uploadedFile.size} Â· Metin otomatik olarak Ã§Ä±karÄ±lÄ±p analiz edilecek.</div>
+                    <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', opacity: 0.7, marginTop: '2px' }}>
+                      {uploadedFile.size} {t.uploadedFileDesc}
+                    </div>
                   </div>
                   <button onClick={() => { setUploadedFile(null); setExtractError(null); }} className="focusable" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px' }}>
                     <X size={16} />
@@ -421,7 +499,7 @@ export default function AnalysisPage() {
                       onClick={() => { setActiveTab('text'); setExtractError(null); setUploadedFile(null); }}
                       style={{ alignSelf: 'flex-start', color: 'var(--danger-bright)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
                     >
-                      Metin sekmesine geÃ§ â†’
+                      {t.switchToText}
                     </button>
                   </div>
                 </div>
@@ -445,35 +523,35 @@ export default function AnalysisPage() {
             }}
           >
             <Zap size={16} />
-            Ä°ddialarÄ± Analiz Et
+            {t.analyzeButton}
           </button>
         </div>
       )}
 
-      {/* Empty state â€” shown below input when nothing analyzed yet */}
+      {/* Empty state */}
       {analyzeState === 'idle' && !inputText && !uploadedFile && (
         <div className="card-animated mt-5 flex flex-col items-center justify-center py-16 px-8 text-center" style={{ animationDelay: '120ms' }}>
           <Scale size={64} style={{ color: 'var(--border)', marginBottom: '20px' }} />
           <h3 style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', fontWeight: 600, marginBottom: '10px' }}>
-            HenÃ¼z analiz yapÄ±lmadÄ±
+            {t.noAnalysis}
           </h3>
           <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-md)', lineHeight: 'var(--line-height-body-md)', maxWidth: '52ch', marginBottom: '24px' }}>
-            Bir ÅŸirketin Ã§evresel iddiasÄ±nÄ± girin veya sÃ¼rdÃ¼rÃ¼lebilirlik raporu yÃ¼kleyin; uyum deÄŸerlendirmesi alÄ±n.
+            {t.noAnalysisDesc}
           </p>
           <div className="flex gap-3 flex-wrap justify-center">
             <button
               onClick={() => loadDemo(DEMO_SHELL, true)}
               className="focusable flex items-center gap-2 px-4 py-2 rounded-lg"
-              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', cursor: 'pointer', transition: 'all 0.15s ease' }}
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', cursor: 'pointer' }}
             >
-              Shell Demo YÃ¼kle
+              {t.loadShellDemo}
             </button>
             <button
               onClick={() => loadDemo(DEMO_LUFTHANSA, false)}
               className="focusable flex items-center gap-2 px-4 py-2 rounded-lg"
-              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', cursor: 'pointer', transition: 'all 0.15s ease' }}
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', cursor: 'pointer' }}
             >
-              Lufthansa Demo YÃ¼kle
+              {t.loadLufthansaDemo}
             </button>
           </div>
         </div>
@@ -485,7 +563,7 @@ export default function AnalysisPage() {
           <div className="flex items-center gap-3 mb-6">
             <Loader2 size={20} style={{ color: 'var(--green-mid)', animation: 'spin 1s linear infinite' }} />
             <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600 }}>
-              Hukuki Analiz YÃ¼rÃ¼tÃ¼lÃ¼yorâ€¦
+              {t.analyzingTitle}
             </span>
           </div>
 
@@ -519,13 +597,7 @@ export default function AnalysisPage() {
                           : <Icon size={14} style={{ color: 'var(--text-secondary)' }} />
                       }
                     </div>
-                    <div
-                      style={{
-                        color: isDone ? 'var(--accent-green)' : isCurrent ? 'var(--text-primary)' : 'var(--text-secondary)',
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: 'var(--font-size-body-sm)',
-                      }}
-                    >
+                    <div style={{ color: isDone ? 'var(--accent-green)' : isCurrent ? 'var(--text-primary)' : 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-body-sm)' }}>
                       {stage.label}
                     </div>
                   </div>
@@ -538,19 +610,20 @@ export default function AnalysisPage() {
         </div>
       )}
 
-      {/* Results */}
+      {/* Results — full-width vertical stack */}
       {analyzeState === 'complete' && analysisResult && (
         <div>
-          <div className="flex items-center justify-between mt-5 mb-3">
+          {/* Results header bar */}
+          <div className="flex items-center justify-between mt-5 mb-4">
             <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-sm)', opacity: 0.6 }}>
-              Analiz tamamlandÄ± Â· {new Date().toLocaleTimeString('tr-TR')}
+              {t.analysisComplete} · {new Date().toLocaleTimeString()}
             </span>
             <button
               onClick={reset}
               className="focusable flex items-center gap-1.5 px-3 py-1.5 rounded-md"
               style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', cursor: 'pointer' }}
             >
-              <X size={12} /> Yeni Analiz
+              <X size={12} /> {t.newAnalysis}
             </button>
           </div>
 
@@ -563,25 +636,25 @@ export default function AnalysisPage() {
                 <AlertTriangle size={20} style={{ color: 'var(--danger)', marginTop: 2, flexShrink: 0 }} />
                 <div>
                   <div style={{ color: 'var(--danger-bright)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>
-                    Paris AnlaÅŸmasÄ± Madde 6.4 â€” KRÄ°TÄ°K Ä°HLAL
+                    {t.article6Title}
                   </div>
                   <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.7, maxWidth: '72ch' }}>
-                    {ARTICLE6_FLAG}
+                    {t.article6Body}
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Overall score thermometer */}
-            <RiskThermometer score={analysisResult.overallScore} category={analysisResult.overallRiskCategory} />
+            {/* (A) Score thermometer — full width */}
+            <RiskThermometer score={analysisResult.overallScore} category={analysisResult.overallRiskCategory} t={t} />
 
             {/* Summary */}
             {analysisResult.summary && (
-              <div className="card p-4" style={{ background: 'var(--bg-surface-2)' }}>
-                <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
-                  Genel DeÄŸerlendirme
+              <div className="card p-5" style={{ background: 'var(--bg-surface-2)' }}>
+                <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>
+                  {t.overallAssessment}
                 </div>
-                <p style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.7 }}>
+                <p style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-md)', lineHeight: 1.75 }}>
                   {analysisResult.summary}
                 </p>
               </div>
@@ -589,49 +662,54 @@ export default function AnalysisPage() {
 
             <hr className="section-divider" />
 
-            {/* Two-column: document + risk table */}
             {analysisResult.flaggedPhrases.length > 0 ? (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                  gap: '24px',
-                  alignItems: 'start',
-                }}
-              >
-                {/* Left: highlighted document */}
+              <>
+                {/* (B) Full-width document viewer */}
                 <div ref={documentRef}>
                   <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>
-                    Belge Metni â€” Vurgulanan Riskler
+                    {t.documentTitle}
                   </div>
                   <HighlightedDocument
                     originalText={analysisResult.originalText}
                     flaggedPhrases={analysisResult.flaggedPhrases}
                     activePhraseIndex={activePhraseIndex}
                     onPhraseClick={handlePhraseClick}
+                    t={t}
                   />
                 </div>
 
-                {/* Right: risk table */}
+                {/* (C) Phrase detail panel — appears on click */}
+                {activePhrase && (
+                  <PhraseDetailPanel
+                    phrase={activePhrase}
+                    onClose={() => setActivePhraseIndex(null)}
+                    t={t}
+                  />
+                )}
+
+                <hr className="section-divider" />
+
+                {/* (E) Full-width risk table */}
                 <div ref={tableRef}>
                   <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>
-                    Risk Tablosu â€” Emsal Karar EÅŸleÅŸmeleri
+                    {t.riskTableTitle}
                   </div>
                   <RiskTable
                     flaggedPhrases={analysisResult.flaggedPhrases}
                     activeRowIndex={activePhraseIndex}
                     onRowClick={handleRowClick}
+                    t={t}
                   />
                 </div>
-              </div>
+              </>
             ) : (
               <div className="card p-8 text-center" style={{ border: '1px solid var(--border-strong)' }}>
                 <CheckCircle2 size={40} style={{ color: 'var(--green-text)', margin: '0 auto 12px' }} />
                 <div style={{ color: 'var(--green-text)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', fontWeight: 600, marginBottom: '8px' }}>
-                  Riskli Ä°fade Tespit Edilmedi
+                  {t.noPhrases}
                 </div>
                 <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.6, maxWidth: '48ch', margin: '0 auto' }}>
-                  Metinde Ã¶ne Ã§Ä±kan bir yeÅŸil aklama iddiasÄ± bulunmadÄ±.
+                  {t.noPhrasesDesc}
                 </p>
               </div>
             )}
@@ -645,10 +723,16 @@ export default function AnalysisPage() {
         <div className="card card-animated mt-5 p-6 text-center" style={{ animationDelay: '0ms', border: '1px solid rgba(181,61,46,0.3)' }}>
           <AlertTriangle size={32} style={{ color: 'var(--danger)', margin: '0 auto 12px' }} />
           <div style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', fontWeight: 600, marginBottom: '8px' }}>
-            Analiz servisi kullanÄ±lamÄ±yor. Demo sonuÃ§larÄ± gÃ¶steriliyor.
+            {t.analysisUnavailable}
           </div>
-          <button onClick={() => { setAnalysisResult({ flaggedPhrases: [], overallScore: 0, overallRiskCategory: 'safe', summary: 'Demo modu â€” gerÃ§ek analiz iÃ§in OpenAI API anahtarÄ± gereklidir.', originalText: '' }); setAnalyzeState('complete'); }} style={{ color: 'var(--blue-data)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-body-sm)', background: 'none', border: 'none', cursor: 'pointer' }}>
-            Demo sonuÃ§larÄ±nÄ± gÃ¶rÃ¼ntÃ¼le â†’
+          <button
+            onClick={() => {
+              setAnalysisResult({ flaggedPhrases: [], overallScore: 0, overallRiskCategory: 'safe', summary: '', originalText: '' });
+              setAnalyzeState('complete');
+            }}
+            style={{ color: 'var(--blue-data)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-body-sm)', background: 'none', border: 'none', cursor: 'pointer' }}
+          >
+            {t.viewDemoResults}
           </button>
         </div>
       )}

@@ -5,6 +5,7 @@ import { Bell, Circle, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useDataset, mockRiskCompany, mockCompliantCompany } from '../lib/DatasetContext';
 import ClerkUserMenu from './auth/ClerkUserMenu';
 import Link from 'next/link';
+import { useLang } from '../lib/langContext';
 
 const PK = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '';
 const HAS_CLERK =
@@ -34,7 +35,9 @@ const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
 export default function Header() {
   const pathname = usePathname();
   const { activeDataset, setActiveDataset } = useDataset();
-  const meta = PAGE_TITLES[pathname] ?? { title: 'ESG Lens', subtitle: 'Legal Compliance Suite' };
+  const { lang, t, setLang } = useLang();
+  const pageTitles = t.pageTitles;
+  const meta = pageTitles[pathname] ?? PAGE_TITLES[pathname] ?? { title: 'ESG Lens', subtitle: 'Legal Compliance Suite' };
 
   const isRiskCompany = activeDataset.company.ticker === 'AXHS';
 
@@ -115,6 +118,25 @@ export default function Header() {
             Verified Database: 20 Case Records
           </span>
         </div>
+
+        {/* Language toggle */}
+        <button
+          onClick={() => setLang(lang === 'en' ? 'tr' : 'en')}
+          className="focusable px-2.5 py-1.5 rounded-md"
+          style={{
+            background: 'var(--bg-surface-2)',
+            border: '1px solid var(--border)',
+            color: 'var(--text-secondary)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 'var(--font-size-label-lg)',
+            fontWeight: 700,
+            cursor: 'pointer',
+            letterSpacing: '0.06em',
+          }}
+          aria-label="Toggle language"
+        >
+          {t.langToggle}
+        </button>
 
         {/* Notification */}
         <button
