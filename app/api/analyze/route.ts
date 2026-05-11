@@ -122,7 +122,11 @@ export async function POST(request: NextRequest) {
 
     const apiKey = process.env.OPENAI_API_KEY;
 
-    if (apiKey) {
+    if (!apiKey || apiKey.length < 20 || apiKey.startsWith('YOUR_')) {
+      console.warn('[analyze] OPENAI_API_KEY missing or placeholder — falling back to keyword matcher');
+    }
+
+    if (apiKey && apiKey.length >= 20 && !apiKey.startsWith('YOUR_')) {
       try {
         const caseDbJson = JSON.stringify(
           CASE_DB.map(({ id, caseName, year, jurisdiction, claimMade, violationReason, regulationCited, outcome, keywords }) =>
@@ -196,6 +200,13 @@ export async function POST(request: NextRequest) {
           }),
         });
 
+        if (!openaiResp.ok) {
+          const bodyText = await openaiResp.text().catch(() => '<unreadable>');
+          console.error(
+            `[analyze] OpenAI ${openaiResp.status} ${openaiResp.statusText} — body: ${bodyText.slice(0, 400)}`
+          );
+        }
+
         if (openaiResp.ok) {
           const openaiData = (await openaiResp.json()) as {
             choices: { message: { content: string } }[];
@@ -231,8 +242,8 @@ export async function POST(request: NextRequest) {
 
           return NextResponse.json(result);
         }
-      } catch {
-        // Fall through to offline mode
+      } catch (err) {
+        console.error('[analyze] OpenAI call threw — falling back to keyword matcher:', err);
       }
     }
 
