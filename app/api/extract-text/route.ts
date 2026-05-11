@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     const message = err instanceof Error ? err.message : 'unknown';
     return NextResponse.json(
       {
-        error: `Belge işlenemedi: ${message}`,
+        error: `Failed to process document: ${message}`,
         details: message,
       },
       { status: 500 },

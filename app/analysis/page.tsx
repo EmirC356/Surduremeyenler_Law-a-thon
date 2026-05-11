@@ -1,11 +1,16 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { Upload, Check, FileText, X, AlertTriangle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Upload, Check, X, AlertTriangle } from 'lucide-react';
 import { useLang } from '../../lib/langContext';
 import { ESG_MOCK } from '../../lib/esgMockData';
 import PageTitle from '../../components/PageTitle';
 import { Card, Badge } from '../../components/ui/Primitives';
+import type { AnalysisResult } from '../../lib/types';
+
+const STORAGE_KEY = 'eslens_last_analysis_result';
+const META_KEY = 'eslens_last_analysis_meta';
 
 type Mode = 'idle' | 'paste' | 'analyzing' | 'done' | 'error';
 
@@ -28,13 +33,13 @@ const LENSES = [
 export default function AnalysisIntakePage() {
   const { t } = useLang();
   const M = ESG_MOCK;
+  const router = useRouter();
 
   const [mode, setMode] = useState<Mode>('idle');
   const [stage, setStage] = useState<number | null>(null);
   const [pasteText, setPasteText] = useState('');
   const [activeFile, setActiveFile] = useState<{ name: string; size: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [resultSummary, setResultSummary] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,7 +55,6 @@ export default function AnalysisIntakePage() {
     setPasteText('');
     setActiveFile(null);
     setError(null);
-    setResultSummary(null);
   };
 
   const runStages = useCallback(async () => {
@@ -61,32 +65,52 @@ export default function AnalysisIntakePage() {
     setStage(null);
   }, []);
 
-  const analyzeText = useCallback(async (text: string) => {
-    setMode('analyzing');
-    setError(null);
-    setResultSummary(null);
+  const analyzeText = useCallback(
+    async (text: string, sourceMeta: { source: 'file' | 'paste'; name: string; sizeLabel: string }) => {
+      setMode('analyzing');
+      setError(null);
 
-    // Drive the visual stage ladder while the real API call runs
-    const stagesPromise = runStages();
-    const apiPromise = fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
-    })
-      .then((r) => r.json())
-      .catch(() => ({ summary: 'Analysis service unavailable. Showing fallback results.' }));
+      const stagesPromise = runStages();
+      const apiPromise = fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      })
+        .then((r) => r.json() as Promise<AnalysisResult>)
+        .catch((): AnalysisResult => ({
+          flaggedPhrases: [],
+          overallScore: 0,
+          overallRiskCategory: 'safe',
+          summary: 'Analysis service unavailable. Please try again.',
+          originalText: text,
+        }));
 
-    await Promise.all([stagesPromise, apiPromise]);
-    const data = await apiPromise as { summary?: string; flaggedPhrases?: unknown[]; overallScore?: number };
+      const [, data] = await Promise.all([stagesPromise, apiPromise]);
 
-    const count = data.flaggedPhrases?.length ?? 0;
-    setResultSummary(
-      data.summary ??
-        `Analysis complete · ${count} flagged phrase${count !== 1 ? 's' : ''}` +
-          (typeof data.overallScore === 'number' ? ` · overall score ${data.overallScore}/100` : '')
-    );
-    setMode('done');
-  }, [runStages]);
+      // Ensure originalText is set even if API echoed nothing
+      const result: AnalysisResult = {
+        flaggedPhrases: data.flaggedPhrases ?? [],
+        overallScore: data.overallScore ?? 0,
+        overallRiskCategory: data.overallRiskCategory ?? 'safe',
+        summary: data.summary ?? '',
+        originalText: data.originalText || text,
+      };
+
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(result));
+        sessionStorage.setItem(
+          META_KEY,
+          JSON.stringify({ ...sourceMeta, timestamp: Date.now() })
+        );
+      } catch {
+        /* sessionStorage unavailable */
+      }
+
+      setMode('done');
+      router.push('/analysis/result');
+    },
+    [runStages, router]
+  );
 
   const handleFile = async (file: File) => {
     if (!file.name.match(/\.(pdf|docx)$/i)) {
@@ -97,7 +121,8 @@ export default function AnalysisIntakePage() {
       setError('File exceeds 50 MB. Please paste the text instead.');
       return;
     }
-    setActiveFile({ name: file.name, size: formatBytes(file.size) });
+    const sizeLabel = formatBytes(file.size);
+    setActiveFile({ name: file.name, size: sizeLabel });
     setError(null);
     setMode('analyzing');
     setStage(0);
@@ -112,7 +137,7 @@ export default function AnalysisIntakePage() {
         throw new Error(data.error ?? 'Failed to extract text from the document.');
       }
       // Move to remaining stages and run real analysis on the extracted text
-      await analyzeText(data.text);
+      await analyzeText(data.text, { source: 'file', name: file.name, sizeLabel });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to process the document.');
       setMode('error');
@@ -140,8 +165,9 @@ export default function AnalysisIntakePage() {
       setError('Please paste at least 20 characters of text to analyse.');
       return;
     }
-    setActiveFile({ name: 'Pasted text', size: `${pasteText.length} chars` });
-    analyzeText(trimmed);
+    const sizeLabel = `${pasteText.length} chars`;
+    setActiveFile({ name: 'Pasted text', size: sizeLabel });
+    analyzeText(trimmed, { source: 'paste', name: 'Pasted text', sizeLabel });
   };
 
   return (
@@ -495,7 +521,7 @@ export default function AnalysisIntakePage() {
                     );
                   })}
 
-                  {mode === 'done' && resultSummary && (
+                  {mode === 'done' && (
                     <div
                       style={{
                         marginTop: 6,
@@ -513,38 +539,9 @@ export default function AnalysisIntakePage() {
                           color: 'var(--esg-green-text)',
                           textTransform: 'uppercase',
                           fontWeight: 700,
-                          marginBottom: 6,
                         }}
                       >
-                        Result
-                      </div>
-                      <p
-                        style={{
-                          margin: 0,
-                          fontFamily: 'var(--esg-sans)',
-                          fontSize: 13,
-                          lineHeight: 1.6,
-                          color: 'var(--esg-fg)',
-                        }}
-                      >
-                        {resultSummary}
-                      </p>
-                      <div style={{ marginTop: 10 }}>
-                        <button
-                          onClick={reset}
-                          style={{
-                            padding: '6px 12px',
-                            borderRadius: 999,
-                            background: 'var(--esg-surface)',
-                            border: '1px solid var(--esg-border)',
-                            fontFamily: 'var(--esg-mono)',
-                            fontSize: 11,
-                            color: 'var(--esg-fg)',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          New analysis
-                        </button>
+                        Done · opening result…
                       </div>
                     </div>
                   )}

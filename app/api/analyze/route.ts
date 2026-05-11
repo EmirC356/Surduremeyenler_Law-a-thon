@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
         flaggedPhrases: [],
         overallScore: 0,
         overallRiskCategory: 'safe',
-        summary: 'Metinde çevresel iddia tespit edilmedi. Analiz için bir sürdürülebilirlik iddiası içeren metin girin.',
+        summary: 'No environmental claim detected in the text. Enter text containing a sustainability claim for analysis.',
         originalText: text,
       };
       return NextResponse.json(empty);
@@ -155,13 +155,13 @@ export async function POST(request: NextRequest) {
           `      "matchedCaseId": "SHELL-CE-2023",\n` +
           `      "matchedCaseName": "Shell — ClientEarth Ürün Etiketi İddiası",\n` +
           `      "similarity": 91,\n` +
-          `      "reason": "Bu ifade neden riskli olduğunu açıklayan bir cümle (Türkçe)",\n` +
+          `      "reason": "A sentence explaining why this phrase is risky (in English)",\n` +
           `      "regulation": "EU Green Claims Directive 2024/825, Article 3"\n` +
           `    }\n` +
           `  ],\n` +
           `  "overallScore": 81,\n` +
           `  "overallRiskCategory": "litigable",\n` +
-          `  "summary": "Belgenin genel yeşil aklama riskini özetleyen 2-3 cümle (Türkçe)"\n` +
+          `  "summary": "Two or three sentences summarising the document's overall greenwashing risk (in English)"\n` +
           `}\n\n` +
 
           `## SECTION 4 — RULES\n` +
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
           `- Do NOT flag generic business language. Only flag phrases making a specific environmental claim.\n` +
           `- overallScore = weighted average of flagged phrase similarities; high-risk phrases count double.\n` +
           `- overallRiskCategory: "safe" if score < 30, "grey" if 30-69, "litigable" if >= 70.\n` +
-          `- ALL "reason" fields and "summary" MUST be in Turkish (professional legal Turkish).\n` +
+          `- ALL "reason" fields and "summary" MUST be in English (professional legal English).\n` +
           `- If no phrases meet the threshold, return empty flaggedPhrases array and score 0.\n` +
           `- PARIS AGREEMENT ARTICLE 6 CHECK: if REDD+ offsets mentioned without Article 6.4 evidence, set riskLevel "high" and similarity >= 85.`;
 
@@ -306,8 +306,8 @@ export async function POST(request: NextRequest) {
       overallScore,
       overallRiskCategory,
       summary: unique.length > 0
-        ? `Belgede ${unique.length} riskli ifade tespit edildi (${highCount} yüksek, ${medCount} orta). Bu ifadeler AB Yeşil İddia Direktifi ve ilgili emsal kararlar kapsamında hukuki risk oluşturmaktadır. OpenAI API anahtarı yapılandırıldığında daha ayrıntılı analiz yapılacaktır.`
-        : 'Metinde değerlendirilebilir bir çevresel iddia tespit edilmedi.',
+        ? `Detected ${unique.length} risky phrase${unique.length !== 1 ? 's' : ''} in the document (${highCount} high, ${medCount} medium). These phrases create legal risk under the EU Green Claims Directive and matching precedents. Configure an OpenAI API key for deeper paragraph-level analysis.`
+        : 'No actionable environmental claim detected in the text.',
       originalText: text,
     };
 
@@ -317,7 +317,7 @@ export async function POST(request: NextRequest) {
       flaggedPhrases: [],
       overallScore: 0,
       overallRiskCategory: 'safe',
-      summary: 'Analiz başarısız oldu. Lütfen tekrar deneyin.',
+      summary: 'Analysis failed. Please try again.',
       originalText: '',
     };
     return NextResponse.json(err, { status: 200 });
