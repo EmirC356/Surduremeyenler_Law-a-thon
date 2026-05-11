@@ -8,63 +8,61 @@ const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
 
 const SCORE_CARDS = [
   {
-    title: 'Anahtar Kelime Analizi — %30',
+    title: 'Keyword Analysis — 30%',
     body:
-      '13 yüksek riskli terim ile 25 sinonim, büyük/küçük harf duyarsız ' +
-      'alt dize eşleşmesiyle taranır. Her eşleşen terim skora katkıda bulunur.',
+      '13 high-risk terms and 25 synonyms are scanned with case-insensitive substring matching. ' +
+      'Each matched term contributes to the score.',
   },
   {
-    title: 'Emsal Karar Eşleşmesi — %40',
+    title: 'Precedent Case Matching — 40%',
     body:
-      'Tespit edilen terimler, 20 gerçek mahkeme kararının anahtar kelime ' +
-      'veritabanıyla karşılaştırılır. Ağırlık, eşleşen davaların ortalama ' +
-      'benzerlik eşiğinden elde edilir.',
+      'Detected terms are compared against a database of 20 real court rulings. ' +
+      'Weighting is derived from the average similarity threshold across matched cases.',
   },
   {
-    title: 'Offset Bütünlüğü — %30',
+    title: 'Offset Integrity — 30%',
     body:
-      'İddia, adlandırılmış bir offset projesine atıfta bulunuyorsa, söz ' +
-      'konusu projenin ek tiklik, kalıcılık ve sızıntı puanları değerlendirmeye dahil edilir.',
+      'If the claim references a named offset project, that project\'s additionality, ' +
+      'permanence and leakage scores are folded into the assessment.',
   },
 ];
 
 const RISK_ZONES = [
-  { range: '0–29', label: 'Güvenli Beyan', desc: 'Somut ihlal paterni tespit edilmedi', color: 'var(--accent-green)', bg: 'var(--green-light)' },
-  { range: '30–69', label: 'Gri Alan', desc: 'Yanıltıcı olabilir, hukuki inceleme önerilir', color: 'var(--amber)', bg: 'var(--amber-light)' },
-  { range: '70–100', label: 'Dava Edilebilir', desc: 'Belgelenmiş mahkeme kararlarıyla yüksek uyum', color: 'var(--red)', bg: 'var(--red-light)' },
+  { range: '0–29',   label: 'Safe Claim',     desc: 'No concrete violation pattern detected',           color: 'var(--accent-green)', bg: 'var(--green-light)' },
+  { range: '30–69',  label: 'Grey Zone',      desc: 'Potentially misleading — legal review recommended', color: 'var(--amber)',         bg: 'var(--amber-light)' },
+  { range: '70–100', label: 'Litigable',      desc: 'High alignment with documented court rulings',     color: 'var(--red)',           bg: 'var(--red-light)' },
 ];
 
 const LIMITATIONS = [
   {
-    title: 'Resmi Doğrulama Eksikliği',
+    title: 'No Formal Validation',
     body:
-      "Platform, etiketlenmiş test vakalarıyla kesinlik/geri çağırma ölçümü " +
-      "yapılmamıştır. Hackathon bağlamında geliştirilmiş olup bağımsız doğrulama sürecindedir.",
+      'The platform has not been measured for precision/recall against a labelled test set. ' +
+      'Built in a hackathon context and undergoing independent validation.',
   },
   {
-    title: 'Anlambilimsel Kör Nokta',
+    title: 'Semantic Blind Spot',
     body:
-      "Anahtar kelime tespiti tam alt dize eşleşmesi kullanır. Sinonim veya deyimsel " +
-      "ifadeler kullanan bir iddia, ön filtreyi atlayabilir; bu durum OpenAI'nin " +
-      "anlambilimsel anlayışıyla kısmen telafi edilmektedir.",
+      'Keyword detection relies on exact substring matching. A claim using synonyms or ' +
+      "idiomatic phrasing may bypass the pre-filter; this is partially mitigated by OpenAI's " +
+      'semantic understanding.',
   },
   {
-    title: 'Coğrafi Kapsam',
+    title: 'Geographic Scope',
     body:
-      "Dava veritabanı AB ve Birleşik Krallık yargı bölgelerini kapsamaktadır. " +
-      "Türkiye'ye özgü içtihat hâlâ entegre edilmektedir.",
+      'The case database covers EU and UK jurisdictions. Jurisdiction-specific case law for ' +
+      'other regions is still being integrated.',
   },
   {
-    title: 'Yapay Zeka Tutarsızlığı',
+    title: 'AI Variance',
     body:
-      "GPT-4o-mini 0.2 sıcaklığında çalışmaktadır; ancak küçük giriş farklılıkları " +
-      "puanlamayı değiştirebilir. Kesin tutarlılık için sonuçlar nitelikli hukuk " +
-      "danışmanı tarafından incelenmelidir.",
+      'GPT-4o-mini runs at temperature 0.2, but small input differences can move the score. ' +
+      'For strict consistency, results should be reviewed by qualified legal counsel.',
   },
   {
-    title: 'Yasal Tavsiye Değil',
+    title: 'Not Legal Advice',
     body:
-      "Bu platformun çıktıları tarama amacıyla sunulmaktadır. Hukuki karar vermede kullanılmamalıdır.",
+      'Outputs from this platform are provided for screening purposes. They are not a substitute for legal counsel.',
   },
 ];
 
@@ -90,9 +88,9 @@ function statusBadgeStyles(status: OffsetProject['status']) {
 }
 
 function statusLabel(status: OffsetProject['status']) {
-  if (status === 'valid') return 'Geçerli';
-  if (status === 'disputed') return 'Tartışmalı';
-  return 'Geçersiz';
+  if (status === 'valid') return 'Valid';
+  if (status === 'disputed') return 'Disputed';
+  return 'Invalid';
 }
 
 function scoreColor(score: number) {
@@ -146,7 +144,7 @@ export default function MethodologyPage() {
   return (
     <div className="page-pad" style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
-      {/* Section 1 — Platform Hakkında */}
+      {/* Section 1 — About the platform */}
       <section style={{ marginBottom: '48px' }}>
         <h1
           style={{
@@ -159,7 +157,7 @@ export default function MethodologyPage() {
             marginBottom: '8px',
           }}
         >
-          Metodoloji ve Veri Kaynakları
+          Methodology and Data Sources
         </h1>
         <p
           style={{
@@ -170,21 +168,20 @@ export default function MethodologyPage() {
             marginBottom: '24px',
           }}
         >
-          ESG Lens Hukuki Doğrulama Platformu — Sürüm 2.0 · Nisan 2026
+          ESG Lens Legal Verification Platform — Version 2.0 · April 2026
         </p>
         <p style={proseP}>
-          ESG Lens, çevresel pazarlama iddialarındaki belgelenmiş Avrupa yeşil yıkama
-          kararlarına benzer örüntüleri otomatik olarak tespit eden bir hukuki risk
-          tarama aracıdır; bir hukuki danışmanlık hizmeti değildir. İddialarda Avrupa
-          yargısı tarafından kayıt altına alınmış ihlal paterni varsa bunları işaretler;
-          ancak tüm çıktılar herhangi bir uyum kararı verilmeden önce nitelikli hukuk
-          müşaviri tarafından incelenmelidir.
+          ESG Lens is a legal-risk screening tool that automatically detects patterns
+          similar to documented European greenwashing rulings in environmental marketing
+          claims. It is not a legal advisory service. It flags claims where the violation
+          pattern matches European case law on record, but all outputs should be reviewed
+          by qualified legal counsel before any compliance decision is made.
         </p>
       </section>
 
-      {/* Section 2 — Risk Skoru Nasıl Hesaplanır */}
+      {/* Section 2 — How the Risk Score is Computed */}
       <section style={{ marginBottom: '48px' }}>
-        <h2 style={sectionH2}>Risk Skoru Hesaplama Yöntemi</h2>
+        <h2 style={sectionH2}>How the risk score is computed</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{ marginBottom: '24px' }}>
           {SCORE_CARDS.map((c) => (
@@ -235,9 +232,9 @@ export default function MethodologyPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th style={{ ...tableTh, width: '15%' }}>Aralık</th>
-                <th style={{ ...tableTh, width: '25%' }}>Etiket</th>
-                <th style={tableTh}>Açıklama</th>
+                <th style={{ ...tableTh, width: '15%' }}>Range</th>
+                <th style={{ ...tableTh, width: '25%' }}>Label</th>
+                <th style={tableTh}>Description</th>
               </tr>
             </thead>
             <tbody>
@@ -270,12 +267,12 @@ export default function MethodologyPage() {
         </div>
       </section>
 
-      {/* Section 3 — Emsal Karar Veritabanı */}
+      {/* Section 3 — Precedent Case Database */}
       <section style={{ marginBottom: '48px' }}>
-        <h2 style={sectionH2}>Emsal Karar Veritabanı ({mockCaseLaw.length} Dava)</h2>
+        <h2 style={sectionH2}>Precedent case database ({mockCaseLaw.length} cases)</h2>
         <p style={{ ...proseP, marginBottom: '20px' }}>
-          Tüm davalar birincil hukuki kaynaklardan ve düzenleyici otoritelerin resmi
-          kararlarından derlenerek yapılandırılmıştır.
+          All cases are sourced from primary legal records and the official rulings of
+          regulatory authorities, then structured for matching.
         </p>
 
         <div
@@ -289,11 +286,11 @@ export default function MethodologyPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '780px' }}>
             <thead>
               <tr>
-                <th style={tableTh}>Dava Kimliği</th>
-                <th style={tableTh}>Taraf</th>
-                <th style={tableTh}>Yıl</th>
-                <th style={tableTh}>Yetki Alanı</th>
-                <th style={tableTh}>Sonuç</th>
+                <th style={tableTh}>Case ID</th>
+                <th style={tableTh}>Defendant</th>
+                <th style={tableTh}>Year</th>
+                <th style={tableTh}>Jurisdiction</th>
+                <th style={tableTh}>Outcome</th>
               </tr>
             </thead>
             <tbody>
@@ -313,12 +310,12 @@ export default function MethodologyPage() {
         </div>
       </section>
 
-      {/* Section 4 — Offset Proje Veritabanı */}
+      {/* Section 4 — Offset Project Database */}
       <section style={{ marginBottom: '48px' }}>
-        <h2 style={sectionH2}>Offset Proje Bütünlük Veritabanı</h2>
+        <h2 style={sectionH2}>Offset project integrity database</h2>
         <p style={{ ...proseP, marginBottom: '20px' }}>
-          Puanlar akademik literatür, kurumsal denetim raporları ve bağımsız araştırmacı
-          bulgularından türetilmiştir.
+          Scores are derived from academic literature, corporate audit reports and
+          independent researcher findings.
         </p>
 
         <div
@@ -332,11 +329,11 @@ export default function MethodologyPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '780px' }}>
             <thead>
               <tr>
-                <th style={tableTh}>Proje</th>
-                <th style={tableTh}>Tür</th>
-                <th style={tableTh}>Sertifika</th>
-                <th style={tableTh}>Genel Puan</th>
-                <th style={tableTh}>Durum</th>
+                <th style={tableTh}>Project</th>
+                <th style={tableTh}>Type</th>
+                <th style={tableTh}>Certification</th>
+                <th style={tableTh}>Overall Score</th>
+                <th style={tableTh}>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -376,9 +373,9 @@ export default function MethodologyPage() {
         </div>
       </section>
 
-      {/* Section 5 — Bilinen Sınırlamalar */}
+      {/* Section 5 — Known Limitations */}
       <section style={{ marginBottom: '48px' }}>
-        <h2 style={sectionH2}>Bilinen Sınırlamalar</h2>
+        <h2 style={sectionH2}>Known limitations</h2>
         <ol
           style={{
             listStyle: 'decimal',
@@ -408,9 +405,9 @@ export default function MethodologyPage() {
         </ol>
       </section>
 
-      {/* Section 6 — Veri Kaynakları */}
+      {/* Section 6 — Data Sources */}
       <section style={{ marginBottom: '48px' }}>
-        <h2 style={sectionH2}>Veri Kaynakları ve Referanslar</h2>
+        <h2 style={sectionH2}>Data sources and references</h2>
         <ul
           style={{
             listStyle: 'disc',
@@ -450,7 +447,7 @@ export default function MethodologyPage() {
           lineHeight: 1.6,
         }}
       >
-        ESG Lens — Sürdüremeyenler Ekibi · Sabancı Üniversitesi Law-a-thon 2026 · Son güncelleme: Nisan 2026
+        ESG Lens — Team Sürdüremeyenler · Sabancı University Law-a-thon 2026 · Last updated: April 2026
       </p>
     </div>
   );

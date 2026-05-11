@@ -1,4 +1,4 @@
-export type Lang = 'en' | 'tr';
+export type Lang = 'en';
 
 const en = {
   nav: {
@@ -51,56 +51,5 @@ const en = {
   },
 };
 
-const tr: typeof en = {
-  nav: {
-    dashboard: 'Gösterge',
-    analysis: 'Belge Analizi',
-    greenlighting: 'Yeşil Yıkama',
-    greenrinsing: 'Yeşil Yıkama (Söz)',
-    export: 'Hukuki Dışa Aktarım',
-    methodology: 'Metodoloji',
-    pricing: 'Abonelik',
-  },
-  subnav: {
-    dashboard: 'Uyum genel görünümü',
-    analysis: 'Rapor yükle ve çözümle',
-    greenlighting: 'Seçici ifşa',
-    greenrinsing: 'Söz uygulanabilirliği',
-    export: 'Denetim paketi ve CSV',
-    methodology: 'Puanlama yöntemi',
-  },
-  titles: {
-    dashboard: 'Uyum Gösterge Paneli',
-    dashboardSub: 'Hukuk müşaviri için ESG risk incelemesi',
-    analysis: 'Belge Girişi',
-    analysisSub: 'Sürdürülebilirlik raporlarını hukuki incelemeye yükleyin',
-    analysisReview: 'Belge İncelemesi',
-    greenlighting: 'Yeşil Yıkama Riski',
-    greenlightingSub: 'Pazarlama söylemi ile operasyonel gerçeklik',
-    greenlightingLedger: 'Yeşil Yıkama · Defter',
-    greenlightingLedgerSub: 'Yan yana · iddia ile gerçeklik',
-    signIn: "ESG Lens'e giriş yapın",
-    signInSub: 'Hukuk çalışma alanınıza devam edin',
-    signUp: 'Hukuk çalışma alanı oluştur',
-    signUpSub: 'İki dakikada kurulum. İlk günden denetim düzeyinde.',
-    forgot: 'Parola sıfırla',
-    forgotSub: 'Tek seferlik bir kurtarma bağlantısı göndereceğiz.',
-  },
-  common: {
-    search: 'Rapor, mevzuat, ihlal ara',
-    newAnalysis: 'Yeni analiz',
-    exportPacket: 'Denetim paketi indir',
-    caseRecords: '20 İçtihat Kaydı',
-    ssl: '256-bit TLS · Gizli',
-    legalNote: 'Avukat–müvekkil gizliliği · İş ürünü',
-    counselFor: 'Müvekkil',
-    activeMatter: 'Aktif dava',
-    lawFirm: 'Borowski Çelik Hukuk Bürosu',
-    analyzedAt: 'İnceleme',
-    analyst: 'Sorumlu avukat',
-    navigation: 'Gezinme',
-  },
-};
-
-export const translations: Record<Lang, typeof en> = { en, tr };
+export const translations: Record<Lang, typeof en> = { en };
 export type Translations = typeof en;

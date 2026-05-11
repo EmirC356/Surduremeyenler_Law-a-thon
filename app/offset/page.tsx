@@ -119,27 +119,27 @@ const CONFIDENCE_NOTES = [
 
 // Radar: null values rendered as 0 (see footnote). Lufthansa excluded (no numeric scores).
 const radarData = [
-  { subject: 'Ek Katkı', 'Kariba REDD+': 25, 'Amazon (Gönüllü)': 35, 'VCS/ACR Standardı': 85, Cookstoves: 30 },
-  { subject: 'Kalıcılık', 'Kariba REDD+': 0,  'Amazon (Gönüllü)': 35, 'VCS/ACR Standardı': 85, Cookstoves: 0 },
-  { subject: 'Sızıntı',   'Kariba REDD+': 0,  'Amazon (Gönüllü)': 35, 'VCS/ACR Standardı': 85, Cookstoves: 0 },
-  { subject: 'MRV Kalitesi', 'Kariba REDD+': 10, 'Amazon (Gönüllü)': 35, 'VCS/ACR Standardı': 85, Cookstoves: 0 },
+  { subject: 'Additionality', 'Kariba REDD+': 25, 'Amazon (Voluntary)': 35, 'VCS/ACR Standard': 85, Cookstoves: 30 },
+  { subject: 'Permanence', 'Kariba REDD+': 0,  'Amazon (Voluntary)': 35, 'VCS/ACR Standard': 85, Cookstoves: 0 },
+  { subject: 'Leakage',   'Kariba REDD+': 0,  'Amazon (Voluntary)': 35, 'VCS/ACR Standard': 85, Cookstoves: 0 },
+  { subject: 'MRV Quality', 'Kariba REDD+': 10, 'Amazon (Voluntary)': 35, 'VCS/ACR Standard': 85, Cookstoves: 0 },
 ];
 
 const PROJECT_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6'];
-const projectKeys = ['Kariba REDD+', 'Amazon (Gönüllü)', 'VCS/ACR Standardı', 'Cookstoves'] as const;
+const projectKeys = ['Kariba REDD+', 'Amazon (Voluntary)', 'VCS/ACR Standard', 'Cookstoves'] as const;
 
 const CRITERIA_INFO = [
   {
-    name: 'Ek Katkı (Additionality)',
-    desc: 'Emisyon azaltımı, offset projesi olmasa da gerçekleşecek miydi? Eğer öyleyse, kredi gerçek bir değer taşımıyor demektir.',
+    name: 'Additionality',
+    desc: 'Would the emission reduction have happened without the offset project? If so, the credit holds no real value.',
   },
   {
-    name: 'Kalıcılık (Permanence)',
-    desc: 'Karbon kalıcı olarak depolanıyor mu? Orman yangınları, siyasi istikrarsızlık veya arazi kullanımı değişiklikleri sequestrasyonu tersine çevirebilir.',
+    name: 'Permanence',
+    desc: 'Is the carbon stored long-term? Forest fires, political instability or land-use changes can reverse sequestration.',
   },
   {
-    name: 'Sızıntı (Leakage)',
-    desc: 'Proje zararlı faaliyeti yok etmek yerine sadece başka bir konuma mı taşıyor?',
+    name: 'Leakage',
+    desc: 'Does the project eliminate the harmful activity, or merely displace it to another location?',
   },
 ];
 
@@ -242,7 +242,7 @@ function OverallCell({ value }: { value: number | 'Litigation Risk' }) {
           whiteSpace: 'nowrap',
         }}
       >
-        YÜKSEK RİSK
+        HIGH RISK
       </span>
     );
   }
@@ -305,11 +305,11 @@ const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
 
 function relativeTime(ts: number): string {
   const mins = Math.round((Date.now() - ts) / 60000);
-  if (mins < 1) return 'az önce';
-  if (mins === 1) return '1 dakika önce';
-  if (mins < 60) return `${mins} dakika önce`;
+  if (mins < 1) return 'just now';
+  if (mins === 1) return '1 minute ago';
+  if (mins < 60) return `${mins} minutes ago`;
   const hrs = Math.floor(mins / 60);
-  return hrs === 1 ? '1 saat önce' : `${hrs} saat önce`;
+  return hrs === 1 ? '1 hour ago' : `${hrs} hours ago`;
 }
 
 export default function OffsetIntegrityPage() {
@@ -335,10 +335,10 @@ export default function OffsetIntegrityPage() {
       {/* ── Header ── */}
       <div className="card-animated mb-5" style={{ animationDelay: '0ms' }}>
         <h2 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-lg)', lineHeight: 'var(--line-height-headline-lg)', fontWeight: 600, marginBottom: '4px' }}>
-          Karbon Offset Bütünlük Analizi
+          Carbon Offset Integrity Analysis
         </h2>
         <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)' }}>
-          Gerçek akademik ve hukuki kaynaklardan derlenen veriler · 5 proje / 4 değerlendirme boyutu
+          Data sourced from academic and legal records · 5 projects / 4 integrity dimensions
         </p>
       </div>
 
@@ -360,7 +360,7 @@ export default function OffsetIntegrityPage() {
           <span style={{ fontSize: '16px', flexShrink: 0 }}>🕐</span>
           <div>
             <div style={{ color: 'var(--orange-dark)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>
-              Son Analizinizde Tespit Edilen Projeler — {relativeTime(lastAnalysis.analysisTimestamp)}
+              Projects detected in your last analysis — {relativeTime(lastAnalysis.analysisTimestamp)}
             </div>
             <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)' }}>
               {lastAnalysis.detectedProjects.join(' · ')}{' '}
@@ -395,7 +395,7 @@ export default function OffsetIntegrityPage() {
                 marginBottom: '10px',
               }}
             >
-              UYARI: Teorik Standart ile Gerçek Bütünlük Arasındaki Uçurum
+              WARNING: Gap between theoretical standard and real-world integrity
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <div
@@ -409,7 +409,7 @@ export default function OffsetIntegrityPage() {
                 }}
               >
                 <div style={{ color: '#10B981', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-data-md)', lineHeight: 'var(--line-height-data-md)', fontWeight: 300 }}>85</div>
-                <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-md)', marginTop: '4px' }}>VCS/ACR Standardı (Teorik)</div>
+                <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-md)', marginTop: '4px' }}>VCS/ACR Standard (Theoretical)</div>
                 <div style={{ color: '#10B981', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-sm)' }}>Germanwatch (2016)</div>
               </div>
               <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '1.4rem', color: 'var(--text-muted)' }}>→</div>
@@ -424,12 +424,12 @@ export default function OffsetIntegrityPage() {
                 }}
               >
                 <div style={{ color: '#EF4444', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-data-md)', lineHeight: 'var(--line-height-data-md)', fontWeight: 700 }}>15</div>
-                <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-md)', marginTop: '4px' }}>Kariba REDD+ Gerçek Skor</div>
-                <div style={{ color: '#EF4444', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-sm)' }}>Verra Kredi İptali (2023)</div>
+                <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-md)', marginTop: '4px' }}>Kariba REDD+ Actual Score</div>
+                <div style={{ color: '#EF4444', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-sm)' }}>Verra credit cancellation (2023)</div>
               </div>
               <div style={{ flex: 1, minWidth: '200px' }}>
                 <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-md)', lineHeight: 'var(--line-height-body-md)', maxWidth: '72ch' }}>
-                  Sertifika standardının teorik skoru <strong style={{ color: 'var(--text-primary)' }}>85/100</strong> iken sahada uygulanan projenin gerçek bütünlük skoru <strong style={{ color: '#EF4444' }}>15/100</strong>. Şirketler Verra sertifikasına güvenerek satın aldıkları kredilerin bu sistemik riskini hukuki süreçlerde savunamaz.
+                  While the certification standard has a theoretical score of <strong style={{ color: 'var(--text-primary)' }}>85/100</strong>, the real-world integrity score of the deployed project is <strong style={{ color: '#EF4444' }}>15/100</strong>. Companies that rely solely on Verra certification cannot defend the systemic risk of these credits in legal proceedings.
                 </p>
               </div>
             </div>
@@ -450,7 +450,7 @@ export default function OffsetIntegrityPage() {
           <div className="flex items-center gap-2">
             <Info size={14} style={{ color: 'var(--blue-data)' }} />
             <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600 }}>
-              Üç Bütünlük Kriteri — Offsetler Neden Başarısız Olur?
+              Three Integrity Criteria — Why Offsets Fail
             </span>
           </div>
           {infoOpen ? <ChevronUp size={14} style={{ color: 'var(--text-muted)' }} /> : <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />}
@@ -474,26 +474,26 @@ export default function OffsetIntegrityPage() {
       >
         <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
           <div className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--danger-bright)', fontFamily: 'IBM Plex Mono, monospace' }}>
-            Paris Anlaşması Madde 6 — Hukuki Standart
+            Paris Agreement Article 6 — Legal Standard
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-0">
           <div className="px-5 py-4" style={{ borderRight: '1px solid var(--border-subtle)' }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Madde 6.2 — ITMO</div>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Article 6.2 — ITMO</div>
             <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.7, maxWidth: '72ch' }}>
-              Uluslararası Aktarılan Azaltım Sonuçları — sınır ötesi aktarılan her karbon kredisi, ev sahibi ülke hükümetinin onayını gerektirir. Bu onay olmaksızın satılan krediler &lsquo;karbon nötr&rsquo; iddiasını hukuken destekleyemez.
+              Internationally Transferred Mitigation Outcomes — every cross-border carbon credit transfer requires authorisation by the host country government. Credits sold without this authorisation cannot legally support a &lsquo;carbon neutral&rsquo; claim.
             </p>
           </div>
           <div className="px-5 py-4" style={{ borderRight: '1px solid var(--border-subtle)' }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Madde 6.4 — Kredi Mekanizması</div>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--blue-data)', fontFamily: 'IBM Plex Mono, monospace' }}>Article 6.4 — Credit Mechanism</div>
             <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.7, maxWidth: '72ch' }}>
-              Krediler, UNFCCC Denetim Kurulu&apos;nun belirlediği ek katkı, kalıcılık ve sızıntı standartlarını karşılamalıdır. Tek başına Verra VCS veya Gold Standard sertifikası yasal uyumluluk için yeterli değildir.
+              Credits must meet the additionality, permanence and leakage standards set by the UNFCCC Supervisory Board. Verra VCS or Gold Standard certification on its own is not sufficient for legal compliance.
             </p>
           </div>
           <div className="px-5 py-4">
-            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Mono, monospace' }}>Temel Sonuç</div>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Mono, monospace' }}>Bottom Line</div>
             <p className="text-xs" style={{ color: 'var(--amber)', fontFamily: 'IBM Plex Sans, sans-serif', lineHeight: 1.65, fontWeight: 500 }}>
-              2023 öncesinde satın alınan REDD+ offsetlerini kullanan bir şirket, Verra sertifikasına sahip olsa bile Madde 6.4 yetkisi eksikse yüksek uyum riskiyle karşı karşıya kalabilir.
+              A company using REDD+ offsets purchased before 2023 can still face high compliance risk if Article 6.4 authorisation is missing — even with valid Verra certification.
             </p>
           </div>
         </div>
@@ -507,10 +507,10 @@ export default function OffsetIntegrityPage() {
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
           <div>
             <h3 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600, marginBottom: '4px' }}>
-              Çok Boyutlu Bütünlük Radarı
+              Multi-Dimensional Integrity Radar
             </h3>
             <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)' }}>
-              4 proje · 4 değerlendirme boyutu · Gerçek kaynak verileri · Ölçek 0–100
+              4 projects · 4 integrity dimensions · Sourced data · Scale 0–100
             </p>
           </div>
           <div
@@ -522,7 +522,7 @@ export default function OffsetIntegrityPage() {
             }}
           >
             <span style={{ color: '#EF4444', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', fontWeight: 600 }}>
-              * Null boyutlar 0 olarak gösterilmiştir — tablo için gerçek değerlere bakın
+              * Null dimensions shown as 0 — see table for actual values
             </span>
           </div>
         </div>
@@ -577,10 +577,10 @@ export default function OffsetIntegrityPage() {
       >
         <div className="px-6 py-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
           <h3 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600, marginBottom: '4px' }}>
-            Ham Bütünlük Verileri — Kaynaklı Tablo
+            Raw Integrity Data — Sourced Table
           </h3>
           <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-label-lg)' }}>
-            Tüm skorlar akademik veya kurumsal kaynaklardan türetilmiştir · — = değerlendirilmemiş
+            All scores derived from academic or institutional sources · — = not assessed
           </p>
         </div>
 
@@ -588,7 +588,7 @@ export default function OffsetIntegrityPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-secondary)' }}>
-                {['Proje Adı', 'Ek Katkı', 'Kalıcılık', 'Sızıntı', 'MRV Kalitesi', 'Genel Skor', 'Kaynak'].map((h) => (
+                {['Project', 'Additionality', 'Permanence', 'Leakage', 'MRV Quality', 'Overall', 'Source'].map((h) => (
                   <th
                     key={h}
                     style={{
@@ -641,7 +641,7 @@ export default function OffsetIntegrityPage() {
                         <InfoTooltip text={entry.note} />
                         {isDetected && (
                           <span style={{ display: 'inline-block', marginTop: '3px', background: 'var(--orange-light)', color: 'var(--orange-dark)', border: '1px solid rgba(196,98,45,0.3)', fontFamily: 'var(--font-sans)', fontSize: '9px', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, padding: '1px 6px', borderRadius: '3px' }}>
-                            Son Analizde Tespit Edildi
+                            Detected in last analysis
                           </span>
                         )}
                       </div>
@@ -685,11 +685,11 @@ export default function OffsetIntegrityPage() {
 
         {/* Score legend */}
         <div className="px-6 py-3" style={{ borderTop: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-          <span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Skor Renk Eşiği:</span>
+          <span style={{ color: 'var(--text-muted)', fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Score Threshold:</span>
           {[
-            { label: '< 30 — Kritik Risk', color: '#EF4444' },
-            { label: '30–59 — Düşük / Tartışmalı', color: '#F59E0B' },
-            { label: '≥ 60 — Kabul Edilebilir', color: '#10B981' },
+            { label: '< 30 — Critical Risk',        color: '#EF4444' },
+            { label: '30–59 — Low / Disputed',      color: '#F59E0B' },
+            { label: '≥ 60 — Acceptable',           color: '#10B981' },
           ].map((item) => (
             <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color, display: 'inline-block', flexShrink: 0 }} />
@@ -712,7 +712,7 @@ export default function OffsetIntegrityPage() {
           <div className="flex items-center gap-2">
             <AlertTriangle size={13} style={{ color: 'var(--amber)' }} />
             <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 600 }}>
-              Güven Notları — Metodolojik Sınırlamalar
+              Confidence Notes — Methodological Limitations
             </span>
           </div>
           {notesOpen ? <ChevronUp size={14} style={{ color: 'var(--text-muted)' }} /> : <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />}

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useLang } from '../../lib/langContext';
 import { ESG_MOCK, severityTone } from '../../lib/esgMockData';
 import PageTitle from '../../components/PageTitle';
@@ -194,8 +195,9 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
-                    <button
-                      className="self-start"
+                    <Link
+                      href={`/analysis/${f.id.toLowerCase()}`}
+                      className="self-start inline-flex"
                       style={{
                         background: 'transparent',
                         border: '1px solid var(--esg-border)',
@@ -206,10 +208,11 @@ export default function DashboardPage() {
                         fontFamily: 'var(--esg-mono)',
                         cursor: 'pointer',
                         letterSpacing: '0.04em',
+                        textDecoration: 'none',
                       }}
                     >
                       Open ›
-                    </button>
+                    </Link>
                   </div>
                 ))}
               </div>

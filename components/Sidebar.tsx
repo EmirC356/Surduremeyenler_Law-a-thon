@@ -1,11 +1,13 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Scale,
   Search,
   AlertTriangle,
+  CheckCircle2,
   ChevronDown,
   ChevronRight,
   LayoutDashboard,
@@ -19,6 +21,7 @@ import {
 } from 'lucide-react';
 import GreenGrid from './GreenGrid';
 import { useLang } from '../lib/langContext';
+import { useDataset, mockRiskCompany, mockCompliantCompany } from '../lib/DatasetContext';
 
 interface NavItem {
   id: string;
@@ -43,13 +46,34 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { lang, t, setLang } = useLang();
+  const { t } = useLang();
+  const { activeDataset, setActiveDataset } = useDataset();
+  const [matterOpen, setMatterOpen] = useState(false);
+  const matterRef = useRef<HTMLDivElement | null>(null);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!matterOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (matterRef.current && !matterRef.current.contains(e.target as Node)) {
+        setMatterOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [matterOpen]);
+
+  const isRiskCompany = activeDataset.company.ticker === 'AXHS';
   const isActive = (route: string) => {
     if (route === '/greenlighting/ledger') return pathname === route;
-    if (route === '/greenlighting') return pathname === route || pathname.startsWith('/greenlighting/') && pathname !== '/greenlighting/ledger';
+    if (route === '/greenlighting') return pathname === route || (pathname.startsWith('/greenlighting/') && pathname !== '/greenlighting/ledger');
     return pathname.startsWith(route);
   };
+
+  const matterBg = isRiskCompany ? 'rgba(181,61,46,0.18)' : 'rgba(45,106,79,0.20)';
+  const matterBorder = isRiskCompany ? 'rgba(181,61,46,0.35)' : 'rgba(45,106,79,0.40)';
+  const matterIconColor = isRiskCompany ? '#F5B7AC' : '#A7D8B6';
+  const matterSubLabel = isRiskCompany ? 'MATTER 2026-114 · Critical' : 'MATTER 2026-211 · Compliant';
 
   return (
     <aside
@@ -119,26 +143,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
         </Link>
 
-        <button
-          onClick={() => setLang(lang === 'en' ? 'tr' : 'en')}
-          aria-label="Toggle language"
-          className="shrink-0"
-          style={{
-            padding: '4px 7px',
-            borderRadius: 4,
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            color: 'rgba(212,232,220,0.85)',
-            fontFamily: 'var(--esg-mono)',
-            fontSize: 9.5,
-            fontWeight: 700,
-            cursor: 'pointer',
-            letterSpacing: '0.06em',
-          }}
-        >
-          {lang === 'en' ? 'EN' : 'TR'}
-        </button>
-
         {/* Mobile close button */}
         <button
           onClick={(e) => { e.preventDefault(); onClose(); }}
@@ -171,9 +175,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           }}
         >
           <Search size={14} style={{ color: 'rgba(212,232,220,0.6)' }} />
-          <span className="flex-1 truncate" style={{ fontFamily: 'var(--esg-sans)', fontSize: 12.5, color: 'rgba(212,232,220,0.65)' }}>
-            {t.common.search}
-          </span>
+          <input
+            type="text"
+            placeholder={t.common.search}
+            className="flex-1 bg-transparent border-0 outline-none truncate"
+            style={{ fontFamily: 'var(--esg-sans)', fontSize: 12.5, color: 'rgba(212,232,220,0.95)' }}
+          />
           <span
             style={{
               fontFamily: 'var(--esg-mono)',
@@ -190,7 +197,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       </div>
 
       {/* Matter context */}
-      <div className="relative" style={{ padding: '10px 20px 12px' }}>
+      <div className="relative" style={{ padding: '10px 20px 12px' }} ref={matterRef}>
         <div
           style={{
             color: 'rgba(212,232,220,0.45)',
@@ -204,27 +211,108 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           {t.common.activeMatter}
         </div>
         <button
+          onClick={() => setMatterOpen((o) => !o)}
+          aria-expanded={matterOpen}
+          aria-haspopup="menu"
           className="w-full flex items-center gap-2.5"
           style={{
             padding: '10px 12px',
             borderRadius: 6,
-            background: 'rgba(181,61,46,0.18)',
-            border: '1px solid rgba(181,61,46,0.35)',
+            background: matterBg,
+            border: `1px solid ${matterBorder}`,
             cursor: 'pointer',
             textAlign: 'left',
           }}
         >
-          <AlertTriangle size={12} style={{ color: '#F5B7AC', flexShrink: 0 }} />
+          {isRiskCompany
+            ? <AlertTriangle size={12} style={{ color: matterIconColor, flexShrink: 0 }} />
+            : <CheckCircle2 size={12} style={{ color: matterIconColor, flexShrink: 0 }} />
+          }
           <div className="min-w-0 flex-1">
-            <div style={{ color: '#fff', fontFamily: 'var(--esg-serif)', fontSize: 13.5, fontWeight: 600, lineHeight: 1.2 }}>
-              Apex Hydrocarbon · AXHS
+            <div
+              className="truncate"
+              style={{ color: '#fff', fontFamily: 'var(--esg-serif)', fontSize: 13.5, fontWeight: 600, lineHeight: 1.2 }}
+            >
+              {activeDataset.company.name} · {activeDataset.company.ticker}
             </div>
-            <div style={{ color: 'rgba(245,183,172,0.85)', fontFamily: 'var(--esg-mono)', fontSize: 10, marginTop: 2 }}>
-              MATTER 2026-114 · Critical
+            <div
+              style={{ color: isRiskCompany ? 'rgba(245,183,172,0.85)' : 'rgba(167,216,182,0.85)', fontFamily: 'var(--esg-mono)', fontSize: 10, marginTop: 2 }}
+            >
+              {matterSubLabel}
             </div>
           </div>
-          <ChevronDown size={12} style={{ color: '#F5B7AC' }} />
+          <ChevronDown
+            size={12}
+            style={{
+              color: matterIconColor,
+              transition: 'transform 150ms ease',
+              transform: matterOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            }}
+          />
         </button>
+
+        {/* Dropdown */}
+        {matterOpen && (
+          <div
+            role="menu"
+            className="absolute"
+            style={{
+              left: 20,
+              right: 20,
+              top: 'calc(100% - 4px)',
+              background: '#1F4A33',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 6,
+              boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+              zIndex: 30,
+              overflow: 'hidden',
+            }}
+          >
+            <button
+              role="menuitem"
+              onClick={() => { setActiveDataset(mockRiskCompany); setMatterOpen(false); }}
+              className="w-full flex items-center gap-2.5 text-left"
+              style={{
+                padding: '10px 12px',
+                background: isRiskCompany ? 'rgba(255,255,255,0.07)' : 'transparent',
+                border: 'none',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
+                cursor: 'pointer',
+              }}
+            >
+              <AlertTriangle size={12} style={{ color: '#F5B7AC', flexShrink: 0 }} />
+              <div className="min-w-0 flex-1">
+                <div style={{ color: '#fff', fontFamily: 'var(--esg-serif)', fontSize: 13, fontWeight: 600, lineHeight: 1.2 }}>
+                  {mockRiskCompany.company.name}
+                </div>
+                <div style={{ color: 'rgba(245,183,172,0.85)', fontFamily: 'var(--esg-mono)', fontSize: 10, marginTop: 2 }}>
+                  {mockRiskCompany.company.ticker} · High Risk
+                </div>
+              </div>
+            </button>
+            <button
+              role="menuitem"
+              onClick={() => { setActiveDataset(mockCompliantCompany); setMatterOpen(false); }}
+              className="w-full flex items-center gap-2.5 text-left"
+              style={{
+                padding: '10px 12px',
+                background: !isRiskCompany ? 'rgba(255,255,255,0.07)' : 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <CheckCircle2 size={12} style={{ color: '#A7D8B6', flexShrink: 0 }} />
+              <div className="min-w-0 flex-1">
+                <div style={{ color: '#fff', fontFamily: 'var(--esg-serif)', fontSize: 13, fontWeight: 600, lineHeight: 1.2 }}>
+                  {mockCompliantCompany.company.name}
+                </div>
+                <div style={{ color: 'rgba(167,216,182,0.85)', fontFamily: 'var(--esg-mono)', fontSize: 10, marginTop: 2 }}>
+                  {mockCompliantCompany.company.ticker} · Compliant
+                </div>
+              </div>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Nav */}
@@ -302,8 +390,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           />
         </button>
 
-        <button
-          className="flex-1 flex items-center gap-2.5 text-left"
+        <Link
+          href="/sign-in"
+          className="flex-1 flex items-center gap-2.5"
           style={{
             padding: '4px 8px 4px 4px',
             borderRadius: 999,
@@ -311,6 +400,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             border: '1px solid rgba(255,255,255,0.10)',
             color: 'rgba(212,232,220,0.95)',
             cursor: 'pointer',
+            textDecoration: 'none',
           }}
         >
           <div
@@ -335,7 +425,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
           </div>
           <ChevronDown size={12} style={{ color: 'rgba(212,232,220,0.55)' }} />
-        </button>
+        </Link>
       </div>
 
       {/* SSL footer */}

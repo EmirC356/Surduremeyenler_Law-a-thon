@@ -1,4 +1,4 @@
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 import Link from 'next/link';
 import BrandPanel from '../../../components/auth/BrandPanel';
 
@@ -80,9 +80,33 @@ async function ClerkSignIn() {
 export default function SignInPage() {
   return (
     <div
-      className="flex min-h-screen overflow-hidden"
+      className="flex min-h-screen overflow-hidden relative"
       style={{ background: 'var(--esg-page)', color: 'var(--esg-fg)', fontFamily: 'var(--esg-sans)' }}
     >
+      {/* Close → home */}
+      <Link
+        href="/"
+        aria-label="Close"
+        className="grid place-items-center"
+        style={{
+          position: 'fixed',
+          top: 20,
+          right: 20,
+          width: 38,
+          height: 38,
+          borderRadius: '50%',
+          background: 'var(--esg-surface)',
+          border: '1px solid var(--esg-border-strong)',
+          color: 'var(--esg-fg-muted)',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+          zIndex: 60,
+          textDecoration: 'none',
+          cursor: 'pointer',
+        }}
+      >
+        <X size={18} />
+      </Link>
+
       {/* Brand panel hidden on mobile */}
       <div className="hidden lg:flex flex-1">
         <BrandPanel />

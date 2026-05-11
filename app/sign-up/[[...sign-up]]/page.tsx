@@ -1,4 +1,4 @@
-import { AlertTriangle, Scale } from 'lucide-react';
+import { AlertTriangle, Scale, X } from 'lucide-react';
 import Link from 'next/link';
 
 const PK = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '';
@@ -82,6 +82,30 @@ export default function SignUpPage() {
             'radial-gradient(circle at 20% -10%, rgba(45,106,79,0.08), transparent 50%), radial-gradient(circle at 100% 110%, rgba(196,98,45,0.06), transparent 50%)',
         }}
       />
+
+      {/* Close → home */}
+      <Link
+        href="/"
+        aria-label="Close"
+        className="grid place-items-center"
+        style={{
+          position: 'fixed',
+          top: 20,
+          right: 20,
+          width: 38,
+          height: 38,
+          borderRadius: '50%',
+          background: 'var(--esg-surface)',
+          border: '1px solid var(--esg-border-strong)',
+          color: 'var(--esg-fg-muted)',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+          zIndex: 60,
+          textDecoration: 'none',
+          cursor: 'pointer',
+        }}
+      >
+        <X size={18} />
+      </Link>
 
       <div
         style={{
