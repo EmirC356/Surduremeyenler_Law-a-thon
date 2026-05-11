@@ -1,289 +1,277 @@
 'use client';
 
-import { useDataset } from '../../lib/DatasetContext';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-} from 'recharts';
-import {
-  ShieldAlert,
-  FileText,
-  AlertTriangle,
-  TrendingDown,
-  TrendingUp,
-  ArrowRight,
-  Building2,
-  Globe,
-  Calendar,
-  Scale,
-} from 'lucide-react';
-import Link from 'next/link';
-import { mockCaseLaw } from '../../lib/caseData';
-import LegalDisclaimer from '../../components/LegalDisclaimer';
-
-const RISK_LEVEL_TR: Record<string, string> = {
-  LOW: 'DÜŞÜK',
-  MEDIUM: 'ORTA',
-  HIGH: 'YÜKSEK',
-  CRITICAL: 'KRİTİK',
-};
-
-function RiskBadge({ level }: { level: string }) {
-  const map: Record<string, { bg: string; text: string; border: string }> = {
-    LOW:      { bg: 'var(--accent-green-dim)', text: 'var(--accent-green)',  border: 'var(--border-accent)' },
-    MEDIUM:   { bg: 'var(--amber-dim)',         text: 'var(--amber)',          border: 'rgba(245,158,11,0.3)' },
-    HIGH:     { bg: 'var(--danger-dim)',         text: 'var(--danger)',         border: 'rgba(239,68,68,0.3)'  },
-    CRITICAL: { bg: 'rgba(239,68,68,0.18)',     text: '#F87171',              border: 'rgba(239,68,68,0.5)'  },
-  };
-  const s = map[level] ?? map.LOW;
-  return (
-    <span
-      style={{
-        background: s.bg,
-        color: s.text,
-        border: `1px solid ${s.border}`,
-        fontFamily: 'var(--font-sans)',
-        fontSize: 'var(--font-size-label-lg)',
-        fontWeight: 700,
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        padding: '3px 10px',
-        borderRadius: '4px',
-      }}
-    >
-      {RISK_LEVEL_TR[level] ?? level}
-    </span>
-  );
-}
-
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string }) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="rounded-lg p-3" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', fontFamily: 'var(--font-sans)', fontSize: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
-      <div className="mb-2" style={{ color: 'var(--text-secondary)' }}>FY {label}</div>
-      {payload.map((p) => (
-        <div key={p.name} className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full inline-block" style={{ background: p.color }} />
-          <span style={{ color: 'var(--text-secondary)' }}>{p.name}:</span>
-          <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{p.value.toLocaleString()} ktCO₂e</span>
-        </div>
-      ))}
-    </div>
-  );
-}
+import { useLang } from '../../lib/langContext';
+import { ESG_MOCK, severityTone } from '../../lib/esgMockData';
+import PageTitle from '../../components/PageTitle';
+import { Card, Badge, RegPill, Thermometer } from '../../components/ui/Primitives';
+import EmissionsChart from '../../components/ui/EmissionsChart';
 
 export default function DashboardPage() {
-  const { activeDataset: data } = useDataset();
-  const isHighRisk = data.compliance.riskLevel === 'HIGH' || data.compliance.riskLevel === 'CRITICAL';
-  const score = data.compliance.overallScore;
-  const scoreColor = score >= 70 ? 'var(--accent-green)' : score >= 40 ? 'var(--amber)' : 'var(--danger)';
+  const { t } = useLang();
+  const M = ESG_MOCK;
 
   return (
-    <div className="page-pad max-w-7xl mx-auto">
+    <>
+      <PageTitle title={t.titles.dashboard} subtitle={t.titles.dashboardSub} />
+      <div style={{ padding: '20px 24px 24px' }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto' }}>
 
-      {/* Şirket bağlam bandı */}
-      <div
-        className="card card-animated flex flex-wrap items-center gap-4 mb-5 px-5 py-4"
-        style={{ animationDelay: '0ms' }}
-      >
-        <div className="flex items-center justify-center w-10 h-10 rounded-md" style={{ background: 'var(--blue-dim)', border: '1px solid var(--border-strong)' }}>
-          <Building2 size={20} style={{ color: 'var(--blue-data)' }} />
-        </div>
-        <div>
-          <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-headline-sm)', fontWeight: 700 }}>{data.company.name}</span>
-          <span style={{ marginLeft: '8px', color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)' }}>[{data.company.ticker}]</span>
-        </div>
-        <div className="flex flex-wrap gap-4 ml-auto">
-          <div className="flex items-center gap-1.5" style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)' }}>
-            <Globe size={12} /> {data.company.jurisdiction}
-          </div>
-          <div className="flex items-center gap-1.5" style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)' }}>
-            <FileText size={12} /> {data.company.reportTitle}
-          </div>
-          <div className="flex items-center gap-1.5" style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)' }}>
-            <Calendar size={12} /> FY{data.company.reportYear}
-          </div>
-          <RiskBadge level={data.compliance.riskLevel} />
-        </div>
-      </div>
-
-      {/* KPI kartları — 3 adet, sadeleştirilmiş */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-
-        {/* Uyum skoru kartı */}
-        <div className="card card-animated p-6 flex flex-col gap-2" style={{ animationDelay: '60ms', border: `1px solid ${scoreColor}33` }}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center justify-center w-10 h-10 rounded-md" style={{ background: `${scoreColor}18`, border: `1px solid ${scoreColor}33` }}>
-              <ShieldAlert size={20} style={{ color: scoreColor }} />
-            </div>
-            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, letterSpacing: '0.06em', background: `${scoreColor}18`, color: scoreColor, padding: '3px 10px', borderRadius: '4px' }}>
-              Derece {data.compliance.grade}
-            </span>
-          </div>
-          <div className="flex items-baseline gap-1 mt-2">
-            <span style={{ color: scoreColor, fontFamily: 'var(--font-sans)', fontSize: '52px', lineHeight: 1, fontWeight: 800, letterSpacing: '-0.04em' }}>{score}</span>
-            <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: '18px', fontWeight: 500, marginBottom: '4px' }}>/100</span>
-          </div>
-          <div className="h-2 rounded-full mt-1" style={{ background: 'var(--border)' }}>
-            <div className="h-full rounded-full" style={{ width: `${score}%`, background: scoreColor }} />
-          </div>
-          <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', marginTop: '2px' }}>Genel Uyum Skoru</div>
-        </div>
-
-        {/* Aktif Belgeler */}
-        <div className="card card-animated p-6 flex flex-col gap-2" style={{ animationDelay: '120ms' }}>
-          <div className="flex items-center justify-center w-10 h-10 rounded-md" style={{ background: 'var(--blue-dim)', border: '1px solid var(--border-strong)' }}>
-            <FileText size={20} style={{ color: 'var(--blue-data)' }} />
-          </div>
-          <div className="flex items-baseline gap-1 mt-2">
-            <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', fontSize: '52px', lineHeight: 1, fontWeight: 800, letterSpacing: '-0.04em' }}>{data.compliance.activeDocuments}</span>
-            <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 500, marginBottom: '4px' }}>belge</span>
-          </div>
-          <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)' }}>Analiz Edilen Aktif Belgeler</div>
-        </div>
-
-        {/* Kritik İşaretler */}
-        <div className="card card-animated p-6 flex flex-col gap-2" style={{ animationDelay: '180ms' }}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center justify-center w-10 h-10 rounded-md" style={{ background: data.compliance.criticalFlags > 0 ? 'var(--danger-dim)' : 'var(--accent-green-dim)', border: `1px solid ${data.compliance.criticalFlags > 0 ? 'rgba(181,61,46,0.3)' : 'var(--border-accent)'}` }}>
-              <AlertTriangle size={20} style={{ color: data.compliance.criticalFlags > 0 ? 'var(--danger)' : 'var(--accent-green)' }} />
-            </div>
-            <div className="flex items-center gap-1" style={{ color: data.compliance.criticalFlags > 0 ? 'var(--danger)' : 'var(--accent-green)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)' }}>
-              {data.compliance.criticalFlags > 0 ? <TrendingDown size={12} /> : <TrendingUp size={12} />}
-              {data.compliance.criticalFlags > 0 ? 'Aksiyon Gerekli' : 'Uyumlu'}
-            </div>
-          </div>
-          <div className="flex items-baseline gap-1 mt-2">
-            <span style={{ color: data.compliance.criticalFlags > 0 ? 'var(--danger)' : 'var(--accent-green)', fontFamily: 'var(--font-sans)', fontSize: '52px', lineHeight: 1, fontWeight: 800, letterSpacing: '-0.04em' }}>{data.compliance.criticalFlags}</span>
-            {data.compliance.criticalFlags > 0 && <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 500, marginBottom: '4px' }}>işaret</span>}
-          </div>
-          <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)' }}>Tespit Edilen Kritik İşaretler</div>
-        </div>
-      </div>
-
-      <div className="mb-5">
-        <LegalDisclaimer variant="inline" />
-      </div>
-
-      {/* Emisyon Grafiği */}
-      <div className="card card-animated p-6 mb-5" style={{ animationDelay: '120ms' }}>
-        <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
-          <div>
-            <h2 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 700, marginBottom: '4px', letterSpacing: '-0.02em' }}>
-              Kapsam 1+2 Emisyonları — Taahhüt Edilen Azaltım Hedefine Karşı
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)' }}>
-              ktCO₂e · 5 yıllık tarihsel seri · Baz yıl: FY{data.emissions[0].year}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-4">
-            {[
-              { color: 'var(--danger)',       label: 'Gerçek Emisyonlar' },
-              { color: 'var(--accent-green)', label: 'Taahhüt Hedefi' },
-              { color: 'var(--text-muted)',   label: '2020 Baz Değeri' },
-            ].map((l) => (
-              <div key={l.label} className="flex items-center gap-1.5" style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)' }}>
-                <span style={{ background: l.color, display: 'inline-block', width: '20px', height: '2px' }} />
-                {l.label}
+          {/* Brief masthead */}
+          <div
+            className="grid gap-6"
+            style={{
+              gridTemplateColumns: 'minmax(0,1.4fr) minmax(0,1fr)',
+              borderBottom: '1px solid var(--esg-border)',
+              paddingBottom: 24,
+              marginBottom: 24,
+            }}
+          >
+            <div className="min-w-0">
+              <div className="flex gap-2 items-center flex-wrap" style={{ marginBottom: 12 }}>
+                <Badge tone="litig">Critical exposure</Badge>
+                <RegPill>EU 2024/825</RegPill>
+                <RegPill>CSRD · ESRS E1</RegPill>
+                <RegPill>SFDR</RegPill>
               </div>
-            ))}
-          </div>
-        </div>
+              <h2
+                style={{
+                  margin: 0,
+                  fontFamily: 'var(--esg-serif)',
+                  fontSize: 34,
+                  lineHeight: 1.15,
+                  fontWeight: 600,
+                  letterSpacing: '-0.02em',
+                  color: 'var(--esg-fg)',
+                }}
+              >
+                In the matter of <em style={{ fontStyle: 'italic' }}>{M.company.name}</em>,
+                prepared for {t.common.lawFirm}.
+              </h2>
+              <p
+                style={{
+                  marginTop: 14,
+                  fontFamily: 'var(--esg-serif)',
+                  fontSize: 16,
+                  lineHeight: 1.6,
+                  color: 'var(--esg-fg)',
+                  maxWidth: 720,
+                }}
+              >
+                Across {M.kpis.docsAnalyzed} disclosures spanning {M.company.pages + 38 + 14} pages, ESG Lens identified{' '}
+                <strong>{M.kpis.flagsTotal} legal exposure points</strong> — {M.kpis.flagsCritical} of which rise to
+                <strong> litigation-grade risk</strong> under EU Green Claims Directive 2024/825.
+              </p>
+              <div
+                className="flex gap-4 flex-wrap"
+                style={{ marginTop: 16, fontFamily: 'var(--esg-mono)', fontSize: 11, color: 'var(--esg-fg-muted)' }}
+              >
+                <span>{t.common.analyzedAt} · {M.company.analyzedAt}</span>
+                <span>·</span>
+                <span>{t.common.analyst} · {M.company.analyst}</span>
+              </div>
+            </div>
 
-        {isHighRisk && (
-          <div className="flex items-start gap-3 px-4 py-3 rounded-lg mb-4" style={{ background: 'var(--danger-dim)', border: '1px solid rgba(181,61,46,0.25)' }}>
-            <AlertTriangle size={16} style={{ color: 'var(--danger)', marginTop: 2, flexShrink: 0 }} />
-            <p style={{ color: 'var(--danger-bright)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.65 }}>
-              <strong>Sapma Uyarısı:</strong> Gerçek emisyonlar yıllık %3,5 artış eğilimindeyken taahhüt edilen hedefler dik bir düşüş gerektiriyor. Biriken bu uçurum, CSRD / ESRS E1-4 kapsamında önemli bir uyum riski oluşturmaktadır.
-            </p>
-          </div>
-        )}
-
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data.emissions} margin={{ top: 8, right: 20, bottom: 8, left: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis dataKey="year" tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontFamily: 'Inter, sans-serif' }} axisLine={{ stroke: 'var(--border)' }} tickLine={false} />
-            <YAxis tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontFamily: 'Inter, sans-serif' }} axisLine={false} tickLine={false} tickFormatter={(v) => v.toLocaleString()} label={{ value: 'ktCO₂e', angle: -90, position: 'insideLeft', fill: 'var(--text-secondary)', fontSize: 10, fontFamily: 'Inter, sans-serif', dx: -8 }} />
-            <Tooltip content={<CustomTooltip />} />
-            <ReferenceLine y={data.emissions[0].baseline} stroke="var(--text-secondary)" strokeDasharray="4 4" strokeWidth={1} opacity={0.35} />
-            <Line type="monotone" dataKey="pledgedTarget" name="Taahhüt Hedefi" stroke="var(--accent-green)" strokeWidth={2} dot={{ r: 3, fill: 'var(--accent-green)', strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} strokeOpacity={0.8} />
-            <Line type="monotone" dataKey="actual" name="Gerçek Emisyonlar" stroke="var(--danger)" strokeWidth={2.5} dot={{ r: 4, fill: 'var(--danger)', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Son Emsal Kararlar */}
-      <div className="card-animated mb-5" style={{ animationDelay: '180ms' }}>
-        <div className="flex items-center justify-between mb-3">
-          <h3 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 700, letterSpacing: '-0.02em' }}>
-            Son Emsal Kararlar
-          </h3>
-          <Link href="/analysis" className="focusable flex items-center gap-1" style={{ color: 'var(--blue-data)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', textDecoration: 'none' }}>
-            İddia analizi yap <ArrowRight size={12} />
-          </Link>
-        </div>
-        <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
-          {mockCaseLaw.slice(0, 3).map((c, i) => (
             <div
-              key={c.id}
-              className="card card-animated shrink-0 p-5"
               style={{
-                width: 300,
-                animationDelay: `${240 + i * 60}ms`,
-                borderTop: '3px solid var(--danger)',
+                background: 'var(--esg-surface)',
+                border: '1px solid var(--esg-border)',
+                borderRadius: 8,
+                padding: 22,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
               }}
             >
-              <div className="flex items-start justify-between gap-2 mb-3">
-                <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)' }}>
-                  {c.jurisdiction} · {c.year}
-                </div>
-                <span
-                  style={{ background: 'var(--danger-dim)', color: 'var(--danger-bright)', fontFamily: 'var(--font-sans)', border: '1px solid rgba(181,61,46,0.25)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', flexShrink: 0 }}
+              <div className="flex items-baseline justify-between">
+                <div
+                  style={{
+                    fontFamily: 'var(--esg-mono)',
+                    fontSize: 10,
+                    letterSpacing: '0.14em',
+                    color: 'var(--esg-fg-muted)',
+                    textTransform: 'uppercase',
+                  }}
                 >
-                  %{c.similarityThreshold}
+                  Compliance score
+                </div>
+                <Badge tone="litig">{M.kpis.riskTier}</Badge>
+              </div>
+              <div className="flex items-baseline gap-1.5" style={{ marginTop: 8 }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--esg-mono)',
+                    fontWeight: 300,
+                    fontSize: 72,
+                    lineHeight: 1,
+                    color: 'var(--esg-red)',
+                    letterSpacing: '-0.05em',
+                  }}
+                >
+                  {M.kpis.overallScore}
                 </span>
+                <span style={{ fontFamily: 'var(--esg-mono)', fontSize: 16, color: 'var(--esg-fg-muted)' }}>/ 100</span>
               </div>
-              <div style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-headline-sm)', lineHeight: 'var(--line-height-headline-sm)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '8px' }}>
-                {c.caseName}
+              <div style={{ marginTop: 14 }}>
+                <Thermometer score={M.kpis.overallScore} />
               </div>
-              <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.6 }}>
-                {c.violationReason.slice(0, 110)}{c.violationReason.length > 110 ? '…' : ''}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* En kritik işaretler */}
-      <div className="card card-animated p-5" style={{ animationDelay: '240ms' }}>
-        <h3 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-headline-sm)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '16px' }}>
-          En Kritik Uyum İşaretleri — Acil İnceleme Gerekli
-        </h3>
-        <div className="flex flex-col gap-2">
-          {data.exportFlags.slice(0, 4).map((flag) => {
-            const c = flag.severity === 'CRITICAL' ? 'var(--danger)' : flag.severity === 'HIGH' ? '#F97316' : flag.severity === 'MEDIUM' ? 'var(--amber)' : 'var(--text-muted)';
-            const severityTr: Record<string, string> = { CRITICAL: 'KRİTİK', HIGH: 'YÜKSEK', MEDIUM: 'ORTA', LOW: 'DÜŞÜK' };
-            return (
-              <div key={flag.id} className="flex items-start gap-3 px-3 py-2.5 rounded-md" style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border)' }}>
-                <span style={{ color: c, fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', fontWeight: 700, minWidth: '56px', flexShrink: 0, marginTop: '2px' }}>{severityTr[flag.severity] ?? flag.severity}</span>
-                <div className="flex-1 min-w-0">
-                  <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', marginBottom: '2px' }}>{flag.id} · {flag.regulation}</div>
-                  <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-body-sm)', lineHeight: 1.55 }}>{flag.description}</div>
+              <div
+                className="grid grid-cols-2 gap-3"
+                style={{
+                  marginTop: 16,
+                  paddingTop: 14,
+                  borderTop: '1px solid var(--esg-border)',
+                  fontFamily: 'var(--esg-mono)',
+                  fontSize: 11,
+                }}
+              >
+                <div>
+                  <div style={{ color: 'var(--esg-fg-muted)' }}>Trailing 30 d</div>
+                  <div style={{ color: 'var(--esg-red)', fontWeight: 600 }}>−14 pts</div>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--esg-fg-muted)' }}>Sector p50</div>
+                  <div style={{ color: 'var(--esg-fg)' }}>58</div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          </div>
+
+          {/* Findings + side column */}
+          <div className="grid gap-5" style={{ gridTemplateColumns: 'minmax(0,1.4fr) minmax(0,1fr)' }}>
+            <Card
+              title="Top findings"
+              sub="ranked by legal exposure · 5 of 23 shown"
+              action={<Badge tone="neutral">↗ View all</Badge>}
+            >
+              <div className="flex flex-col">
+                {M.flags.slice(0, 5).map((f, i) => (
+                  <div
+                    key={f.id}
+                    className="grid items-start gap-3.5"
+                    style={{
+                      gridTemplateColumns: '44px minmax(0,1fr) auto',
+                      padding: '14px 0',
+                      borderTop: i === 0 ? 'none' : '1px solid var(--esg-border)',
+                    }}
+                  >
+                    <div style={{ fontFamily: 'var(--esg-mono)', fontSize: 11, color: 'var(--esg-fg-muted)', paddingTop: 3 }}>
+                      {f.id}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex gap-2 items-center flex-wrap" style={{ marginBottom: 6 }}>
+                        <Badge tone={severityTone(f.severity)}>{f.severity}</Badge>
+                        <Badge tone="neutral">{f.kind}</Badge>
+                        <RegPill>{f.regulation}</RegPill>
+                      </div>
+                      <div style={{ fontFamily: 'var(--esg-serif)', fontSize: 15, fontWeight: 600, color: 'var(--esg-fg)' }}>
+                        {f.title}
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: 'var(--esg-serif)',
+                          fontStyle: 'italic',
+                          fontSize: 13,
+                          color: 'var(--esg-fg-muted)',
+                          marginTop: 4,
+                        }}
+                      >
+                        p. {f.page} — {f.excerpt}
+                      </div>
+                      <div
+                        className="grid gap-3.5"
+                        style={{
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                          marginTop: 8,
+                          fontFamily: 'var(--esg-sans)',
+                          fontSize: 12.5,
+                        }}
+                      >
+                        <div>
+                          <span style={{ color: 'var(--esg-fg-muted)' }}>Claim · </span>
+                          {f.claim}
+                        </div>
+                        <div>
+                          <span style={{ color: 'var(--esg-fg-muted)' }}>Reality · </span>
+                          <span style={{ color: 'var(--esg-red)' }}>{f.reality}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      className="self-start"
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid var(--esg-border)',
+                        color: 'var(--esg-fg-muted)',
+                        padding: '6px 10px',
+                        borderRadius: 999,
+                        fontSize: 11,
+                        fontFamily: 'var(--esg-mono)',
+                        cursor: 'pointer',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      Open ›
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            <div className="flex flex-col gap-5">
+              <Card title="Emissions vs. pledge" sub="MtCO₂e · Scope 1 + 2">
+                <EmissionsChart height={170} />
+                <div
+                  className="flex gap-4 flex-wrap"
+                  style={{ marginTop: 8, fontFamily: 'var(--esg-mono)', fontSize: 11, color: 'var(--esg-fg-muted)' }}
+                >
+                  <span>
+                    <span style={{ display: 'inline-block', width: 14, height: 2, background: 'var(--esg-red)', marginRight: 6, verticalAlign: 'middle' }} />
+                    Actual
+                  </span>
+                  <span>
+                    <span style={{ display: 'inline-block', width: 14, borderTop: '2px dashed var(--esg-green-mid)', marginRight: 6, verticalAlign: 'middle' }} />
+                    Pledged
+                  </span>
+                </div>
+              </Card>
+
+              <Card title="Documents in matter" padding={0}>
+                <div>
+                  {M.documents.map((d, i) => (
+                    <div
+                      key={i}
+                      className="grid items-center gap-3"
+                      style={{
+                        gridTemplateColumns: 'minmax(0,1fr) auto',
+                        padding: '12px 20px',
+                        borderTop: i === 0 ? 'none' : '1px solid var(--esg-border)',
+                      }}
+                    >
+                      <div className="min-w-0">
+                        <div
+                          className="truncate"
+                          style={{ fontFamily: 'var(--esg-mono)', fontSize: 12, color: 'var(--esg-fg)' }}
+                        >
+                          {d.name}
+                        </div>
+                        <div
+                          style={{
+                            fontFamily: 'var(--esg-mono)',
+                            fontSize: 10.5,
+                            color: 'var(--esg-fg-muted)',
+                            marginTop: 2,
+                          }}
+                        >
+                          {d.size} · {d.pages} pp · {d.flags} flags
+                        </div>
+                      </div>
+                      <Badge tone={d.status === 'Analyzed' ? 'safe' : 'neutral'}>{d.status}</Badge>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          </div>
         </div>
-        <Link href="/analysis" className="focusable flex items-center gap-1.5 mt-4" style={{ color: 'var(--blue-data)', fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-label-lg)', textDecoration: 'none' }}>
-          Detaylı analiz yap <ArrowRight size={12} />
-        </Link>
       </div>
-    </div>
+    </>
   );
 }

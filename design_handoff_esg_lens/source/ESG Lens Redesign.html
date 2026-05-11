@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ESG Lens — Frontend Redesign</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    /* ─ Type ─ */
+    --esg-serif: "Crimson Pro", Georgia, serif;
+    --esg-sans:  "Inter", system-ui, -apple-system, sans-serif;
+    --esg-mono:  "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+
+    /* ─ Surface ─ */
+    --esg-page:        #F7F5F0;
+    --esg-surface:     #FFFFFF;
+    --esg-surface-2:   #F0EDE6;
+    --esg-fg:          #1A1A1A;
+    --esg-fg-muted:    #6B6860;
+    --esg-border:      #E2DDD5;
+    --esg-border-strong:#C8C2B8;
+
+    /* ─ Brand ─ */
+    --esg-nav:         #1A3D2B;
+    --esg-nav-hover:   #2D6A4F;
+    --esg-green-dark:  #1A3D2B;
+    --esg-green-mid:   #2D6A4F;
+    --esg-green-light: #D8ECD4;
+    --esg-green-text:  #1A5C35;
+
+    /* ─ Semantic (accent overridden by tweak) ─ */
+    --esg-orange:      #C4622D;
+    --esg-orange-light:#FAE8DC;
+    --esg-orange-dark: #8B3A18;
+    --esg-amber:       #B07D2A;
+    --esg-amber-light: #FBF0D8;
+    --esg-red:         #B53D2E;
+    --esg-red-light:   #FAE0DC;
+  }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: #f0eee9;
+    color: var(--esg-fg);
+    font-family: var(--esg-sans);
+    overscroll-behavior: none;
+  }
+  * { box-sizing: border-box; }
+
+  @keyframes esg-blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.35; }
+  }
+
+  ::-webkit-scrollbar         { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track   { background: transparent; }
+  ::-webkit-scrollbar-thumb   { background: rgba(0,0,0,0.18); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.32); }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + Babel (pinned + integrity) -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- Order matters: mock data → shell → screens → app -->
+  <script type="text/babel" src="mock-data.jsx"></script>
+  <script type="text/babel" src="shell.jsx"></script>
+  <script type="text/babel" src="screens-dashboard.jsx"></script>
+  <script type="text/babel" src="screens-analysis.jsx"></script>
+  <script type="text/babel" src="screens-risk.jsx"></script>
+  <script type="text/babel" src="screens-auth.jsx"></script>
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="canvas-app.jsx"></script>
+</body>
+</html>

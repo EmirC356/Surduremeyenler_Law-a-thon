@@ -1,45 +1,82 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  /* ── New Light Design System ─────────────────────────────────── */
-  --bg-page:          #F7F5F0;
-  --bg-surface:       #FFFFFF;
-  --bg-surface-2:     #F0EDE6;
-  --bg-nav:           #1A3D2B;
-  --bg-nav-hover:     #2D6A4F;
+  /* ── Surface ─────────────────────────────────────────────────── */
+  --esg-page:           #F7F5F0;
+  --esg-surface:        #FFFFFF;
+  --esg-surface-2:      #F0EDE6;
+  --esg-fg:             #1A1A1A;
+  --esg-fg-muted:       #6B6860;
+  --esg-border:         #E2DDD5;
+  --esg-border-strong:  #C8C2B8;
+
+  /* ── Brand (Greens) ──────────────────────────────────────────── */
+  --esg-nav:            #1A3D2B;
+  --esg-nav-hover:      #2D6A4F;
+  --esg-green-dark:     #1A3D2B;
+  --esg-green-mid:      #2D6A4F;
+  --esg-green-light:    #D8ECD4;
+  --esg-green-text:     #1A5C35;
+
+  /* ── Semantic (Accents) ──────────────────────────────────────── */
+  --esg-orange:         #C4622D;
+  --esg-orange-light:   #FAE8DC;
+  --esg-orange-dark:    #8B3A18;
+  --esg-amber:          #B07D2A;
+  --esg-amber-light:    #FBF0D8;
+  --esg-red:            #B53D2E;
+  --esg-red-light:      #FAE0DC;
+
+  /* ── Sidebar grid overlay ───────────────────────────────────── */
+  --esg-grid-base:      rgba(212,232,220,0.05);
+  --esg-grid-hot:       rgba(196,98,45,0.22);
+  --esg-grid-cell:      28px;
+  --esg-grid-radius:    180px;
+
+  /* ── Type families ───────────────────────────────────────────── */
+  --esg-serif:          'Crimson Pro', Georgia, serif;
+  --esg-sans:           'Inter', system-ui, -apple-system, sans-serif;
+  --esg-mono:           'IBM Plex Mono', 'Courier New', monospace;
+
+  /* ── Legacy aliases (existing code) ──────────────────────────── */
+  --bg-page:          var(--esg-page);
+  --bg-surface:       var(--esg-surface);
+  --bg-surface-2:     var(--esg-surface-2);
+  --bg-nav:           var(--esg-nav);
+  --bg-nav-hover:     var(--esg-nav-hover);
   --bg-nav-active:    rgba(255, 255, 255, 0.08);
 
-  --text-primary:     #1A1A1A;
-  --text-secondary:   #6B6860;
+  --text-primary:     var(--esg-fg);
+  --text-secondary:   var(--esg-fg-muted);
   --text-nav:         #D4E8DC;
   --text-nav-active:  #FFFFFF;
 
-  --green-dark:       #1A3D2B;
-  --green-mid:        #2D6A4F;
-  --green-light:      #D8ECD4;
-  --green-text:       #1A5C35;
+  --green-dark:       var(--esg-green-dark);
+  --green-mid:        var(--esg-green-mid);
+  --green-light:      var(--esg-green-light);
+  --green-text:       var(--esg-green-text);
 
-  --orange:           #C4622D;
-  --orange-light:     #FAE8DC;
-  --orange-dark:      #8B3A18;
+  --orange:           var(--esg-orange);
+  --orange-light:     var(--esg-orange-light);
+  --orange-dark:      var(--esg-orange-dark);
 
-  --red:              #B53D2E;
-  --red-light:        #FAE0DC;
+  --red:              var(--esg-red);
+  --red-light:        var(--esg-red-light);
 
-  --amber:            #B07D2A;
-  --amber-light:      #FBF0D8;
+  --amber:            var(--esg-amber);
+  --amber-light:      var(--esg-amber-light);
 
-  --border:           #E2DDD5;
-  --border-strong:    #C8C2B8;
+  --border:           var(--esg-border);
+  --border-strong:    var(--esg-border-strong);
   --shadow-sm:        0 1px 3px rgba(0,0,0,0.08);
   --shadow-md:        0 4px 12px rgba(0,0,0,0.10);
   --shadow-lg:        0 8px 24px rgba(0,0,0,0.12);
 
-  --font-serif:       'Inter', system-ui, -apple-system, sans-serif;
-  --font-sans:        'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono:        'Inter', system-ui, -apple-system, sans-serif;
-  --font-code:        'IBM Plex Mono', 'Courier New', monospace;
+  --font-serif:       var(--esg-serif);
+  --font-sans:        var(--esg-sans);
+  --font-mono:        var(--esg-mono);
+  --font-code:        var(--esg-mono);
 
   /* ── Typography Scale ────────────────────────────────────────── */
   --font-size-display:        40px;
@@ -351,6 +388,30 @@ body {
 }
 .sidebar-nav-link:not(.sidebar-nav-active):hover .nav-label {
   color: #ffffff;
+}
+
+/* ── ESG handoff keyframes ───────────────────────────────────── */
+@keyframes esg-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+@keyframes esg-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.esg-fade-up { animation: esg-fade-up 0.5s ease both; }
+
+/* ── Skeleton shimmer ────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -800px 0; }
+  100% { background-position:  800px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 6px;
 }
 
 /* Print */

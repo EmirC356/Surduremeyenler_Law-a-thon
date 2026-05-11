@@ -1,4 +1,4 @@
-import { Leaf, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { AlertTriangle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import ForgotPasswordForm from './ForgotPasswordForm';
 
@@ -11,56 +11,65 @@ const HAS_CLERK =
 export default function ForgotPasswordPage() {
   return (
     <div
+      className="flex min-h-screen overflow-hidden items-center justify-center"
       style={{
-        minHeight: '100vh',
-        background: 'var(--bg-page)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
+        background: 'var(--esg-page)',
+        color: 'var(--esg-fg)',
+        fontFamily: 'var(--esg-sans)',
+        padding: 32,
       }}
     >
-      {/* Logo */}
-      <Link href="/" style={{ textDecoration: 'none', marginBottom: '32px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'var(--green-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Leaf size={20} color="#fff" />
-          </div>
-          <div>
-            <div style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', fontWeight: 700, color: 'var(--green-dark)', lineHeight: 1.2 }}>
-              ESG Lens
-            </div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Legal Verification Platform
-            </div>
-          </div>
-        </div>
-      </Link>
-
       <div
         style={{
+          position: 'relative',
           width: '100%',
-          maxWidth: '420px',
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
-          borderRadius: '12px',
-          padding: '32px',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+          maxWidth: 440,
+          background: 'var(--esg-surface)',
+          border: '1px solid var(--esg-border)',
+          borderRadius: 12,
+          padding: 36,
+          boxShadow: '0 16px 48px rgba(0,0,0,0.08)',
         }}
       >
         {HAS_CLERK ? (
           <ForgotPasswordForm />
         ) : (
-          <div style={{ textAlign: 'center' }}>
-            <AlertTriangle size={40} style={{ color: 'var(--amber)', margin: '0 auto 16px' }} />
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
+          <div className="text-center">
+            <AlertTriangle size={40} style={{ color: 'var(--esg-amber)', margin: '0 auto 16px' }} />
+            <h2
+              style={{
+                fontFamily: 'var(--esg-serif)',
+                fontSize: 22,
+                fontWeight: 600,
+                color: 'var(--esg-fg)',
+                marginBottom: 12,
+                letterSpacing: '-0.01em',
+              }}
+            >
               Authentication Not Configured
             </h2>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '20px' }}>
-              Add your Clerk API keys to <code style={{ fontFamily: 'var(--font-mono)', background: 'var(--bg-surface-2)', padding: '2px 6px', borderRadius: '4px' }}>.env.local</code> to enable authentication.
+            <p
+              style={{
+                fontFamily: 'var(--esg-sans)',
+                fontSize: 14,
+                color: 'var(--esg-fg-muted)',
+                lineHeight: 1.6,
+                marginBottom: 20,
+              }}
+            >
+              Add your Clerk API keys to enable authentication.
             </p>
-            <Link href="/sign-in" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--green-dark)', fontWeight: 500, textDecoration: 'none' }}>
+            <Link
+              href="/sign-in"
+              className="inline-flex items-center gap-1.5"
+              style={{
+                fontFamily: 'var(--esg-sans)',
+                fontSize: 14,
+                color: 'var(--esg-green-dark)',
+                fontWeight: 500,
+                textDecoration: 'none',
+              }}
+            >
               <ArrowLeft size={14} /> Back to Sign In
             </Link>
           </div>

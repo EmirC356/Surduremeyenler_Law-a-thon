@@ -1,14 +1,30 @@
 'use client';
 
 import type { FlaggedPhrase } from '../lib/types';
-import type { Translations } from '../lib/i18n';
 
 interface RiskTableProps {
   flaggedPhrases: FlaggedPhrase[];
   activeRowIndex: number | null;
   onRowClick: (index: number) => void;
-  t: Translations;
+  onCaseClick: (fp: FlaggedPhrase) => void;
 }
+
+const LABELS = {
+  highBadge: 'HIGH',
+  medBadge: 'MED',
+  noRiskyPhrase: 'No risky phrases detected',
+  noRiskyPhraseDesc: 'No notable greenwashing claim found in this document.',
+  summaryHigh: (n: number) => `${n} high risk phrase${n !== 1 ? 's' : ''}`,
+  summaryMed: (n: number) => `${n} medium risk phrase${n !== 1 ? 's' : ''}`,
+  summaryMatches: (n: number) => `${n} unique case match${n !== 1 ? 'es' : ''}`,
+  clickRow: 'Click a row to highlight in document',
+  colPhrase: 'Risky phrase',
+  colRisk: 'Risk',
+  colCase: 'Precedent case',
+  colSimilarity: 'Similarity',
+  colRegulation: 'Regulation',
+};
+type Labels = typeof LABELS;
 
 function SimilarityBar({ value, riskLevel }: { value: number; riskLevel: 'high' | 'medium' }) {
   const color = riskLevel === 'high' ? '#dc2626' : '#d97706';
@@ -24,7 +40,7 @@ function SimilarityBar({ value, riskLevel }: { value: number; riskLevel: 'high' 
   );
 }
 
-function RiskBadge({ level, t }: { level: 'high' | 'medium'; t: Translations }) {
+function RiskBadge({ level, t }: { level: 'high' | 'medium'; t: Labels }) {
   return (
     <span
       style={{
@@ -46,7 +62,8 @@ function RiskBadge({ level, t }: { level: 'high' | 'medium'; t: Translations }) 
   );
 }
 
-export default function RiskTable({ flaggedPhrases, activeRowIndex, onRowClick, t }: RiskTableProps) {
+export default function RiskTable({ flaggedPhrases, activeRowIndex, onRowClick, onCaseClick }: RiskTableProps) {
+  const t = LABELS;
   if (flaggedPhrases.length === 0) {
     return (
       <div style={{ padding: '32px', textAlign: 'center', background: 'var(--bg-surface-2)', border: '1px solid var(--border)', borderRadius: '8px' }}>
@@ -146,9 +163,26 @@ export default function RiskTable({ flaggedPhrases, activeRowIndex, onRowClick, 
                     <RiskBadge level={fp.riskLevel} t={t} />
                   </td>
                   <td style={{ padding: '10px 14px', maxWidth: '200px' }}>
-                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', color: 'var(--blue-data)', fontWeight: 500, wordBreak: 'break-word' }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onCaseClick(fp); }}
+                      style={{
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: '12px',
+                        color: 'var(--blue-data)',
+                        fontWeight: 500,
+                        wordBreak: 'break-word',
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        textDecoration: 'underline',
+                        textDecorationStyle: 'dotted',
+                        textUnderlineOffset: '3px',
+                      }}
+                    >
                       {fp.matchedCaseName}
-                    </span>
+                    </button>
                   </td>
                   <td style={{ padding: '10px 14px', minWidth: '130px' }}>
                     <SimilarityBar value={fp.similarity} riskLevel={fp.riskLevel} />

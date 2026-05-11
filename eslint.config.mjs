@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // External reference folders (not part of the build):
+    "v0.dev changed files/**",
+    "design_handoff_esg_lens/**",
   ]),
 ]);
 

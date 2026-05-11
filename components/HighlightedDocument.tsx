@@ -1,15 +1,20 @@
 'use client';
 
 import type { FlaggedPhrase } from '../lib/types';
-import type { Translations } from '../lib/i18n';
 
 interface HighlightedDocumentProps {
   originalText: string;
   flaggedPhrases: FlaggedPhrase[];
   activePhraseIndex: number | null;
   onPhraseClick: (index: number) => void;
-  t: Translations;
 }
+
+const LABELS = {
+  highRiskLabel: 'High Risk',
+  medRiskLabel: 'Medium Risk',
+  clickHighlight: 'Click a highlighted phrase',
+  colorCoding: 'Color coding:',
+};
 
 function getPhraseStyle(riskLevel: 'high' | 'medium', isActive: boolean): React.CSSProperties {
   const base: React.CSSProperties =
@@ -44,8 +49,8 @@ export default function HighlightedDocument({
   flaggedPhrases,
   activePhraseIndex,
   onPhraseClick,
-  t,
 }: HighlightedDocumentProps) {
+  const t = LABELS;
   if (!originalText) return null;
 
   const regions = flaggedPhrases
@@ -112,8 +117,8 @@ export default function HighlightedDocument({
           borderRadius: '8px',
           padding: '20px',
           fontFamily: 'var(--font-sans)',
-          fontSize: '14px',
-          lineHeight: 1.8,
+          fontSize: '15px',
+          lineHeight: 1.85,
           color: 'var(--text-primary)',
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
